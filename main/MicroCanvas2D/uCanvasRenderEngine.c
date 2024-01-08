@@ -50,7 +50,7 @@ void uCanvas_bg_render_engine_task(void*arg){
 			}
 		}
 		vTaskDelay(1);
-    }
+		}
 }
 
 void start_uCanvas_engine(void){

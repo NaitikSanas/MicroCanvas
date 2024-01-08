@@ -12,16 +12,18 @@
 #include "uCanvas_api.h"
 #define PI 3.14159265358979323846
 
+int solar_system_center_x = 60, 
+    solar_system_center_y = 40;
+
 void uCanvas_Animation_task_Planet_1(void*arg){
     printf("Animation_Task1\r\n");
-    uCanvas_universal_obj_t* character = create_circle(64,40,2);
-    
+    uCanvas_universal_obj_t* character = create_circle(solar_system_center_x,solar_system_center_y,4);    
     while (1)
     {
         for (int i = 0; i < 360; ++i) {
             double theta = 2.0 * PI * i / 360;
-            double x = 40 * cos(theta) + 64;
-            double y = 21 * sin(theta) + 40;
+            double x = 40 * cos(theta) + solar_system_center_x;
+            double y = 20 * sin(theta) + solar_system_center_y;
             uCanvas_Set_Position(character,x,y);
             vTaskDelay(40/portTICK_PERIOD_MS);
         }     
@@ -35,26 +37,30 @@ void uCanvas_Animation_task_Planet_2(void*arg){
     {
         for (int i = 360; i > 0; i--) {
             double theta = 2.0 * PI * i / 360;
-            double x = 10 * cos(theta) + 64;
-            double y = 21 * sin(theta) + 40;
+            double x = 10 * cos(theta) + solar_system_center_x;
+            double y = 21 * sin(theta) + solar_system_center_y;
             uCanvas_Set_Position(character,x,y);
             vTaskDelay(10/portTICK_PERIOD_MS);
         }     
     }
 }
 
+void uCanvas_Animation_task_Planet_3(void*arg){
+    printf("Animation_Task2\r\n");
+    uCanvas_universal_obj_t* character = create_circle(64,40,2);
+    while (1)
+    {
+        for (int i = 360; i > 0; i--) {
+            double theta = 2.0 * PI * i / 360;
+            double x = 50 * cos(theta) + solar_system_center_x;
+            double y = 10 * sin(theta) + solar_system_center_y;
+            uCanvas_Set_Position(character,x,y);
+            vTaskDelay(10/portTICK_PERIOD_MS);
+        }     
+    }
+}
 
-
-void app_main(){
-    start_uCanvas_engine();
-
-    uCanvas_Scene_t* main_scene = create_scene();
-    uCanvas_set_active_scene(main_scene);
-    
-    create_circle(64,40,5); //Create Sun
-    uCanvas_Add_Animation_Loop(uCanvas_Animation_task_Planet_1); //Create Planet Animation Loop thread
-    uCanvas_Add_Animation_Loop(uCanvas_Animation_task_Planet_2); //Create Planet Animation Loop thread
-
+void Control_Level_bar_task(void*arg){
     uCanvas_universal_obj_t* bars[4] = {0}; //Array 4 Bars.
     uint8_t xpos = 45, ypos = 0, width = 5, height = 10;
     bars[0] = create_rectangle(xpos+0, ypos,height,width);   
@@ -64,7 +70,6 @@ void app_main(){
 
     create_text_box("LEVEL:",0,0);
     uCanvas_universal_obj_t* current_level = create_text_box(".",xpos+24+10,0);
-
     while (1)
     {
         for (int i = 0; i < 4; i++)
@@ -84,5 +89,18 @@ void app_main(){
             vTaskDelay(20);
         }
     }
+}
 
+void app_main(){
+    start_uCanvas_engine();
+
+    uCanvas_Scene_t* main_scene = create_scene();
+    uCanvas_set_active_scene(main_scene);
+    
+    create_circle(solar_system_center_x,solar_system_center_y,8); //Create static Sun
+    uCanvas_Add_Task(uCanvas_Animation_task_Planet_1); //Create Planet Animation Loop thread
+    uCanvas_Add_Task(uCanvas_Animation_task_Planet_2); //Create Planet Animation Loop thread
+    uCanvas_Add_Task(uCanvas_Animation_task_Planet_3); //Create Planet Animation Loop thread  
+
+    uCanvas_Add_Task(Control_Level_bar_task); //Just animate Level bar for example.  
 }

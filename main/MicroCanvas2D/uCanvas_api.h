@@ -12,7 +12,9 @@
     #define UNLOCK_ACTIVE_SCENEB_BUF xSemaphoreGive(active_scene_mutex);
 
     void start_uCanvas_engine(void);
-    
+    uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop);
+    void uCanvas_Pause_Animation_Loop(uCanvas_Animation_task_handle_t task_handle);
+
     /**
      * APIs for controlling Scenes
     */
@@ -36,8 +38,5 @@
     void uCanvas_Set_Radius(uCanvas_universal_obj_t* obj, uint16_t radius);
     void uCanvas_Set_Width_Height(uCanvas_universal_obj_t* obj, uint16_t width,uint16_t height);
     void uCanvas_Set_Fill(uCanvas_universal_obj_t* obj, fill_t fill);
-    void uCanvas_Set_Visiblity(uCanvas_universal_obj_t* obj, visibility_ctrl_t vctrl);
-
-    uCanvas_Animation_task_handle_t uCanvas_Add_Animation_Loop(uCanvas_Animation_task_t animation_loop);
-    void uCanvas_Pause_Animation_Loop(uCanvas_Animation_task_handle_t task_handle);
+    void uCanvas_Set_Visiblity(uCanvas_universal_obj_t* obj, visibility_ctrl_t vctrl);   
 #endif

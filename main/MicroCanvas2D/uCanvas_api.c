@@ -106,7 +106,7 @@ uCanvas_universal_obj_t* create_circle(uint16_t xpos, uint16_t ypos,uint16_t rad
 }
 
 
-uCanvas_Animation_task_handle_t uCanvas_Add_Animation_Loop(uCanvas_Animation_task_t animation_loop){
+uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop){
     uCanvas_Animation_task_handle_t task_handle = NULL;
     xTaskCreate(animation_loop,"Task2",4096,NULL,1,task_handle);
     return task_handle;
