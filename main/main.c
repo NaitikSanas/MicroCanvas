@@ -82,10 +82,12 @@ void uCanvas_Animation_task_Planet_3(void*arg){
 void Control_Level_bar_task(void*arg){
     uCanvas_universal_obj_t* bars[4] = {0}; //Array 4 Bars.
     uint8_t xpos = 45, ypos = 0, width = 5, height = 10;
+    
     bars[0] = New_uCanvas_2DRectangle(xpos+0, ypos,height,width);   
     bars[1] = New_uCanvas_2DRectangle(xpos+8, ypos,height,width); 
     bars[2] = New_uCanvas_2DRectangle(xpos+16,ypos,height,width); 
     bars[3] = New_uCanvas_2DRectangle(xpos+24,ypos,height,width); 
+
     New_uCanvas_2DTextbox("LEVEL:",0,0);
     uCanvas_universal_obj_t* current_level = New_uCanvas_2DTextbox(".",xpos+24+10,0);
     while (1)
