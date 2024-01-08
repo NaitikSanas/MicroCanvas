@@ -101,6 +101,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
 
 uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
+    textbox->text = (char*) malloc(256);
     textbox->text = text;
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, TEXTBOX);

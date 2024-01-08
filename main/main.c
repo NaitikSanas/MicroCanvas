@@ -61,7 +61,7 @@ void uCanvas_Animation_task_Planet_3(void*arg){
     printf("Animation_Task3\r\n");
     uCanvas_universal_obj_t* Planet_3 = New_uCanvas_2DCircle(64,40,2);
     uCanvas_universal_obj_t* Line =     New_uCanvas_2DLine(0,0,0,0);
-    uCanvas_universal_obj_t* distance = New_uCanvas_2DTextbox("",0,0);
+    uCanvas_universal_obj_t* txtbox = New_uCanvas_2DTextbox("NULLL",0,0);
 
     while (1)
     {
@@ -70,10 +70,20 @@ void uCanvas_Animation_task_Planet_3(void*arg){
             _2dPoint_t coordinates = get_xy_cordinates(i,50,10,solar_system_center_x,solar_system_center_y);
             char dist[16] = {0};
             sprintf(dist,"dst:%d",coordinates.x);
-            uCanvas_Set_Text(distance,dist);
-            uCanvas_Set_Position(distance,coordinates.x-9,coordinates.y-14);
-            uCanvas_Set_Position(Planet_3,coordinates.x,coordinates.y);
-            uCanvas_Set_Line_Coordinates(Line,solar_system_center_x,solar_system_center_y,coordinates.x,coordinates.y);
+            uCanvas_Set_Text(txtbox,dist);
+            //Manipulating Properties of On Screen Object without API
+            txtbox->properties.position.x = coordinates.x-9;
+            txtbox->properties.position.y = coordinates.y-14;
+
+            Planet_3->properties.position.x = coordinates.x;
+            Planet_3->properties.position.y = coordinates.y;
+
+            Line->point1.x = solar_system_center_x;
+            Line->point1.y = solar_system_center_y;
+
+            Line->point2.x = coordinates.x;
+            Line->point2.y = coordinates.y;
+
             uCanvas_Delay(10/portTICK_PERIOD_MS);
         }     
     }
@@ -82,7 +92,7 @@ void uCanvas_Animation_task_Planet_3(void*arg){
 void Control_Level_bar_task(void*arg){
     uCanvas_universal_obj_t* bars[4] = {0}; //Array 4 Bars.
     uint8_t xpos = 45, ypos = 0, width = 5, height = 10;
-    
+
     bars[0] = New_uCanvas_2DRectangle(xpos+0, ypos,height,width);   
     bars[1] = New_uCanvas_2DRectangle(xpos+8, ypos,height,width); 
     bars[2] = New_uCanvas_2DRectangle(xpos+16,ypos,height,width); 
