@@ -79,6 +79,26 @@ uCanvas_universal_obj_t* create_rectangle(uint16_t xpos, uint16_t ypos, uint16_t
     return rect;
 }
 
+void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
+    line->point1.x = x1;
+    line->point1.y = y1;
+    line->point2.x = x2;
+    line->point2.y = y2;
+}
+
+uCanvas_universal_obj_t* create_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
+    uCanvas_universal_obj_t* line = uCanvas_Universal_Object;
+    
+    uCanvas_Set_Line_Coordinates(line,x1,y2, x2,y2);
+    uCanvas_Set_Visiblity(line,VISIBLE);
+    uCanvas_Set_Obj_Type(line, LINE);
+    uCanvas_Set_Color(line,255,255,255);
+    uCanvas_Set_Monochrome_Color(line,1);
+    uCanvas_Set_Fill(line,NOFILL);
+    uCanvas_push_object_to_activescene(line);
+    return line;
+}
+
 uCanvas_universal_obj_t* create_text_box(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
     textbox->text = text;

@@ -19,6 +19,7 @@ void uCanvas_Animation_task_Planet_1(void*arg);
 void uCanvas_Animation_task_Planet_2(void*arg);
 void uCanvas_Animation_task_Planet_3(void*arg);
 void Control_Level_bar_task(void*arg);
+_2dPoint_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset);
 
 void app_main(){
     start_uCanvas_engine();
@@ -49,14 +50,13 @@ void app_main(){
 
 void uCanvas_Animation_task_Planet_1(void*arg){
     printf("Animation_Task1\r\n");
-    uCanvas_universal_obj_t* Planet_1 = create_circle(solar_system_center_x,solar_system_center_y,4);    
+    uCanvas_universal_obj_t* Planet_1 = create_circle(solar_system_center_x,solar_system_center_y,4);   
+
     while (1)
     {
         for (int i = 0; i < 360; ++i) {
-            double theta = 2.0 * PI * i / 360;
-            double x = 40 * cos(theta) + solar_system_center_x;
-            double y = 20 * sin(theta) + solar_system_center_y;
-            uCanvas_Set_Position(Planet_1,x,y);
+            _2dPoint_t coordinates = get_xy_cordinates(i,40,20,solar_system_center_x,solar_system_center_y);
+            uCanvas_Set_Position(Planet_1,coordinates.x,coordinates.y);
             uCanvas_Delay(40/portTICK_PERIOD_MS);
         }     
     }
@@ -68,10 +68,8 @@ void uCanvas_Animation_task_Planet_2(void*arg){
     while (1)
     {
         for (int i = 360; i > 0; i--) {
-            double theta = 2.0 * PI * i / 360;
-            double x = 10 * cos(theta) + solar_system_center_x;
-            double y = 21 * sin(theta) + solar_system_center_y;
-            uCanvas_Set_Position(Planet_2,x,y);
+            _2dPoint_t coordinates = get_xy_cordinates(i,10,21,solar_system_center_x,solar_system_center_y);
+            uCanvas_Set_Position(Planet_2,coordinates.x,coordinates.y);
             uCanvas_Delay(10/portTICK_PERIOD_MS);
         }     
     }
@@ -80,13 +78,20 @@ void uCanvas_Animation_task_Planet_2(void*arg){
 void uCanvas_Animation_task_Planet_3(void*arg){
     printf("Animation_Task3\r\n");
     uCanvas_universal_obj_t* Planet_3 = create_circle(64,40,2);
+    uCanvas_universal_obj_t* Line = create_line(0,0,0,0);
+    uCanvas_universal_obj_t* distance = create_text_box("",0,0);
+
     while (1)
     {
         for (int i = 360; i > 0; i--) {
-            double theta = 2.0 * PI * i / 360;
-            double x = 50 * cos(theta) + solar_system_center_x;
-            double y = 10 * sin(theta) + solar_system_center_y;
-            uCanvas_Set_Position(Planet_3,x,y);
+
+            _2dPoint_t coordinates = get_xy_cordinates(i,50,10,solar_system_center_x,solar_system_center_y);
+            char dist[16] = {0};
+            sprintf(dist,"dst:%d",coordinates.x);
+            uCanvas_Set_Text(distance,dist);
+            uCanvas_Set_Position(distance,coordinates.x-9,coordinates.y-14);
+            uCanvas_Set_Position(Planet_3,coordinates.x,coordinates.y);
+            uCanvas_Set_Line_Coordinates(Line,solar_system_center_x,solar_system_center_y,coordinates.x,coordinates.y);
             uCanvas_Delay(10/portTICK_PERIOD_MS);
         }     
     }
@@ -120,4 +125,14 @@ void Control_Level_bar_task(void*arg){
             uCanvas_Delay(20);
         }
     }
+}
+
+_2dPoint_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset){
+    _2dPoint_t coordinates;
+    double theta = 2.0 * PI * angle / 360;            
+    uint8_t x = rx * cos(theta) + xoffset;
+    uint8_t y = ry * sin(theta) + yoffset;
+    coordinates.x = x;
+    coordinates.y = y;
+    return coordinates;
 }

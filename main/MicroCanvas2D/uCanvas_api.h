@@ -27,6 +27,7 @@
     uCanvas_universal_obj_t* create_rectangle(uint16_t xpos, uint16_t ypos, uint16_t h, uint16_t w);
     uCanvas_universal_obj_t* create_text_box(char* text, uint16_t xpos, uint16_t ypos);
     uCanvas_universal_obj_t* create_circle(uint16_t xpos, uint16_t ypos,uint16_t radius);
+    uCanvas_universal_obj_t* create_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     /**
      * Properties Control API
     */
@@ -36,6 +37,7 @@
     void uCanvas_Set_Color(uCanvas_universal_obj_t* obj, uint16_t r,uint16_t g, uint16_t b);
     void uCanvas_Set_Monochrome_Color(uCanvas_universal_obj_t* obj, uint16_t color );
     void uCanvas_Set_Position(uCanvas_universal_obj_t* obj, uint16_t xpos,uint16_t ypos);
+    void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line,uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     void uCanvas_Set_Radius(uCanvas_universal_obj_t* obj, uint16_t radius);
     void uCanvas_Set_Width_Height(uCanvas_universal_obj_t* obj, uint16_t width,uint16_t height);
     void uCanvas_Set_Fill(uCanvas_universal_obj_t* obj, fill_t fill);
