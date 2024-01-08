@@ -61,7 +61,7 @@ void uCanvas_Animation_task_Planet_3(void*arg){
     printf("Animation_Task3\r\n");
     uCanvas_universal_obj_t* Planet_3 = New_uCanvas_2DCircle(64,40,2);
     uCanvas_universal_obj_t* Line =     New_uCanvas_2DLine(0,0,0,0);
-    uCanvas_universal_obj_t* txtbox = New_uCanvas_2DTextbox("NULLL",0,0);
+    uCanvas_universal_obj_t* Floating_Txtbox = New_uCanvas_2DTextbox("NULLL",0,0);
 
     while (1)
     {
@@ -70,10 +70,11 @@ void uCanvas_Animation_task_Planet_3(void*arg){
             _2dPoint_t coordinates = get_xy_cordinates(i,50,10,solar_system_center_x,solar_system_center_y);
             char dist[16] = {0};
             sprintf(dist,"dst:%d",coordinates.x);
-            uCanvas_Set_Text(txtbox,dist);
+            uCanvas_Set_Text(Floating_Txtbox,dist);
+            
             //Manipulating Properties of On Screen Object without API
-            txtbox->properties.position.x = coordinates.x-9;
-            txtbox->properties.position.y = coordinates.y-14;
+            Floating_Txtbox->properties.position.x = coordinates.x-9;
+            Floating_Txtbox->properties.position.y = coordinates.y-14;
 
             Planet_3->properties.position.x = coordinates.x;
             Planet_3->properties.position.y = coordinates.y;
