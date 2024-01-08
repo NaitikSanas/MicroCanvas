@@ -17,14 +17,14 @@ int solar_system_center_x = 60,
 
 void uCanvas_Animation_task_Planet_1(void*arg){
     printf("Animation_Task1\r\n");
-    uCanvas_universal_obj_t* character = create_circle(solar_system_center_x,solar_system_center_y,4);    
+    uCanvas_universal_obj_t* Planet_1 = create_circle(solar_system_center_x,solar_system_center_y,4);    
     while (1)
     {
         for (int i = 0; i < 360; ++i) {
             double theta = 2.0 * PI * i / 360;
             double x = 40 * cos(theta) + solar_system_center_x;
             double y = 20 * sin(theta) + solar_system_center_y;
-            uCanvas_Set_Position(character,x,y);
+            uCanvas_Set_Position(Planet_1,x,y);
             vTaskDelay(40/portTICK_PERIOD_MS);
         }     
     }
@@ -32,29 +32,29 @@ void uCanvas_Animation_task_Planet_1(void*arg){
 
 void uCanvas_Animation_task_Planet_2(void*arg){
     printf("Animation_Task2\r\n");
-    uCanvas_universal_obj_t* character = create_circle(64,40,2);
+    uCanvas_universal_obj_t* Planet_2 = create_circle(64,40,2);
     while (1)
     {
         for (int i = 360; i > 0; i--) {
             double theta = 2.0 * PI * i / 360;
             double x = 10 * cos(theta) + solar_system_center_x;
             double y = 21 * sin(theta) + solar_system_center_y;
-            uCanvas_Set_Position(character,x,y);
+            uCanvas_Set_Position(Planet_2,x,y);
             vTaskDelay(10/portTICK_PERIOD_MS);
         }     
     }
 }
 
 void uCanvas_Animation_task_Planet_3(void*arg){
-    printf("Animation_Task2\r\n");
-    uCanvas_universal_obj_t* character = create_circle(64,40,2);
+    printf("Animation_Task3\r\n");
+    uCanvas_universal_obj_t* Planet_3 = create_circle(64,40,2);
     while (1)
     {
         for (int i = 360; i > 0; i--) {
             double theta = 2.0 * PI * i / 360;
             double x = 50 * cos(theta) + solar_system_center_x;
             double y = 10 * sin(theta) + solar_system_center_y;
-            uCanvas_Set_Position(character,x,y);
+            uCanvas_Set_Position(Planet_3,x,y);
             vTaskDelay(10/portTICK_PERIOD_MS);
         }     
     }
