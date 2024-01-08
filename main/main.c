@@ -1,37 +1,19 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#include "driver/gpio.h"
-#include <unistd.h>
-#include <time.h>
-#include "math.h"
-#include "esp_log.h"
-#include "uCanvas_api.h"
-#define PI 3.14159265358979323846
+#include "main.h"
 
 int solar_system_center_x = 60, 
     solar_system_center_y = 40;
 
-void uCanvas_Animation_task_Planet_1(void*arg);
-void uCanvas_Animation_task_Planet_2(void*arg);
-void uCanvas_Animation_task_Planet_3(void*arg);
-void Control_Level_bar_task(void*arg);
-_2dPoint_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset);
-
 void app_main(){
     start_uCanvas_engine();
 
-    uCanvas_Scene_t* main_scene = create_scene();
-    uCanvas_Scene_t* splash = create_scene();
+    uCanvas_Scene_t* main_scene = New_uCanvas_Scene();
+    uCanvas_Scene_t* splash = New_uCanvas_Scene();
     uCanvas_set_active_scene(splash);
 
     /**
      * Start up Splash screen Scene
     */
-    uCanvas_universal_obj_t* wlcm_msg = create_text_box("",0,32);
+    uCanvas_universal_obj_t* wlcm_msg = New_uCanvas_2DTextbox("",0,32);
     uCanvas_Animate_Text_Reveal(wlcm_msg, "Welcome to uCanvas",6);
     uCanvas_Delay(200);
 
@@ -40,7 +22,7 @@ void app_main(){
     */
     uCanvas_set_active_scene(main_scene);
 
-    create_circle(solar_system_center_x,solar_system_center_y,8); //Create static Sun
+    New_uCanvas_2DCircle(solar_system_center_x,solar_system_center_y,8); //Create static Sun
     uCanvas_Add_Task(uCanvas_Animation_task_Planet_1); //Create Planet Animation Loop thread
     uCanvas_Add_Task(uCanvas_Animation_task_Planet_2); //Create Planet Animation Loop thread
     uCanvas_Add_Task(uCanvas_Animation_task_Planet_3); //Create Planet Animation Loop thread  
@@ -50,7 +32,7 @@ void app_main(){
 
 void uCanvas_Animation_task_Planet_1(void*arg){
     printf("Animation_Task1\r\n");
-    uCanvas_universal_obj_t* Planet_1 = create_circle(solar_system_center_x,solar_system_center_y,4);   
+    uCanvas_universal_obj_t* Planet_1 = New_uCanvas_2DCircle(solar_system_center_x,solar_system_center_y,4);   
 
     while (1)
     {
@@ -64,7 +46,7 @@ void uCanvas_Animation_task_Planet_1(void*arg){
 
 void uCanvas_Animation_task_Planet_2(void*arg){
     printf("Animation_Task2\r\n");
-    uCanvas_universal_obj_t* Planet_2 = create_circle(64,40,2);
+    uCanvas_universal_obj_t* Planet_2 = New_uCanvas_2DCircle(64,40,2);
     while (1)
     {
         for (int i = 360; i > 0; i--) {
@@ -77,9 +59,9 @@ void uCanvas_Animation_task_Planet_2(void*arg){
 
 void uCanvas_Animation_task_Planet_3(void*arg){
     printf("Animation_Task3\r\n");
-    uCanvas_universal_obj_t* Planet_3 = create_circle(64,40,2);
-    uCanvas_universal_obj_t* Line = create_line(0,0,0,0);
-    uCanvas_universal_obj_t* distance = create_text_box("",0,0);
+    uCanvas_universal_obj_t* Planet_3 = New_uCanvas_2DCircle(64,40,2);
+    uCanvas_universal_obj_t* Line =     New_uCanvas_2DLine(0,0,0,0);
+    uCanvas_universal_obj_t* distance = New_uCanvas_2DTextbox("",0,0);
 
     while (1)
     {
@@ -100,12 +82,12 @@ void uCanvas_Animation_task_Planet_3(void*arg){
 void Control_Level_bar_task(void*arg){
     uCanvas_universal_obj_t* bars[4] = {0}; //Array 4 Bars.
     uint8_t xpos = 45, ypos = 0, width = 5, height = 10;
-    bars[0] = create_rectangle(xpos+0, ypos,height,width);   
-    bars[1] = create_rectangle(xpos+8, ypos,height,width); 
-    bars[2] = create_rectangle(xpos+16,ypos,height,width); 
-    bars[3] = create_rectangle(xpos+24,ypos,height,width); 
-    create_text_box("LEVEL:",0,0);
-    uCanvas_universal_obj_t* current_level = create_text_box(".",xpos+24+10,0);
+    bars[0] = New_uCanvas_2DRectangle(xpos+0, ypos,height,width);   
+    bars[1] = New_uCanvas_2DRectangle(xpos+8, ypos,height,width); 
+    bars[2] = New_uCanvas_2DRectangle(xpos+16,ypos,height,width); 
+    bars[3] = New_uCanvas_2DRectangle(xpos+24,ypos,height,width); 
+    New_uCanvas_2DTextbox("LEVEL:",0,0);
+    uCanvas_universal_obj_t* current_level = New_uCanvas_2DTextbox(".",xpos+24+10,0);
     while (1)
     {
         for (int i = 0; i < 4; i++)

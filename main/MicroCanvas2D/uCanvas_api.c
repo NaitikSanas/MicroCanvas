@@ -52,7 +52,7 @@ void uCanvas_Set_Visiblity(uCanvas_universal_obj_t* obj, visibility_ctrl_t vctrl
     obj->properties.visiblity = vctrl;
 }
 
-uCanvas_Scene_t* create_scene(void){
+uCanvas_Scene_t* New_uCanvas_Scene(void){
     uCanvas_Scene_t* scene_object = uCanvas_Scene_Object;
     scene_object->_2D_Object_Ptr = 0;
     for (size_t i = 0; i < 128; i++)
@@ -66,7 +66,7 @@ void uCanvas_set_active_scene(uCanvas_Scene_t* scene){
     active_scene = scene;
 }
 
-uCanvas_universal_obj_t* create_rectangle(uint16_t xpos, uint16_t ypos, uint16_t h, uint16_t w){
+uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, uint16_t h, uint16_t w){
     uCanvas_universal_obj_t* rect = uCanvas_Universal_Object;
     uCanvas_Set_Visiblity(rect,VISIBLE);
     uCanvas_Set_Obj_Type(rect, RECTANGLE);
@@ -86,7 +86,7 @@ void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line, uint16_t x1, uin
     line->point2.y = y2;
 }
 
-uCanvas_universal_obj_t* create_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
+uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
     uCanvas_universal_obj_t* line = uCanvas_Universal_Object;
     
     uCanvas_Set_Line_Coordinates(line,x1,y2, x2,y2);
@@ -99,7 +99,7 @@ uCanvas_universal_obj_t* create_line(uint16_t x1, uint16_t y1, uint16_t x2, uint
     return line;
 }
 
-uCanvas_universal_obj_t* create_text_box(char* text, uint16_t xpos, uint16_t ypos){
+uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
     textbox->text = text;
     uCanvas_Set_Visiblity(textbox,VISIBLE);
@@ -112,7 +112,7 @@ uCanvas_universal_obj_t* create_text_box(char* text, uint16_t xpos, uint16_t ypo
   return textbox;
 }
 
-uCanvas_universal_obj_t* create_circle(uint16_t xpos, uint16_t ypos,uint16_t radius){
+uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint16_t radius){
     uCanvas_universal_obj_t* circle = uCanvas_Universal_Object;
     uCanvas_Set_Visiblity(circle,VISIBLE);
     uCanvas_Set_Obj_Type(circle, CIRCLE);
@@ -141,7 +141,11 @@ uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animat
     return task_handle;
 }
 
-void uCanvas_Pause_Animation_Loop(uCanvas_Animation_task_handle_t task_handle){
+void uCanvas_Remove_Task(uCanvas_Animation_task_handle_t handle){
+    vTaskDelete(handle);
+}   
+
+void uCanvas_Pause_Task(uCanvas_Animation_task_handle_t task_handle){
     vTaskSuspend(task_handle);
 }
 
