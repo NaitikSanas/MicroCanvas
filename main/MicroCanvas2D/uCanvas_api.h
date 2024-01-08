@@ -11,21 +11,35 @@
     #define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,portMAX_DELAY)
     #define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
 
+    /*Starts Rendering Engine and Initializes Display*/
     void start_uCanvas_engine(void);
     
     /**
      * APIs to creating uCanvas related Tasks to work with Scene objects, 
      * creating Animations, handling User Input etc.
     */
+
+    /**
+     * Creates Independent Custom thread of Passed Loop function
+    */
     uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop);
+    
+    /* Pauses uCanvas Custom User tasks */
     void uCanvas_Pause_Task(uCanvas_Animation_task_handle_t task_handle);
+    
+    /* Adds Delay in MS */
     void uCanvas_Delay(uint16_t delay);
+
+    /* Delets uCanvas Custom User Task */
     void uCanvas_Remove_Task(uCanvas_Animation_task_handle_t handle);
 
     /**
      * APIs for controlling Scenes
     */
+
+    /* Creates New 2D Scene instance */
     uCanvas_Scene_t* New_uCanvas_Scene(void);
+    /* Sets Passed 2D instance as Active Scene to Render */
     void uCanvas_set_active_scene(uCanvas_Scene_t* scene);
     
     /**
