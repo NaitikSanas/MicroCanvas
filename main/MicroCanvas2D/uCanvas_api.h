@@ -14,7 +14,7 @@
     void start_uCanvas_engine(void);
     uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop);
     void uCanvas_Pause_Animation_Loop(uCanvas_Animation_task_handle_t task_handle);
-
+    void uCanvas_Delay(uint16_t delay);
     /**
      * APIs for controlling Scenes
     */
@@ -30,6 +30,7 @@
     /**
      * Properties Control API
     */
+    void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16_t delay);
     void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text);
     void uCanvas_Set_Obj_Type(uCanvas_universal_obj_t*obj,uCanvas_element_type_t type);
     void uCanvas_Set_Color(uCanvas_universal_obj_t* obj, uint16_t r,uint16_t g, uint16_t b);

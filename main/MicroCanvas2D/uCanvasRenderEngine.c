@@ -42,14 +42,14 @@ void uCanvas_bg_render_engine_task(void*arg){
 			{
 				uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
 				if(obj->properties.visiblity == VISIBLE){
-				push_element_to_display(obj);
+				  push_element_to_display(obj);
 				}    
 			}
 			UNLOCK_ACTIVE_SCENEB_BUF;
 			uCanvas_Update_Display();
 			}
 		}
-		vTaskDelay(1);
+		uCanvas_Delay(1);
 		}
 }
 

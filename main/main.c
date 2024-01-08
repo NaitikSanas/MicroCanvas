@@ -15,6 +15,38 @@
 int solar_system_center_x = 60, 
     solar_system_center_y = 40;
 
+void uCanvas_Animation_task_Planet_1(void*arg);
+void uCanvas_Animation_task_Planet_2(void*arg);
+void uCanvas_Animation_task_Planet_3(void*arg);
+void Control_Level_bar_task(void*arg);
+
+void app_main(){
+    start_uCanvas_engine();
+
+    uCanvas_Scene_t* main_scene = create_scene();
+    uCanvas_Scene_t* splash = create_scene();
+    uCanvas_set_active_scene(splash);
+
+    /**
+     * Start up Splash screen Scene
+    */
+    uCanvas_universal_obj_t* wlcm_msg = create_text_box("",0,32);
+    uCanvas_Animate_Text_Reveal(wlcm_msg, "Welcome to uCanvas",6);
+    uCanvas_Delay(200);
+
+    /**
+     * Main Animation Scene
+    */
+    uCanvas_set_active_scene(main_scene);
+
+    create_circle(solar_system_center_x,solar_system_center_y,8); //Create static Sun
+    uCanvas_Add_Task(uCanvas_Animation_task_Planet_1); //Create Planet Animation Loop thread
+    uCanvas_Add_Task(uCanvas_Animation_task_Planet_2); //Create Planet Animation Loop thread
+    uCanvas_Add_Task(uCanvas_Animation_task_Planet_3); //Create Planet Animation Loop thread  
+    uCanvas_Add_Task(Control_Level_bar_task); //Just animate Level bar for example.  
+}
+
+
 void uCanvas_Animation_task_Planet_1(void*arg){
     printf("Animation_Task1\r\n");
     uCanvas_universal_obj_t* Planet_1 = create_circle(solar_system_center_x,solar_system_center_y,4);    
@@ -25,7 +57,7 @@ void uCanvas_Animation_task_Planet_1(void*arg){
             double x = 40 * cos(theta) + solar_system_center_x;
             double y = 20 * sin(theta) + solar_system_center_y;
             uCanvas_Set_Position(Planet_1,x,y);
-            vTaskDelay(40/portTICK_PERIOD_MS);
+            uCanvas_Delay(40/portTICK_PERIOD_MS);
         }     
     }
 }
@@ -40,7 +72,7 @@ void uCanvas_Animation_task_Planet_2(void*arg){
             double x = 10 * cos(theta) + solar_system_center_x;
             double y = 21 * sin(theta) + solar_system_center_y;
             uCanvas_Set_Position(Planet_2,x,y);
-            vTaskDelay(10/portTICK_PERIOD_MS);
+            uCanvas_Delay(10/portTICK_PERIOD_MS);
         }     
     }
 }
@@ -55,7 +87,7 @@ void uCanvas_Animation_task_Planet_3(void*arg){
             double x = 50 * cos(theta) + solar_system_center_x;
             double y = 10 * sin(theta) + solar_system_center_y;
             uCanvas_Set_Position(Planet_3,x,y);
-            vTaskDelay(10/portTICK_PERIOD_MS);
+            uCanvas_Delay(10/portTICK_PERIOD_MS);
         }     
     }
 }
@@ -67,7 +99,6 @@ void Control_Level_bar_task(void*arg){
     bars[1] = create_rectangle(xpos+8, ypos,height,width); 
     bars[2] = create_rectangle(xpos+16,ypos,height,width); 
     bars[3] = create_rectangle(xpos+24,ypos,height,width); 
-
     create_text_box("LEVEL:",0,0);
     uCanvas_universal_obj_t* current_level = create_text_box(".",xpos+24+10,0);
     while (1)
@@ -78,7 +109,7 @@ void Control_Level_bar_task(void*arg){
             sprintf(level,"%d",i);
             uCanvas_Set_Text(current_level,level);
             uCanvas_Set_Fill(bars[i],FILL);
-            vTaskDelay(20);
+            uCanvas_Delay(20);
         }
         for (int i = 3; i >= 0; i--)
         {
@@ -86,21 +117,7 @@ void Control_Level_bar_task(void*arg){
             sprintf(level,"%d",i);
             uCanvas_Set_Text(current_level,level);
             uCanvas_Set_Fill(bars[i],NOFILL);
-            vTaskDelay(20);
+            uCanvas_Delay(20);
         }
     }
-}
-
-void app_main(){
-    start_uCanvas_engine();
-
-    uCanvas_Scene_t* main_scene = create_scene();
-    uCanvas_set_active_scene(main_scene);
-    
-    create_circle(solar_system_center_x,solar_system_center_y,8); //Create static Sun
-    uCanvas_Add_Task(uCanvas_Animation_task_Planet_1); //Create Planet Animation Loop thread
-    uCanvas_Add_Task(uCanvas_Animation_task_Planet_2); //Create Planet Animation Loop thread
-    uCanvas_Add_Task(uCanvas_Animation_task_Planet_3); //Create Planet Animation Loop thread  
-
-    uCanvas_Add_Task(Control_Level_bar_task); //Just animate Level bar for example.  
 }

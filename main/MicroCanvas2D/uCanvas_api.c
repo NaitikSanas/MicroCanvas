@@ -105,6 +105,15 @@ uCanvas_universal_obj_t* create_circle(uint16_t xpos, uint16_t ypos,uint16_t rad
   return circle;
 }
 
+void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16_t delay){
+    char tmp[512] = {0};
+    for (int i = 0; i < strlen(text); i++)
+    {
+        tmp[i] = text[i];
+        uCanvas_Set_Text(obj,tmp);
+        uCanvas_Delay(delay);
+    }
+}
 
 uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop){
     uCanvas_Animation_task_handle_t task_handle = NULL;
@@ -114,4 +123,8 @@ uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animat
 
 void uCanvas_Pause_Animation_Loop(uCanvas_Animation_task_handle_t task_handle){
     vTaskSuspend(task_handle);
+}
+
+void uCanvas_Delay(uint16_t delay){
+    vTaskDelay(delay);
 }
