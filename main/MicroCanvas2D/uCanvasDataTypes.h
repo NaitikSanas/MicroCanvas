@@ -3,8 +3,20 @@
     #include <stdio.h>
     #include <string.h>
 
+    #define MAX_ELEMENTS_NUM                        (512)
+    #define UCANVAS_TASK_STACK_SIZE                 (2046)
+    #define UCANVAS_RENDER_TASK_STACK_SIZE          (4096)
+    #define UCANVAS_RENDER_TASK_PRIORITY            (2)
+    
+    #define UCANVAS_DEFAULT_RED                     (255)
+    #define UCANVAS_DEFAULT_GREEN                   (255)
+    #define UCANVAS_DEFAULT_BLUE                    (255)
+    
+    #define UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE       (256)
+
     typedef TaskFunction_t uCanvas_Animation_task_t;
     typedef TaskHandle_t uCanvas_Animation_task_handle_t;
+
     typedef enum{
         RECTANGLE = 0,
         CIRCLE,
@@ -75,7 +87,7 @@
 
     typedef struct MicroCanvas2D_Scene
     {
-        uCanvas_universal_obj_t* _2D_Objects[128];
+        uCanvas_universal_obj_t* _2D_Objects[MAX_ELEMENTS_NUM];
         int16_t _2D_Object_Ptr;
         uint16_t idx;
     }uCanvas_Scene_t;

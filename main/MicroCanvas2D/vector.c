@@ -13,6 +13,7 @@ Vector2D_t sub_vec(Vector2D_t vec1,Vector2D_t vec2){
     return res;
 }
 
+
 void acc_vecx(Vector2D_t* vec, int x){
     vec->x += x;
 }

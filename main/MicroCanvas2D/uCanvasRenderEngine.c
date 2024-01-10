@@ -31,7 +31,6 @@ void push_element_to_display(uCanvas_universal_obj_t* obj){
 
     case TRIANGLE : {
       uCanvas_Draw_Triangle(obj->point1,obj->point2,obj->point3,obj->properties.color);
-      break;
     }
     default:
       break;
@@ -54,7 +53,7 @@ void uCanvas_bg_render_engine_task(void*arg){
 			uCanvas_Update_Display();
 			}
 		}
-		uCanvas_Delay(1);
+		// uCanvas_Delay(1);
 		}
 }
 
@@ -65,5 +64,5 @@ void start_uCanvas_engine(void){
     active_scene_mutex = xSemaphoreCreateBinary();
     UNLOCK_ACTIVE_SCENEB_BUF;
 
-    xTaskCreate(&uCanvas_bg_render_engine_task,"Task",4096,NULL,1,uCanvas_taskhandle);
+    xTaskCreate(&uCanvas_bg_render_engine_task,"Task",UCANVAS_RENDER_TASK_STACK_SIZE,NULL,UCANVAS_RENDER_TASK_PRIORITY,uCanvas_taskhandle);
 }

@@ -55,9 +55,9 @@ void uCanvas_Set_Visiblity(uCanvas_universal_obj_t* obj, visibility_ctrl_t vctrl
 uCanvas_Scene_t* New_uCanvas_Scene(void){
     uCanvas_Scene_t* scene_object = uCanvas_Scene_Object;
     scene_object->_2D_Object_Ptr = 0;
-    for (size_t i = 0; i < 128; i++)
+    for (size_t i = 0; i < MAX_ELEMENTS_NUM; i++)
     {
-    scene_object->_2D_Objects[i] = 0;
+        scene_object->_2D_Objects[i] = 0;
     }
     return scene_object;
 }
@@ -70,7 +70,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, u
     uCanvas_universal_obj_t* rect = uCanvas_Universal_Object;
     uCanvas_Set_Visiblity(rect,VISIBLE);
     uCanvas_Set_Obj_Type(rect, RECTANGLE);
-    uCanvas_Set_Color(rect,255,255,255);
+    uCanvas_Set_Color(rect,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
     uCanvas_Set_Monochrome_Color(rect,1);
     uCanvas_Set_Position(rect,xpos,ypos);
     uCanvas_Set_Width_Height(rect,w,h);
@@ -92,7 +92,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
     uCanvas_Set_Line_Coordinates(line,x1,y2, x2,y2);
     uCanvas_Set_Visiblity(line,VISIBLE);
     uCanvas_Set_Obj_Type(line, LINE);
-    uCanvas_Set_Color(line,255,255,255);
+    uCanvas_Set_Color(line,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
     uCanvas_Set_Monochrome_Color(line,1);
     uCanvas_Set_Fill(line,NOFILL);
     uCanvas_push_object_to_activescene(line);
@@ -101,11 +101,11 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
 
 uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
-    textbox->text = (char*) malloc(256);
+    textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
     textbox->text = text;
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, TEXTBOX);
-    uCanvas_Set_Color(textbox,255,255,255);
+    uCanvas_Set_Color(textbox,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
     uCanvas_Set_Monochrome_Color(textbox,1);
     uCanvas_Set_Position(textbox,xpos,ypos);
     uCanvas_Set_Fill(textbox,NOFILL);
@@ -118,7 +118,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint1
     uCanvas_Set_Visiblity(circle,VISIBLE);
     uCanvas_Set_Obj_Type(circle, CIRCLE);
     uCanvas_Set_Radius(circle,radius);
-    uCanvas_Set_Color(circle,255,255,255);
+    uCanvas_Set_Color(circle,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
     uCanvas_Set_Monochrome_Color(circle,1);
     uCanvas_Set_Position(circle,xpos,ypos);
     uCanvas_Set_Fill(circle,NOFILL);
@@ -126,12 +126,11 @@ uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint1
   return circle;
 }
 
-
 uCanvas_universal_obj_t* New_uCanvas_2DTriangle(_2dPoint_t Point1, _2dPoint_t Point2, _2dPoint_t Point3){
     uCanvas_universal_obj_t* triangle = uCanvas_Universal_Object;
     uCanvas_Set_Visiblity(triangle,VISIBLE);
     uCanvas_Set_Obj_Type(triangle, TRIANGLE);
-    uCanvas_Set_Color(triangle,255,255,255);
+    uCanvas_Set_Color(triangle,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
     uCanvas_Set_Monochrome_Color(triangle,1);
     uCanvas_Set_Fill(triangle,NOFILL);
     triangle->point1 = Point1;
@@ -142,7 +141,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTriangle(_2dPoint_t Point1, _2dPoint_t Po
 }
 
 void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16_t delay){
-    char tmp[512] = {0};
+    char tmp[64] = {0};
     for (int i = 0; i < strlen(text); i++)
     {
         tmp[i] = text[i];
@@ -153,7 +152,7 @@ void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16
 
 uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop){
     uCanvas_Animation_task_handle_t task_handle = NULL;
-    xTaskCreate(animation_loop,"Task2",4096,NULL,1,task_handle);
+    xTaskCreate(animation_loop,"Task2",UCANVAS_TASK_STACK_SIZE,NULL,1,task_handle);
     return task_handle;
 }
 

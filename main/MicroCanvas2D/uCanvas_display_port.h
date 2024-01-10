@@ -30,5 +30,4 @@ void uCanvas_Draw_Circle                (int x, int y, int r, color_t color, fil
 void uCanvas_Draw_Line                  (_2dPoint_t point1, _2dPoint_t point2, color_t color);
 void uCanvas_Draw_Text                  (char* text, int x, int y, color_t color);
 
-
 void uCanvas_Draw_Triangle(_2dPoint_t point1, _2dPoint_t point2, _2dPoint_t point3, color_t color);
