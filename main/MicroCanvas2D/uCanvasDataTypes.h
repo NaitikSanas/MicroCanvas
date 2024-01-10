@@ -2,7 +2,8 @@
     #define __uCanvasDataTypes_H__
     #include <stdio.h>
     #include <string.h>
-
+    #include "freertos/FreeRTOS.h"
+    #include "freertos/task.h"
     typedef TaskFunction_t uCanvas_Animation_task_t;
     typedef TaskHandle_t uCanvas_Animation_task_handle_t;
     typedef enum{

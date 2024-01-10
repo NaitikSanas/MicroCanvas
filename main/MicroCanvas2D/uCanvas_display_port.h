@@ -1,7 +1,8 @@
 #include "stdio.h"
 #include "ssd1306.h"
 #include "uCanvasDataTypes.h"
-
+#define USE_SSD1306
+//#define USE_ILI9340
 typedef struct uCanvas_display_port
 {
     uint16_t xPos;

@@ -5,6 +5,9 @@
     #include "freertos/semphr.h"
     #include "uCanvasDataTypes.h"
 
+    
+    
+
     SemaphoreHandle_t active_scene_mutex;
     #define uCanvas_Universal_Object    (uCanvas_universal_obj_t*)malloc(sizeof(uCanvas_universal_obj_t))
     #define uCanvas_Scene_Object        (uCanvas_Scene_t*)malloc(sizeof(uCanvas_Scene_t)) 

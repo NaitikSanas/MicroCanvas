@@ -37,19 +37,19 @@ void uCanvas_bg_render_engine_task(void*arg){
     while(1){   
 		if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
 			if(LOCK_ACTIVE_SCENEB_BUF){
-			uCanvas_Display_clear_buffer();
-			for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
-			{
-				uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
-				if(obj->properties.visiblity == VISIBLE){
-				  push_element_to_display(obj);
-				}    
-			}
-			UNLOCK_ACTIVE_SCENEB_BUF;
-			uCanvas_Update_Display();
+         uCanvas_Display_clear_buffer();
+        for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
+        {
+          uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
+          if(obj->properties.visiblity == VISIBLE){
+            push_element_to_display(obj);
+          }    
+        }
+        UNLOCK_ACTIVE_SCENEB_BUF;
+        uCanvas_Update_Display();
 			}
 		}
-		uCanvas_Delay(1);
+		 uCanvas_Delay(1);
 		}
 }
 
@@ -60,5 +60,5 @@ void start_uCanvas_engine(void){
     active_scene_mutex = xSemaphoreCreateBinary();
     UNLOCK_ACTIVE_SCENEB_BUF;
 
-    xTaskCreate(&uCanvas_bg_render_engine_task,"Task",4096,NULL,1,uCanvas_taskhandle);
+    xTaskCreatePinnedToCore(&uCanvas_bg_render_engine_task,"Task",4096,NULL,8,uCanvas_taskhandle,1);
 }

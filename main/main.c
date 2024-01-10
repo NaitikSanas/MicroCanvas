@@ -1,6 +1,6 @@
 #include "main.h"
 
-int solar_system_center_x = 60, 
+int solar_system_center_x = 64, 
     solar_system_center_y = 40;
 
 void app_main(){
@@ -21,19 +21,22 @@ void app_main(){
      * Main Animation Scene
     */
     uCanvas_set_active_scene(main_scene);
-
-    New_uCanvas_2DCircle(solar_system_center_x,solar_system_center_y,8); //Create static Sun
+    
     uCanvas_Add_Task(uCanvas_Animation_task_Planet_1); //Create Planet Animation Loop thread
     uCanvas_Add_Task(uCanvas_Animation_task_Planet_2); //Create Planet Animation Loop thread
     uCanvas_Add_Task(uCanvas_Animation_task_Planet_3); //Create Planet Animation Loop thread  
     uCanvas_Add_Task(Control_Level_bar_task); //Just animate Level bar for example.  
+
+    uCanvas_Delay(400);
+    uCanvas_universal_obj_t* sun =  New_uCanvas_2DCircle(solar_system_center_x,solar_system_center_y,15); //Create static Sun
+    uCanvas_Set_Color(sun,255,255,0);
 }
 
 
 void uCanvas_Animation_task_Planet_1(void*arg){
     printf("Animation_Task1\r\n");
     uCanvas_universal_obj_t* Planet_1 = New_uCanvas_2DCircle(solar_system_center_x,solar_system_center_y,4);   
-
+    uCanvas_Set_Color(Planet_1,0,100,255);
     while (1)
     {
         for (int i = 0; i < 360; ++i) {
@@ -47,6 +50,7 @@ void uCanvas_Animation_task_Planet_1(void*arg){
 void uCanvas_Animation_task_Planet_2(void*arg){
     printf("Animation_Task2\r\n");
     uCanvas_universal_obj_t* Planet_2 = New_uCanvas_2DCircle(64,40,2);
+    uCanvas_Set_Color(Planet_2,255,100,0);
     while (1)
     {
         for (int i = 360; i > 0; i--) {
@@ -62,7 +66,7 @@ void uCanvas_Animation_task_Planet_3(void*arg){
     uCanvas_universal_obj_t* Planet_3 = New_uCanvas_2DCircle(64,40,2);
     uCanvas_universal_obj_t* Line =     New_uCanvas_2DLine(0,0,0,0);
     uCanvas_universal_obj_t* Floating_Txtbox = New_uCanvas_2DTextbox("NULLL",0,0);
-
+    Floating_Txtbox->properties.visiblity = INVISIBLE;
     while (1)
     {
         for (int i = 360; i > 0; i--) {
