@@ -49,7 +49,7 @@
     uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos);
     uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint16_t radius);
     uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-    
+    uCanvas_universal_obj_t* New_uCanvas_2DTriangle(_2dPoint_t Point1, _2dPoint_t Point2, _2dPoint_t Point3);
     
     /**
      * Properties Control API

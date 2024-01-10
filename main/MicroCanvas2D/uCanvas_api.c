@@ -126,6 +126,21 @@ uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint1
   return circle;
 }
 
+
+uCanvas_universal_obj_t* New_uCanvas_2DTriangle(_2dPoint_t Point1, _2dPoint_t Point2, _2dPoint_t Point3){
+    uCanvas_universal_obj_t* triangle = uCanvas_Universal_Object;
+    uCanvas_Set_Visiblity(triangle,VISIBLE);
+    uCanvas_Set_Obj_Type(triangle, TRIANGLE);
+    uCanvas_Set_Color(triangle,255,255,255);
+    uCanvas_Set_Monochrome_Color(triangle,1);
+    uCanvas_Set_Fill(triangle,NOFILL);
+    triangle->point1 = Point1;
+    triangle->point2 = Point2;
+    triangle->point3 = Point3;
+    uCanvas_push_object_to_activescene(triangle);
+    return triangle;
+}
+
 void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16_t delay){
     char tmp[512] = {0};
     for (int i = 0; i < strlen(text); i++)

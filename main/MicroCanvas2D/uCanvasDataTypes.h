@@ -61,6 +61,8 @@
 
         _2dPoint_t point1;
         _2dPoint_t point2; 
+        _2dPoint_t point3;
+        _2dPoint_t point4;  
     } uCanvas_universal_obj_t;
 
 

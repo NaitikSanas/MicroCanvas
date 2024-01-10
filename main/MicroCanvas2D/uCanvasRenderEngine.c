@@ -28,6 +28,11 @@ void push_element_to_display(uCanvas_universal_obj_t* obj){
       uCanvas_Draw_Line(obj->point1,obj->point2,obj->properties.color);
       break;
     }
+
+    case TRIANGLE : {
+      uCanvas_Draw_Triangle(obj->point1,obj->point2,obj->point3,obj->properties.color);
+      break;
+    }
     default:
       break;
     }
