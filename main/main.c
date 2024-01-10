@@ -3,23 +3,16 @@
 #include "uCanvas_User_IO.h"
 
 #define PB0_PIN 20
-#define BUTTON_PIN GPIO_NUM_0 // Replace with the GPIO pin connected to your button
-#define RECTANGLE_HEIGHT 20   // Height of the rectangle
-#define GRAVITY -9.8          // Acceleration due to gravity (negative since it acts downward)
-#define JUMP_VELOCITY 5.0     // Initial velocity when jumping
-#define JUMP_HEIGHT 22.0 // Adjust jump height as needed
-
-void noob_man1_controller();
 noob_man_t* noob_man1;
 
 void app_main(){
-    start_uCanvas_engine();
-    uCanvas_Scene_t* main_scene = New_uCanvas_Scene();
-    uCanvas_set_active_scene(main_scene);
-    noob_man1 = New_Noob_Man_Instance();
-    uCanvas_Add_Task(noob_man1_controller,NULL);
-    uCanvas_Add_Task(character_blink_animation,noob_man1); 
-}
+    start_uCanvas_engine(); /* Start uCanvas engine */
+    uCanvas_Scene_t* main_scene = New_uCanvas_Scene(); /* Create New Scene instance */
+    uCanvas_set_active_scene(main_scene); /*Set Newly create scene as Active scene to render*/
+    noob_man1 = New_Noob_Man_Instance(); /* Call create to custom character object */
+    uCanvas_Add_Task(noob_man1_controller,NULL); /* uCanvas Thread to Control noob_man1 Movements */
+    uCanvas_Add_Task(character_blink_animation,noob_man1);  /* uCanvas Thread to Animate  noob_man1 Character */
+}   
 
 void noob_man1_controller(){
     float velocity = 0;
@@ -30,7 +23,6 @@ void noob_man1_controller(){
     {
         if(!isJumping){
             if(!uCanvas_Get_PushbuttonState(PB0_PIN)){
-                printf("Clicked\r\n");
                 isJumping = true;
                 velocity = JUMP_HEIGHT; 
             }

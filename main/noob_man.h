@@ -1,5 +1,8 @@
 #include "uCanvas_api.h"
 
+#define GRAVITY -9.8          // Acceleration due to gravity (negative since it acts downward)
+#define JUMP_VELOCITY 5.0     // Initial velocity when jumping
+#define JUMP_HEIGHT 22.0 // Adjust jump height as needed
 
 typedef struct main_char{
     uCanvas_universal_obj_t* head;

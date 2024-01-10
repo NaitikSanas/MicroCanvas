@@ -11,5 +11,5 @@
 #include "esp_log.h"
 #include "uCanvas_api.h"
 #define PI 3.14159265358979323846
-
+void noob_man1_controller();
 _2dPoint_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset);
