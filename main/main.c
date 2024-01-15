@@ -123,21 +123,7 @@ void detect_collision(){
     }
 }
 
-void app_main(){
-    start_uCanvas_engine(); /* Start uCanvas engine */
-    uCanvas_Scene_t* main_scene = New_uCanvas_Scene(); /* Create New Scene instance */
-    uCanvas_set_active_scene(main_scene); /*Set Newly create scene as Active scene to render*/
-    noob_man1 = New_Noob_Man_Instance(); /* Call create to custom character object */
-    
-    uCanvas_Add_Task(noob_man1_controller,NULL); /* uCanvas Thread to Control noob_man1 Movements */
-    uCanvas_Add_Task(character_blink_animation,noob_man1);  /* uCanvas Thread to Animate  noob_man1 Character */
-
-    spikes  = (spikes_t*)malloc(sizeof(spikes_t));
-    New_Spikes_Instance(spikes);
-    uCanvas_Add_Task(Create_Spikes,spikes); 
-
-    uCanvas_Add_Task(detect_collision,NULL); 
-
+void game_idle_animations(void){
     uCanvas_universal_obj_t* prompt = New_uCanvas_2DTextbox("",20,40);
     while (1)
     {
@@ -159,7 +145,31 @@ void app_main(){
         }
         uCanvas_Delay(1);
     }
+}
+
+
+void app_main(){
+    start_uCanvas_engine(); /* Start uCanvas engine */
+    uCanvas_Scene_t* main_scene = New_uCanvas_Scene(); /* Create New Scene instance */
+    uCanvas_set_active_scene(main_scene); /*Set Newly create scene as Active scene to render*/
+    noob_man1 = New_Noob_Man_Instance(); /* Call create to custom character object */
     
+    /* uCanvas Thread to Control noob_man1 Jump Movements */
+    uCanvas_Add_Task(noob_man1_controller,NULL);
+      
+    /**
+     * Generate Spikes of random heights and widths
+    */
+    spikes  = (spikes_t*)malloc(sizeof(spikes_t));
+    New_Spikes_Instance(spikes);
+
+    uCanvas_Add_Task(Create_Spikes,spikes); 
+    /* Collison Monitioring thread */
+    uCanvas_Add_Task(detect_collision,NULL); 
+    /* Idle state Animation thread */
+    uCanvas_Add_Task(game_idle_animations,NULL);
+    /* uCanvas Thread to Animate Eye blinks of Character */
+    uCanvas_Add_Task(character_blink_animation,noob_man1);  
 }    
 
 void noob_man1_controller(){
@@ -186,7 +196,8 @@ void noob_man1_controller(){
                 isJumping = false;
             }
         }
-        if((player_state == PLAYER_ALIVE) || (player_state == PLAYER_IDLE))Set_Noob_Man_Position(noob_man1,10,position);
+        if((player_state == PLAYER_ALIVE) || (player_state == PLAYER_IDLE))
+            Set_Noob_Man_Position(noob_man1,10,position);
         uCanvas_Delay(1);
     }
 }
