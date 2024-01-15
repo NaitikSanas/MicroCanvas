@@ -148,11 +148,12 @@ void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16
         uCanvas_Set_Text(obj,tmp);
         uCanvas_Delay(delay);
     }
+    uCanvas_Set_Text(obj,text);
 }
 
-uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop){
+uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void *arg){
     uCanvas_Animation_task_handle_t task_handle = NULL;
-    xTaskCreate(animation_loop,"Task2",UCANVAS_TASK_STACK_SIZE,NULL,1,task_handle);
+    xTaskCreate(animation_loop,"Task2",UCANVAS_TASK_STACK_SIZE,arg,1,task_handle);
     return task_handle;
 }
 

@@ -1,124 +1,196 @@
 #include "main.h"
+#include "noob_man.h"
+#include "uCanvas_User_IO.h"
 
-int solar_system_center_x = 60, 
-    solar_system_center_y = 40;
+noob_man_t* noob_man1;
+noob_man_t* noob_man2;
+spikes_t*   spikes;
+
+uCanvas_Animation_task_handle_t task_h;
+
+void New_Spikes_Instance(spikes_t* spikes){
+    spikes->spikes[0] = New_uCanvas_2DRectangle(0,0,0,0);
+    spikes->spikes[0]->properties.fill = FILL;
+
+    spikes->spikes[1] = New_uCanvas_2DRectangle(0,0,0,0);
+    spikes->spikes[1]->properties.fill = FILL;
+}
+
+void Create_Spikes(spikes_t* spikes){
+    uCanvas_universal_obj_t* total_points = New_uCanvas_2DTextbox("",60,0);
+    int points = 0;
+    while (1)
+    {
+        if(game_state == GAME_STARTED){
+            int height1 = get_random_number(7,30);
+            int width1 = get_random_number(4,10);
+
+            int height2 = get_random_number(10,30);
+            int width2 = get_random_number(4,10);
+            
+            int distance = get_random_number(40,100);
+            if(player_state == PLAYER_ALIVE){
+            
+                spikes->spikes[0]->properties.position.x = 128;
+                spikes->spikes[1]->properties.position.x = 128 + distance;
+                points++;
+                char stat[32]={0};
+                sprintf(stat,"Points:%d",points);
+                uCanvas_Set_Text(total_points,stat);
+            }
+            
+            for (size_t i = 0; i < 128+distance; i++)
+            {
+                if(player_state == PLAYER_ALIVE){
+                    spikes->spikes[0]->properties.position.x -= 1;
+                    spikes->spikes[0]->properties.position.y = 64-height1;
+                    spikes->spikes[0]->height = height1;
+                    spikes->spikes[0]->width = width1;
+
+                    spikes->spikes[1]->properties.position.x -= 1;
+                    spikes->spikes[1]->properties.position.y = 64-height2;
+                    spikes->spikes[1]->height = height2;
+                    spikes->spikes[1]->width  = width2;
+                    uCanvas_Delay(2);
+                }
+                else {
+                    uCanvas_Delay(10);
+                    spikes->spikes[0]->properties.position.x = 200;
+                    spikes->spikes[1]->properties.position.x = 200;
+                    break;
+                }
+            } 
+        }
+        uCanvas_Delay(2);
+    }     
+}
+
+void detect_collision(){
+    uCanvas_universal_obj_t* hits_stat = New_uCanvas_2DTextbox("DTHS:0",0,0);
+    uCanvas_universal_obj_t* over_prompt = New_uCanvas_2DTextbox("You Died!",20,16);
+    over_prompt->properties.visiblity = INVISIBLE;
+    int hit = 0;
+    char stat[32]={0};
+    while (1)
+    {
+        if(game_state == GAME_STARTED){
+            _2dPoint_t noobman_pos = noob_man1->mouth->properties.position;
+            _2dPoint_t spikes_pos1 = spikes->spikes[0]->properties.position;
+            _2dPoint_t spikes_pos2 = spikes->spikes[1]->properties.position;
+
+            int noobman_pos_x = noobman_pos.x;
+            int noobman_pos_y = noobman_pos.y;
+
+            int collisionRange = 15;
+            if (
+                (noobman_pos_x + collisionRange >= spikes_pos1.x) &&
+                (noobman_pos_x - collisionRange <= spikes_pos1.x) &&
+                (noobman_pos_y + collisionRange >= spikes_pos1.y) &&
+                (noobman_pos_y - collisionRange <= spikes_pos1.y)
+            ) {        
+                player_state = PLAYER_DEAD;
+                game_state = GAME_STOPPED;
+                hit++;
+                over_prompt->properties.visiblity = VISIBLE;
+                sprintf(stat,"DTHS:%d",hit);
+                uCanvas_Set_Text(hits_stat,stat);
+                character_hit_animation(noob_man1);
+                uCanvas_Delay(200);
+                over_prompt->properties.visiblity = INVISIBLE;
+                game_state = IDLE;
+                player_state = PLAYER_IDLE;
+                continue;
+            }
+
+            if (
+                (noobman_pos_x + collisionRange >= spikes_pos2.x) &&
+                (noobman_pos_x - collisionRange <= spikes_pos2.x) &&
+                (noobman_pos_y + collisionRange >= spikes_pos2.y) &&
+                (noobman_pos_y - collisionRange <= spikes_pos2.y)
+            ){
+                player_state = PLAYER_DEAD;
+                game_state = GAME_STOPPED;
+                hit++;
+                over_prompt->properties.visiblity = VISIBLE;        
+                sprintf(stat,"DTHS:%d",hit);
+                uCanvas_Set_Text(hits_stat,stat);
+                character_hit_animation(noob_man1);
+                uCanvas_Delay(200);
+                over_prompt->properties.visiblity = INVISIBLE;
+                game_state = IDLE;
+                player_state = PLAYER_IDLE;
+                continue;
+            }    
+        }
+        uCanvas_Delay(1);
+    }
+}
 
 void app_main(){
-    start_uCanvas_engine();
+    start_uCanvas_engine(); /* Start uCanvas engine */
+    uCanvas_Scene_t* main_scene = New_uCanvas_Scene(); /* Create New Scene instance */
+    uCanvas_set_active_scene(main_scene); /*Set Newly create scene as Active scene to render*/
+    noob_man1 = New_Noob_Man_Instance(); /* Call create to custom character object */
+    
+    uCanvas_Add_Task(noob_man1_controller,NULL); /* uCanvas Thread to Control noob_man1 Movements */
+    uCanvas_Add_Task(character_blink_animation,noob_man1);  /* uCanvas Thread to Animate  noob_man1 Character */
 
-    uCanvas_Scene_t* main_scene = New_uCanvas_Scene();
-    uCanvas_Scene_t* splash = New_uCanvas_Scene();
-    uCanvas_set_active_scene(splash);
+    spikes  = (spikes_t*)malloc(sizeof(spikes_t));
+    New_Spikes_Instance(spikes);
+    uCanvas_Add_Task(Create_Spikes,spikes); 
 
-    /**
-     * Start up Splash screen Scene
-    */
-    uCanvas_universal_obj_t* wlcm_msg = New_uCanvas_2DTextbox("",0,32);
-    uCanvas_Animate_Text_Reveal(wlcm_msg, "Welcome to uCanvas",6);
-    uCanvas_Delay(200);
+    uCanvas_Add_Task(detect_collision,NULL); 
 
-    /**
-     * Main Animation Scene
-    */
-    uCanvas_set_active_scene(main_scene);
-
-    New_uCanvas_2DCircle(solar_system_center_x,solar_system_center_y,8); //Create static Sun
-    uCanvas_Add_Task(uCanvas_Animation_task_Planet_1); //Create Planet Animation Loop thread
-    uCanvas_Add_Task(uCanvas_Animation_task_Planet_2); //Create Planet Animation Loop thread
-    uCanvas_Add_Task(uCanvas_Animation_task_Planet_3); //Create Planet Animation Loop thread  
-    uCanvas_Add_Task(Control_Level_bar_task); //Just animate Level bar for example.  
-}
-
-
-void uCanvas_Animation_task_Planet_1(void*arg){
-    printf("Animation_Task1\r\n");
-    uCanvas_universal_obj_t* Planet_1 = New_uCanvas_2DCircle(solar_system_center_x,solar_system_center_y,4);   
-
+    uCanvas_universal_obj_t* prompt = New_uCanvas_2DTextbox("",20,40);
     while (1)
     {
-        for (int i = 0; i < 360; ++i) {
-            _2dPoint_t coordinates = get_xy_cordinates(i,40,20,solar_system_center_x,solar_system_center_y);
-            uCanvas_Set_Position(Planet_1,coordinates.x,coordinates.y);
-            uCanvas_Delay(40/portTICK_PERIOD_MS);
-        }     
-    }
-}
-
-void uCanvas_Animation_task_Planet_2(void*arg){
-    printf("Animation_Task2\r\n");
-    uCanvas_universal_obj_t* Planet_2 = New_uCanvas_2DCircle(64,40,2);
-    while (1)
-    {
-        for (int i = 360; i > 0; i--) {
-            _2dPoint_t coordinates = get_xy_cordinates(i,10,21,solar_system_center_x,solar_system_center_y);
-            uCanvas_Set_Position(Planet_2,coordinates.x,coordinates.y);
-            uCanvas_Delay(10/portTICK_PERIOD_MS);
-        }     
-    }
-}
-
-void uCanvas_Animation_task_Planet_3(void*arg){
-    printf("Animation_Task3\r\n");
-    uCanvas_universal_obj_t* Planet_3 = New_uCanvas_2DCircle(64,40,2);
-    uCanvas_universal_obj_t* Line =     New_uCanvas_2DLine(0,0,0,0);
-    uCanvas_universal_obj_t* Floating_Txtbox = New_uCanvas_2DTextbox("NULLL",0,0);
-
-    while (1)
-    {
-        for (int i = 360; i > 0; i--) {
-
-            _2dPoint_t coordinates = get_xy_cordinates(i,50,10,solar_system_center_x,solar_system_center_y);
-            char dist[16] = {0};
-            sprintf(dist,"dst:%d",coordinates.x);
-            uCanvas_Set_Text(Floating_Txtbox,dist);
-            
-            //Manipulating Properties of On Screen Object without API
-            Floating_Txtbox->properties.position.x = coordinates.x-9;
-            Floating_Txtbox->properties.position.y = coordinates.y-14;
-
-            Planet_3->properties.position.x = coordinates.x;
-            Planet_3->properties.position.y = coordinates.y;
-
-            Line->point1.x = solar_system_center_x;
-            Line->point1.y = solar_system_center_y;
-
-            Line->point2.x = coordinates.x;
-            Line->point2.y = coordinates.y;
-
-            uCanvas_Delay(10/portTICK_PERIOD_MS);
-        }     
-    }
-}
-
-void Control_Level_bar_task(void*arg){
-    uCanvas_universal_obj_t* bars[4] = {0}; //Array 4 Bars.
-    uint8_t xpos = 45, ypos = 0, width = 5, height = 10;
-
-    bars[0] = New_uCanvas_2DRectangle(xpos+0, ypos,height,width);   
-    bars[1] = New_uCanvas_2DRectangle(xpos+8, ypos,height,width); 
-    bars[2] = New_uCanvas_2DRectangle(xpos+16,ypos,height,width); 
-    bars[3] = New_uCanvas_2DRectangle(xpos+24,ypos,height,width); 
-
-    New_uCanvas_2DTextbox("LEVEL:",0,0);
-    uCanvas_universal_obj_t* current_level = New_uCanvas_2DTextbox(".",xpos+24+10,0);
-    while (1)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            char level[32];
-            sprintf(level,"%d",i);
-            uCanvas_Set_Text(current_level,level);
-            uCanvas_Set_Fill(bars[i],FILL);
-            uCanvas_Delay(20);
+        uCanvas_Delay(200); 
+        if((game_state == IDLE) || (player_state == PLAYER_IDLE)){
+            prompt->properties.visiblity = VISIBLE;
+            uCanvas_Animate_Text_Reveal(prompt,"Hi!",10);  
+            uCanvas_Delay(200);   
         }
-        for (int i = 3; i >= 0; i--)
-        {
-            char level[32];
-            sprintf(level,"%d",i);
-            uCanvas_Set_Text(current_level,level);
-            uCanvas_Set_Fill(bars[i],NOFILL);
-            uCanvas_Delay(20);
+        uCanvas_Delay(200);  
+
+        if((game_state == IDLE )||( player_state == PLAYER_IDLE)){                 
+            uCanvas_Animate_Text_Reveal(prompt,"Lets Play!",10);     
+            uCanvas_Delay(200);
         }
+
+        if(game_state != IDLE || player_state == PLAYER_IDLE){
+            prompt->properties.visiblity = INVISIBLE;
+        }
+        uCanvas_Delay(1);
+    }
+    
+}    
+
+void noob_man1_controller(){
+    float velocity = 0;
+    float position = 53;
+    bool isJumping = false;
+    uCanvas_Init_PushButton(PB0_PIN);
+    while (1)
+    {
+        if(!isJumping){
+            if(!uCanvas_Get_PushbuttonState(PB0_PIN)){
+                game_state = GAME_STARTED;
+                player_state = PLAYER_ALIVE;
+                isJumping = true;
+                velocity = JUMP_HEIGHT; 
+            }
+        }
+        if (isJumping) {
+            velocity += GRAVITY * 0.1;
+            position -= velocity * 0.1;
+            if (position >= 53) {
+                position = 53;
+                velocity = 0; 
+                isJumping = false;
+            }
+        }
+        if((player_state == PLAYER_ALIVE) || (player_state == PLAYER_IDLE))Set_Noob_Man_Position(noob_man1,10,position);
+        uCanvas_Delay(1);
     }
 }
 
@@ -130,4 +202,21 @@ _2dPoint_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset
     coordinates.x = x;
     coordinates.y = y;
     return coordinates;
+}
+
+void character_blink_animation(noob_man_t*noob_man){
+    while (1)
+    {
+        if(player_state == PLAYER_ALIVE || player_state == PLAYER_IDLE){
+            noob_man->eye_left->properties.type = RECTANGLE;
+            noob_man->eye_right->properties.type = RECTANGLE;     
+            uCanvas_Delay(get_random_number(20,50));
+        }
+        if(player_state == PLAYER_ALIVE || player_state == PLAYER_IDLE){
+            noob_man->eye_left->properties.type = CIRCLE;
+            noob_man->eye_right->properties.type = CIRCLE;
+            uCanvas_Delay(get_random_number(300,500));
+        }
+        uCanvas_Delay(1);
+    }
 }

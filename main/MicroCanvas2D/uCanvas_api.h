@@ -22,7 +22,7 @@
     /**
      * Creates Independent Custom thread of Passed Loop function
     */
-    uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop);
+    uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void* arg);
     
     /* Pauses uCanvas Custom User tasks */
     void uCanvas_Pause_Task(uCanvas_Animation_task_handle_t task_handle);

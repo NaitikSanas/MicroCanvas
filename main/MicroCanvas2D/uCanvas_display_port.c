@@ -40,8 +40,7 @@ void uCanvas_Draw_Circle(int x, int y, int r, color_t color, fill_t fill){
     if(fill){
         SSD1306_DrawFilledCircle(x,y,r,color.monochrome_pixel);
     }
-    else {
-        
+    else {     
         SSD1306_DrawCircle(x,y,r,color.monochrome_pixel);
     }
 }

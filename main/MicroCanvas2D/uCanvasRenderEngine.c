@@ -53,7 +53,7 @@ void uCanvas_bg_render_engine_task(void*arg){
 			uCanvas_Update_Display();
 			}
 		}
-		// uCanvas_Delay(1);
+		uCanvas_Delay(1);
 		}
 }
 
@@ -64,5 +64,5 @@ void start_uCanvas_engine(void){
     active_scene_mutex = xSemaphoreCreateBinary();
     UNLOCK_ACTIVE_SCENEB_BUF;
 
-    xTaskCreate(&uCanvas_bg_render_engine_task,"Task",UCANVAS_RENDER_TASK_STACK_SIZE,NULL,UCANVAS_RENDER_TASK_PRIORITY,uCanvas_taskhandle);
+    xTaskCreatePinnedToCore(&uCanvas_bg_render_engine_task,"Task",UCANVAS_RENDER_TASK_STACK_SIZE,NULL,UCANVAS_RENDER_TASK_PRIORITY,uCanvas_taskhandle,1);
 }
