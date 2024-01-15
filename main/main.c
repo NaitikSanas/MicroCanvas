@@ -78,15 +78,12 @@ void detect_collision(){
             _2dPoint_t spikes_pos1 = spikes->spikes[0]->properties.position;
             _2dPoint_t spikes_pos2 = spikes->spikes[1]->properties.position;
 
-            int noobman_pos_x = noobman_pos.x;
-            int noobman_pos_y = noobman_pos.y;
-
             int collisionRange = 15;
             if (
-                (noobman_pos_x + collisionRange >= spikes_pos1.x) &&
-                (noobman_pos_x - collisionRange <= spikes_pos1.x) &&
-                (noobman_pos_y + collisionRange >= spikes_pos1.y) &&
-                (noobman_pos_y - collisionRange <= spikes_pos1.y)
+                (noobman_pos.x + collisionRange >= spikes_pos1.x) &&
+                (noobman_pos.x - collisionRange <= spikes_pos1.x) &&
+                (noobman_pos.y + collisionRange >= spikes_pos1.y) &&
+                (noobman_pos.y - collisionRange <= spikes_pos1.y)
             ) {        
                 player_state = PLAYER_DEAD;
                 game_state = GAME_STOPPED;
@@ -103,10 +100,10 @@ void detect_collision(){
             }
 
             if (
-                (noobman_pos_x + collisionRange >= spikes_pos2.x) &&
-                (noobman_pos_x - collisionRange <= spikes_pos2.x) &&
-                (noobman_pos_y + collisionRange >= spikes_pos2.y) &&
-                (noobman_pos_y - collisionRange <= spikes_pos2.y)
+                (noobman_pos.x + collisionRange >= spikes_pos2.x) &&
+                (noobman_pos.x - collisionRange <= spikes_pos2.x) &&
+                (noobman_pos.y + collisionRange >= spikes_pos2.y) &&
+                (noobman_pos.y - collisionRange <= spikes_pos2.y)
             ){
                 player_state = PLAYER_DEAD;
                 game_state = GAME_STOPPED;
