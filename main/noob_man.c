@@ -47,8 +47,8 @@ void Set_Noob_Man_Position(noob_man_t*noob_man, int xpos, int ypos){
 
 
 
-_2dPoint_t Get_Noob_Man_Position (noob_man_t*noob_man){
-    _2dPoint_t pos;
+Coordinate2D_t Get_Noob_Man_Position (noob_man_t*noob_man){
+    Coordinate2D_t pos;
     pos.x = noob_man->head->properties.position.x;
     pos.y = noob_man->head->properties.position.y;
     return pos;

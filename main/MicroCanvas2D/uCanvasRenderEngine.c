@@ -30,7 +30,7 @@ void push_element_to_display(uCanvas_universal_obj_t* obj){
     }
 
     case TRIANGLE : {
-      uCanvas_Draw_Triangle(obj->point1,obj->point2,obj->point3,obj->properties.color);
+      uCanvas_Draw_Triangle(obj->point1,obj->point2,obj->point3,obj->properties.color,obj->properties.fill);
     }
     default:
       break;

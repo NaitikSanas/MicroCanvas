@@ -22,7 +22,7 @@
     {
         uint16_t x;
         uint16_t y;
-    }_2dPoint_t;
+    }Coordinate2D_t;
 
     typedef enum {
         NOFILL = 0,
@@ -45,7 +45,7 @@
     { 
         uCanvas_element_type_t type;
         uint16_t index;
-        _2dPoint_t position;
+        Coordinate2D_t position;
         fill_t fill;
         color_t color;
         visibility_ctrl_t visiblity;
@@ -63,10 +63,10 @@
         uint16_t r1;
         uint16_t r2;
 
-        _2dPoint_t point1;
-        _2dPoint_t point2; 
-        _2dPoint_t point3;
-        _2dPoint_t point4;  
+        Coordinate2D_t point1;
+        Coordinate2D_t point2; 
+        Coordinate2D_t point3;
+        Coordinate2D_t point4;  
     } uCanvas_universal_obj_t;
 
 

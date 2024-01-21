@@ -37,5 +37,5 @@ player_state_t player_state = IDLE;
 game_steate_t game_state = IDLE;
 
 void noob_man1_controller();
-_2dPoint_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset);
+Coordinate2D_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset);
 int get_random_number(int min, int max);

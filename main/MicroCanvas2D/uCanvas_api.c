@@ -126,7 +126,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint1
   return circle;
 }
 
-uCanvas_universal_obj_t* New_uCanvas_2DTriangle(_2dPoint_t Point1, _2dPoint_t Point2, _2dPoint_t Point3){
+uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinate2D_t Point2, Coordinate2D_t Point3){
     uCanvas_universal_obj_t* triangle = uCanvas_Universal_Object;
     uCanvas_Set_Visiblity(triangle,VISIBLE);
     uCanvas_Set_Obj_Type(triangle, TRIANGLE);

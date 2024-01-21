@@ -255,7 +255,7 @@ void SSD1306_InvertDisplay (int i);
 
 
 
-
+void SSD1306_DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color) ;
 
 
 // clear the display

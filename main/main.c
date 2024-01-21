@@ -2,229 +2,202 @@
 #include "noob_man.h"
 #include "uCanvas_User_IO.h"
 
-noob_man_t* noob_man1;
-noob_man_t* noob_man2;
-spikes_t*   spikes;
+typedef struct fighter_jet
+{
+   uCanvas_universal_obj_t* fighter_jet;
+   int notch_face;
+    Coordinate2D_t P1;
+    Coordinate2D_t P2;
+    Coordinate2D_t P3;
+    Coordinate2D_t position;
+}fighter_jet_t;
 
-uCanvas_Animation_task_handle_t task_h;
+typedef struct enemy_army
+{
+    fighter_jet_t* enemy_jets[10];
+    int spawned_instances;
+}enemy_army_t;
 
-void New_Spikes_Instance(spikes_t* spikes){
-    spikes->spikes[0] = New_uCanvas_2DRectangle(0,0,0,0);
-    spikes->spikes[0]->properties.fill = FILL;
+typedef struct stars
+{
+    uCanvas_universal_obj_t* stars[100];
+    int stars_instances;
+}stars_t;
 
-    spikes->spikes[1] = New_uCanvas_2DRectangle(0,0,0,0);
-    spikes->spikes[1]->properties.fill = FILL;
+fighter_jet_t* player_fighter_jet;
+
+fighter_jet_t* create_fighter_jet_instance(int x, int y, int notch){
+    fighter_jet_t* obj = (fighter_jet_t*)malloc(sizeof(fighter_jet_t));
+    obj->notch_face = notch;
+    obj->position.x = x;
+    obj->position.y = y;
+    obj->P1.x = obj->position.x;
+    obj->P1.y = obj->position.y - 5;
+    obj->P2.x = obj->position.x;
+    obj->P2.y = obj->position.y + 5;
+    obj->P3.x = notch;
+    obj->P3.y = obj->position.y;
+    obj->fighter_jet = New_uCanvas_2DTriangle(obj->P1,obj->P2,obj->P3);
+    obj->fighter_jet->properties.fill = FILL;
+    return obj;
 }
 
-void Create_Spikes(spikes_t* spikes){
-    uCanvas_universal_obj_t* total_points = New_uCanvas_2DTextbox("",60,0);
-    int points = 0;
-    while (1)
+stars_t* create_stars(int instances){
+    stars_t* stars = (stars_t*)malloc(sizeof(stars_t));
+    stars->stars_instances = instances; 
+    for (int i = 0; i < instances; i++)
     {
-        if(game_state == GAME_STARTED){
-            int height1 = get_random_number(7,30);
-            int width1 = get_random_number(4,10);
-
-            int height2 = get_random_number(10,30);
-            int width2 = get_random_number(4,10);
-            
-            int distance = get_random_number(40,100);
-            if(player_state == PLAYER_ALIVE){
-            
-                spikes->spikes[0]->properties.position.x = 128;
-                spikes->spikes[1]->properties.position.x = 128 + distance;
-                points++;
-                char stat[32]={0};
-                sprintf(stat,"Points:%d",points);
-                uCanvas_Set_Text(total_points,stat);
-            }
-            
-            for (size_t i = 0; i < 128+distance; i++)
-            {
-                if(player_state == PLAYER_ALIVE){
-                    spikes->spikes[0]->properties.position.x -= 1;
-                    spikes->spikes[0]->properties.position.y = 64-height1;
-                    spikes->spikes[0]->height = height1;
-                    spikes->spikes[0]->width = width1;
-
-                    spikes->spikes[1]->properties.position.x -= 1;
-                    spikes->spikes[1]->properties.position.y = 64-height2;
-                    spikes->spikes[1]->height = height2;
-                    spikes->spikes[1]->width  = width2;
-                    uCanvas_Delay(2);
-                }
-                else {
-                    uCanvas_Delay(10);
-                    spikes->spikes[0]->properties.position.x = 200;
-                    spikes->spikes[1]->properties.position.x = 200;
-                    break;
-                }
-            } 
-        }
-        uCanvas_Delay(2);
-    }     
+        int xpos = get_random_number(128,550);
+        int ypos = get_random_number(16,64);
+        int r1  =  get_random_number(0,1);
+        stars->stars[i] = New_uCanvas_2DCircle(xpos,ypos,r1);
+        stars->stars[i]->properties.fill = FILL;
+    }
+    return stars;
 }
 
-void detect_collision(){
-    uCanvas_universal_obj_t* hits_stat = New_uCanvas_2DTextbox("DTHS:0",0,0);
-    uCanvas_universal_obj_t* over_prompt = New_uCanvas_2DTextbox("You Died!",20,16);
-    over_prompt->properties.visiblity = INVISIBLE;
-    int hit = 0;
-    char stat[32]={0};
+void move_stars(stars_t* stars){
     while (1)
     {
-        if(game_state == GAME_STARTED){
-            _2dPoint_t noobman_pos = noob_man1->mouth->properties.position;
-            _2dPoint_t spikes_pos1 = spikes->spikes[0]->properties.position;
-            _2dPoint_t spikes_pos2 = spikes->spikes[1]->properties.position;
+        for (int  i = 0; i < stars->stars_instances; i++)
+        {
+            int blink = get_random_number(0,100);
 
-            int collisionRange = 15;
-            if (
-                (noobman_pos.x + collisionRange >= spikes_pos1.x) &&
-                (noobman_pos.x - collisionRange <= spikes_pos1.x) &&
-                (noobman_pos.y + collisionRange >= spikes_pos1.y) &&
-                (noobman_pos.y - collisionRange <= spikes_pos1.y)
-            ) {        
-                player_state = PLAYER_DEAD;
-                game_state = GAME_STOPPED;
-                hit++;
-                over_prompt->properties.visiblity = VISIBLE;
-                sprintf(stat,"DTHS:%d",hit);
-                uCanvas_Set_Text(hits_stat,stat);
-                character_hit_animation(noob_man1);
-                uCanvas_Delay(200);
-                over_prompt->properties.visiblity = INVISIBLE;
-                game_state = IDLE;
-                player_state = PLAYER_IDLE;
-                continue;
+            if(stars->stars[i]->properties.position.x > 0){
+                stars->stars[i]->properties.position.x--;
             }
-
-            if (
-                (noobman_pos.x + collisionRange >= spikes_pos2.x) &&
-                (noobman_pos.x - collisionRange <= spikes_pos2.x) &&
-                (noobman_pos.y + collisionRange >= spikes_pos2.y) &&
-                (noobman_pos.y - collisionRange <= spikes_pos2.y)
+            if((stars->stars[i]->properties.position.x > 0 && stars->stars[i]->properties.position.x < 128)&&
+                (stars->stars[i]->properties.position.x > stars->stars[i]->r1)
             ){
-                player_state = PLAYER_DEAD;
-                game_state = GAME_STOPPED;
-                hit++;
-                over_prompt->properties.visiblity = VISIBLE;        
-                sprintf(stat,"DTHS:%d",hit);
-                uCanvas_Set_Text(hits_stat,stat);
-                character_hit_animation(noob_man1);
-                uCanvas_Delay(200);
-                over_prompt->properties.visiblity = INVISIBLE;
-                game_state = IDLE;
-                player_state = PLAYER_IDLE;
-                continue;
-            }    
+                
+                if((blink > 15  && blink < 20) && (stars->stars[i]->r1 == 0)) stars->stars[i]->properties.visiblity = INVISIBLE;
+                else stars->stars[i]->properties.visiblity = VISIBLE;
+            }
+            else {
+                stars->stars[i]->properties.visiblity = INVISIBLE;
+                stars->stars[i]->properties.position.x = get_random_number(128,550);
+                stars->stars[i]->properties.position.y = get_random_number(16,64);
+                
+            }
+            
         }
-        uCanvas_Delay(1);
+        uCanvas_Delay(5);
     }
+    
 }
 
-void game_idle_animations(void){
-    uCanvas_universal_obj_t* prompt = New_uCanvas_2DTextbox("",20,40);
-    while (1)
+
+enemy_army_t* spawn_army(int instances){
+    enemy_army_t* enemy_army = (enemy_army_t*)malloc(sizeof(enemy_army_t));
+    enemy_army->spawned_instances = instances; 
+    for (int i = 0; i < instances; i++)
     {
-        uCanvas_Delay(200); 
-        if((game_state == IDLE) || (player_state == PLAYER_IDLE)){
-            prompt->properties.visiblity = VISIBLE;
-            uCanvas_Animate_Text_Reveal(prompt,"Hi!",10);  
-            uCanvas_Delay(200);   
-        }
-        uCanvas_Delay(200);  
+        //Spawn Jets on Randomize XY Coordinates for each instances
+        int xpos = get_random_number(80,120);
+        int ypos = get_random_number(20,56);
+        enemy_army->enemy_jets[i] = create_fighter_jet_instance(xpos,ypos,-10);
+        
 
-        if((game_state == IDLE )||( player_state == PLAYER_IDLE)){                 
-            uCanvas_Animate_Text_Reveal(prompt,"Lets Play!",10);     
-            uCanvas_Delay(200);
-        }
+        //Randomize Fill/NoFill for each jet instances
+        int fill_rnd = get_random_number(0,100);
+        if(fill_rnd > 15  && fill_rnd < 30) enemy_army->enemy_jets[i]->fighter_jet->properties.fill  = NOFILL;
+        else enemy_army->enemy_jets[i]->fighter_jet->properties.fill  = FILL;
+    }
+    return enemy_army;
+}
 
-        if(game_state != IDLE || player_state == PLAYER_IDLE){
-            prompt->properties.visiblity = INVISIBLE;
+void randomize_positions(enemy_army_t* enemy_army,int i){
+    int xpos = get_random_number(50,300);
+    int ypos = get_random_number(22,56);
+    int fill_rnd = get_random_number(0,100);
+    if(fill_rnd > 15  && fill_rnd < 50) enemy_army->enemy_jets[i]->fighter_jet->properties.fill  = NOFILL;
+    else enemy_army->enemy_jets[i]->fighter_jet->properties.fill  = FILL;
+    enemy_army->enemy_jets[i]->position.x = 128+xpos;
+    enemy_army->enemy_jets[i]->position.y = ypos;
+}
+
+void redraw_fighter_jet(fighter_jet_t* player_fighter_jet){
+    player_fighter_jet->fighter_jet->point1.x = player_fighter_jet->position.x;
+    player_fighter_jet->fighter_jet->point1.y = player_fighter_jet->position.y - 5;
+
+    player_fighter_jet->fighter_jet->point2.x = player_fighter_jet->position.x;
+    player_fighter_jet->fighter_jet->point2.y = player_fighter_jet->position.y + 5;
+    
+    player_fighter_jet->fighter_jet->point3.x = player_fighter_jet->position.x+player_fighter_jet->notch_face;
+    player_fighter_jet->fighter_jet->point3.y = player_fighter_jet->position.y;
+}
+
+
+void attack_player_through_army_instance(enemy_army_t* army){
+    for (int i = 0; i < army->spawned_instances; i++)
+    {
+        /**
+         * Take steps to travel
+        */
+        if(army->enemy_jets[i]->position.x > 10)army->enemy_jets[i]->position.x--;
+        else {
+            randomize_positions(army,i); //Respawn enemy that reached out of bounds at random location at right side.
         }
-        uCanvas_Delay(1);
+        
+        /**
+         * Redraw jets with new positions on screen
+        */
+        if(army->enemy_jets[i]->position.x <128){
+            army->enemy_jets[i]->fighter_jet->properties.visiblity = VISIBLE;
+            redraw_fighter_jet(army->enemy_jets[i]);
+        }
+        else army->enemy_jets[i]->fighter_jet->properties.visiblity = INVISIBLE;    
     }
 }
+
+
+void update_player_jet_position_on_user_input(){
+    if(!uCanvas_Get_PushbuttonState(20)){
+            while (!uCanvas_Get_PushbuttonState(20))
+            {
+                uCanvas_Delay(1);
+            }
+            if(player_fighter_jet->position.y < 64)player_fighter_jet->position.y++;
+            else player_fighter_jet->position.y = 16;
+            redraw_fighter_jet(player_fighter_jet);
+    }
+}
+
+
 
 
 void app_main(){
     start_uCanvas_engine(); /* Start uCanvas engine */
+    
     uCanvas_Scene_t* main_scene = New_uCanvas_Scene(); /* Create New Scene instance */
     uCanvas_set_active_scene(main_scene); /*Set Newly create scene as Active scene to render*/
-    noob_man1 = New_Noob_Man_Instance(); /* Call create to custom character object */
     
-    /* uCanvas Thread to Control noob_man1 Jump Movements */
-    uCanvas_Add_Task(noob_man1_controller,NULL);
-      
-    /**
-     * Generate Spikes of random heights and widths
-    */
-    spikes  = (spikes_t*)malloc(sizeof(spikes_t));
-    New_Spikes_Instance(spikes);
+    player_fighter_jet = create_fighter_jet_instance(3,32,10);
+    
+    uCanvas_Init_PushButton(20);
 
-    uCanvas_Add_Task(Create_Spikes,spikes); 
-    /* Collison Monitioring thread */
-    uCanvas_Add_Task(detect_collision,NULL); 
-    /* Idle state Animation thread */
-    uCanvas_Add_Task(game_idle_animations,NULL);
-    /* uCanvas Thread to Animate Eye blinks of Character */
-    uCanvas_Add_Task(character_blink_animation,noob_man1);  
-}    
-
-void noob_man1_controller(){
-    float velocity = 0;
-    float position = 53;
-    bool isJumping = false;
-    uCanvas_Init_PushButton(PB0_PIN);
+    enemy_army_t* enemy_army = spawn_army(4);
+    
+    New_uCanvas_2DTextbox("Space Explorer >",10,0);
+    
+    stars_t* stars = create_stars(50);
+    uCanvas_Add_Task(move_stars,(stars_t*)stars);
     while (1)
     {
-        if(!isJumping){
-            if(!uCanvas_Get_PushbuttonState(PB0_PIN)){
-                game_state = GAME_STARTED;
-                player_state = PLAYER_ALIVE;
-                isJumping = true;
-                velocity = JUMP_HEIGHT; 
-            }
-        }
-        if (isJumping) {
-            velocity += GRAVITY * 0.1;
-            position -= velocity * 0.1;
-            if (position >= 53) {
-                position = 53;
-                velocity = 0; 
-                isJumping = false;
-            }
-        }
-        if((player_state == PLAYER_ALIVE) || (player_state == PLAYER_IDLE))
-            Set_Noob_Man_Position(noob_man1,10,position);
-        uCanvas_Delay(1);
-    }
-}
 
-_2dPoint_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset){
-    _2dPoint_t coordinates;
+        attack_player_through_army_instance(enemy_army);
+        update_player_jet_position_on_user_input();
+        uCanvas_Delay(2);
+    }
+} 
+
+
+Coordinate2D_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset){
+    Coordinate2D_t coordinates;
     double theta = 2.0 * PI * angle / 360;            
     uint8_t x = rx * cos(theta) + xoffset;
     uint8_t y = ry * sin(theta) + yoffset;
     coordinates.x = x;
     coordinates.y = y;
     return coordinates;
-}
-
-void character_blink_animation(noob_man_t*noob_man){
-    while (1)
-    {
-        if(player_state == PLAYER_ALIVE || player_state == PLAYER_IDLE){
-            noob_man->eye_left->properties.type = RECTANGLE;
-            noob_man->eye_right->properties.type = RECTANGLE;     
-            uCanvas_Delay(get_random_number(20,50));
-        }
-        if(player_state == PLAYER_ALIVE || player_state == PLAYER_IDLE){
-            noob_man->eye_left->properties.type = CIRCLE;
-            noob_man->eye_right->properties.type = CIRCLE;
-            uCanvas_Delay(get_random_number(300,500));
-        }
-        uCanvas_Delay(1);
-    }
 }

@@ -14,5 +14,5 @@ typedef struct main_char{
 noob_man_t* New_Noob_Man_Instance (void);
 void Set_Noob_Man_Position (noob_man_t*noob_man, int xpos, int ypos);
 void character_blink_animation (noob_man_t*noob_man);
-_2dPoint_t Get_Noob_Man_Position (noob_man_t*noob_man);
+Coordinate2D_t Get_Noob_Man_Position (noob_man_t*noob_man);
 void character_hit_animation(noob_man_t*noob_man);
