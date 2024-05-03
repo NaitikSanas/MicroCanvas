@@ -3,9 +3,28 @@
 
 uCanvas_Scene_t* active_scene;
 
+void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
+    if(active_scene != NULL){
+        if(LOCK_ACTIVE_SCENEB_BUF){
+            free(active_scene->_2D_Objects[obj->index]);
+            if(active_scene->_2D_Object_Ptr > obj->index){
+                int objects_to_reallocate = active_scene->_2D_Object_Ptr - obj->index;
+                for (int i = 0; i < objects_to_reallocate; i++)
+                {
+                    active_scene->_2D_Objects[obj->index+i] = active_scene->_2D_Objects[obj->index+1];  
+                    active_scene->_2D_Objects[obj->index+1]->index = obj->index+i;
+                }
+            }
+            active_scene->_2D_Object_Ptr--;
+            UNLOCK_ACTIVE_SCENEB_BUF;
+        }
+    }
+}
+
 void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
     if(active_scene != NULL){
         if(LOCK_ACTIVE_SCENEB_BUF){
+            obj->index = active_scene->_2D_Object_Ptr;
             active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
             active_scene->_2D_Object_Ptr++;
             UNLOCK_ACTIVE_SCENEB_BUF;

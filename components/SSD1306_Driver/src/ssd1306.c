@@ -404,6 +404,7 @@ void SSD1306_DrawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD13
 	
 	/* Draw 4 lines */
 	SSD1306_DrawLine(x, y, x + w, y, c);         /* Top line */
+	SSD1306_DrawLine(x, y+1, x + w, y, c);         /* Top line */
 	SSD1306_DrawLine(x, y + h, x + w, y + h, c); /* Bottom line */
 	SSD1306_DrawLine(x, y, x, y + h, c);         /* Left line */
 	SSD1306_DrawLine(x + w, y, x + w, y + h, c); /* Right line */
