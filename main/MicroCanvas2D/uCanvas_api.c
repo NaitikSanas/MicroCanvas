@@ -8,13 +8,15 @@ void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
         if(LOCK_ACTIVE_SCENEB_BUF){
             active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
             active_scene->_2D_Object_Ptr++;
+            printf("[uCanvas]:No. Total objects %d\r\n",active_scene->_2D_Object_Ptr);
             UNLOCK_ACTIVE_SCENEB_BUF;
         }
     }
 }
 
 void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
-    obj->text = text;
+    printf("copied %d bytes\r\n",strlen(text));
+    sprintf(obj->text,"%s" ,text);
 }
 
 void uCanvas_Set_Obj_Type(uCanvas_universal_obj_t*obj,uCanvas_element_type_t type){
@@ -101,8 +103,8 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
 
 uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
-    textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
-    textbox->text = text;
+    // textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
+    sprintf(textbox->text, "%s", text);
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, TEXTBOX);
     uCanvas_Set_Color(textbox,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);

@@ -6,35 +6,35 @@ TaskHandle_t uCanvas_taskhandle;
 extern uCanvas_Scene_t* active_scene;
 
 void push_element_to_display(uCanvas_universal_obj_t* obj){
-    switch (obj->properties.type)
-    {
-    case RECTANGLE:{
-        uCanvas_Draw_Rectangle(obj->properties.position.x, obj->properties.position.y,
-                                obj->height,obj->width,obj->properties.color,obj->properties.fill);
-        break;
-    }
-
-    case TEXTBOX : {
-        uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color);
+  switch (obj->properties.type)
+  {
+  case RECTANGLE:{
+      uCanvas_Draw_Rectangle(obj->properties.position.x, obj->properties.position.y,
+                              obj->height,obj->width,obj->properties.color,obj->properties.fill);
       break;
-    }
+  }
 
-    case CIRCLE : {
-        uCanvas_Draw_Circle(obj->properties.position.x,obj->properties.position.y, obj->r1,obj->properties.color, obj->properties.fill);
-        break;
-    }
+  case TEXTBOX : {
+      uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color);
+    break;
+  }
 
-    case LINE : {
-      uCanvas_Draw_Line(obj->point1,obj->point2,obj->properties.color);
+  case CIRCLE : {
+      uCanvas_Draw_Circle(obj->properties.position.x,obj->properties.position.y, obj->r1,obj->properties.color, obj->properties.fill);
       break;
-    }
+  }
 
-    case TRIANGLE : {
-      uCanvas_Draw_Triangle(obj->point1,obj->point2,obj->point3,obj->properties.color);
-    }
-    default:
-      break;
-    }
+  case LINE : {
+    uCanvas_Draw_Line(obj->point1,obj->point2,obj->properties.color);
+    break;
+  }
+
+  case TRIANGLE : {
+    uCanvas_Draw_Triangle(obj->point1,obj->point2,obj->point3,obj->properties.color);
+  }
+  default:
+    break;
+  }
 }
 
 void uCanvas_bg_render_engine_task(void*arg){

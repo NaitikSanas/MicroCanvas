@@ -12,8 +12,8 @@ extern C {
 #include "driver/i2c.h"
 
 /* I2C address */
-#define I2C_MASTER_SDA_IO 6
-#define I2C_MASTER_SCL_IO 4
+#define I2C_MASTER_SDA_IO 10
+#define I2C_MASTER_SCL_IO 11
 #define I2C_MASTER_FREQ_HZ 400000
 
 

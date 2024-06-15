@@ -5,5 +5,6 @@ idf_component_register(SRCS "main.c"
                             "MicroCanvas2D/uCanvas_display_port.c"
                             "MicroCanvas2D/uCanvas_User_IO.c"
                             "noob_man.c"
-
-INCLUDE_DIRS "." "MicroCanvas2D")
+                            "MicroCanvas2D/ucanvas_st7789.c"
+                            "uCanvas_widgets/grid_menu.c"
+INCLUDE_DIRS "." "MicroCanvas2D" "uCanvas_widgets")

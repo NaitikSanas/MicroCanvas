@@ -55,7 +55,7 @@
     {
         uCanvas_base_t properties; 
         uint16_t index;
-        char* text;
+        
         
         uint16_t width;
         uint16_t height;
@@ -67,6 +67,7 @@
         _2dPoint_t point2; 
         _2dPoint_t point3;
         _2dPoint_t point4;  
+        char text[512];
     } uCanvas_universal_obj_t;
 
 

@@ -31,3 +31,5 @@ void uCanvas_Draw_Line                  (_2dPoint_t point1, _2dPoint_t point2, c
 void uCanvas_Draw_Text                  (char* text, int x, int y, color_t color);
 
 void uCanvas_Draw_Triangle(_2dPoint_t point1, _2dPoint_t point2, _2dPoint_t point3, color_t color);
+
+void uCanvas_Fill_screen(color_t color);

@@ -13,7 +13,7 @@
 #define PI 3.14159265358979323846
 
 
-#define PB0_PIN 20
+#define PB0_PIN 0
 
 typedef struct spikes
 {
@@ -39,3 +39,8 @@ game_steate_t game_state = IDLE;
 void noob_man1_controller();
 _2dPoint_t get_xy_cordinates(int angle, int rx, int ry, int xoffset, int yoffset);
 int get_random_number(int min, int max);
+
+void uCanvas_Animation_task_Planet_1(void*arg);
+void uCanvas_Animation_task_Planet_2(void*arg);
+void uCanvas_Animation_task_Planet_3(void*arg);
+void Control_Level_bar_task(void*arg);
