@@ -81,12 +81,12 @@ void uCanvas_Display_init(void){
 	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
 	InitFontx(fx32M,"/spiffs/FONT10X20.FNT",""); // 16x32Dot Mincyo
 	
-	//spi_clock_speed(40000000); // 40MHz
-	spi_clock_speed(60000000); // 60MHz
+	// spi_clock_speed(40000000); // 40MHz
+	// spi_clock_speed(60 000 000); // 60MHz
 	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);
 	
 	// spi_master_init(&dev, 5, 4, -1, 7, 6, 8);
-	lcdInit(&dev, 280, 240, 0, 0);
+	lcdInit(&dev, 249, 320, 0, 0);
 }
 
 
