@@ -9,13 +9,15 @@
     typedef TaskFunction_t uCanvas_Animation_task_t;
     typedef TaskHandle_t uCanvas_Animation_task_handle_t;
 
+  
     typedef enum{
         RECTANGLE = 0,
         CIRCLE,
         TEXTBOX,
         LINE,
         ELLIPSE,
-        TRIANGLE
+        TRIANGLE,
+        SPRITE2D
     }uCanvas_element_type_t;
 
     typedef struct _point
@@ -51,6 +53,23 @@
         visibility_ctrl_t visiblity;
     }uCanvas_base_t;
 
+
+    /**
+     * Create 2D Sprite Object based on raw Sprite buffer to use it easily in application
+     *  sprite2D_t (properties) -
+     *      > Sprite_buffer - Pointes to 1D buffer storing the pixel values
+     *      > Sprite_Height - Actual Height of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
+     *      > Sprite_Width  - Actual Width  of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
+     *      > Sprite_Orientation
+     */
+    typedef struct sprite2D
+    {
+        uint8_t* sprite_buf;
+        uint16_t height;
+        uint16_t width;
+        uint8_t orientation;
+    }sprite2D_t;
+    
     typedef struct uCanvas_universal_obj
     {
         uCanvas_base_t properties; 
@@ -66,7 +85,12 @@
         Coordinate2D_t point1;
         Coordinate2D_t point2; 
         Coordinate2D_t point3;
-        Coordinate2D_t point4;  
+        Coordinate2D_t point4;
+
+        Coordinate2D_t sprite_resolution;
+        uint8_t* sprite_buffer;
+
+        // sprite2D_t* sprite2D_obj;
     } uCanvas_universal_obj_t;
 
 
@@ -83,4 +107,17 @@
         int16_t _2D_Object_Ptr;
         uint16_t idx;
     }uCanvas_Scene_t;
+
+      typedef struct controller_properties
+    {
+        float jump_velocity;
+        float jump_height;
+        float gravity;
+        float floor_level;
+        float position_y;
+        float position_x;
+        uint32_t control_gpio;
+        uCanvas_universal_obj_t* control_object;
+    }controller_properties_t;
+    
 #endif

@@ -13,8 +13,8 @@ extern C {
 
 /* I2C address */
 #define I2C_MASTER_SDA_IO 6
-#define I2C_MASTER_SCL_IO 4
-#define I2C_MASTER_FREQ_HZ 400000
+#define I2C_MASTER_SCL_IO 7
+#define I2C_MASTER_FREQ_HZ 1000000
 
 
 #define SSD1306_I2C_ADDR         0x78

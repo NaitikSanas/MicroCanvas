@@ -3,6 +3,7 @@
 
 uCanvas_Scene_t* active_scene;
 
+
 void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
     if(active_scene != NULL){
         if(LOCK_ACTIVE_SCENEB_BUF){
@@ -22,11 +23,13 @@ void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
 }
 
 void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
+    // 
     if(active_scene != NULL){
         if(LOCK_ACTIVE_SCENEB_BUF){
             obj->index = active_scene->_2D_Object_Ptr;
             active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
             active_scene->_2D_Object_Ptr++;
+            
             UNLOCK_ACTIVE_SCENEB_BUF;
         }
     }
@@ -129,6 +132,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     uCanvas_Set_Position(textbox,xpos,ypos);
     uCanvas_Set_Fill(textbox,NOFILL);
     uCanvas_push_object_to_activescene(textbox);
+
   return textbox;
 }
 
@@ -159,6 +163,23 @@ uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinat
     return triangle;
 }
 
+uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t sprite2D_obj,uint16_t pos_x, uint16_t pos_y){
+    uCanvas_universal_obj_t* uCanvas_Sprite = uCanvas_Universal_Object;
+    uCanvas_Set_Visiblity(uCanvas_Sprite,VISIBLE);
+    // uCanvas_Set_Obj_Type(uCanvas_Sprite, SPRITE2D);
+    uCanvas_Sprite->properties.type = SPRITE2D;
+    uCanvas_Set_Monochrome_Color(uCanvas_Sprite,1);
+    uCanvas_Sprite->sprite_buffer = sprite2D_obj.sprite_buf;
+    // memcpy(uCanvas_Sprite->sprite_buffer,sprite_buffer,(size.x*size.y));
+    uCanvas_Sprite->sprite_resolution.x = sprite2D_obj.width;
+    uCanvas_Sprite->sprite_resolution.y = sprite2D_obj.height;
+    uCanvas_Sprite->properties.position.x = pos_x;
+    uCanvas_Sprite->properties.position.y = pos_y;
+    uCanvas_push_object_to_activescene(uCanvas_Sprite);
+    printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
+    return uCanvas_Sprite;
+}
+
 void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16_t delay){
     char tmp[64] = {0};
     for (int i = 0; i < strlen(text); i++)
@@ -186,4 +207,38 @@ void uCanvas_Pause_Task(uCanvas_Animation_task_handle_t task_handle){
 
 void uCanvas_Delay(uint16_t delay){
     vTaskDelay(delay);
+}
+
+int get_random_number(int min, int max) {
+    return (esp_random() % (max - min + 1)) + min;
+}
+
+void uCanvas_ScaleUp_Sprite2D(uint8_t* src, uint8_t* dest, int src_width, int src_height, int scale_factor){
+    int dest_width = src_width * scale_factor;
+    int dest_height = src_height * scale_factor;
+
+    for (int y = 0; y < dest_height; y++) {
+        for (int x = 0; x < dest_width; x++) {
+            int src_x = x / scale_factor;
+            int src_y = y / scale_factor;
+            dest[y * dest_width + x] = src[src_y * src_width + src_x];
+        }
+    }
+}
+
+   
+   
+void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t sprite_obj){
+        if(LOCK_ACTIVE_SCENEB_BUF){
+            obj->sprite_buffer       = sprite_obj.sprite_buf;
+            obj->sprite_resolution.x = sprite_obj.width;
+            obj->sprite_resolution.y = sprite_obj.height;
+            UNLOCK_ACTIVE_SCENEB_BUF;
+        }
+}
+
+void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint8_t* sprite_buffer,uint16_t width, uint16_t height){
+    obj->sprite_buf = sprite_buffer;
+    obj->height = height;
+    obj->width = width;
 }
