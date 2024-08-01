@@ -2,164 +2,7 @@
 #include "noob_man.h"
 #include "space_explorer.h"
 #include "uCanvas_Physix.h" 
-
-
-static uint8_t house_sprite[16*8] = {   \
-    2,2,1,1,2,2,2,2,1,1,1,1,1,2,2,2,     \
-    2,2,1,1,2,2,2,1,1,1,1,1,1,1,2,2,     \
-    2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,     \
-    1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,     \
-    1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,     \
-    1,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,      \
-    1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,      \
-    1,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1      \
-};
-
-static uint8_t building_sprite[9*16] = {   \
-    1,1,1,1,1,1,1,1,1,                    \
-    1,0,0,0,1,0,0,0,1,                    \
-    1,0,0,0,1,0,0,0,1,                    \
-    1,1,1,1,1,1,1,1,1,                    \
-    1,0,0,0,1,0,0,0,1,                    \
-    1,0,0,0,1,0,0,0,1,                    \
-    1,1,1,1,1,1,1,1,1,                    \
-    1,0,0,0,1,0,0,0,1,                    \
-    1,0,0,0,1,0,0,0,1,  
-    1,1,1,1,1,1,1,1,1,  
-    1,0,0,0,1,0,0,0,1,  
-    1,0,0,0,1,0,0,0,1,  
-    1,1,1,1,1,1,1,1,1,  
-    1,1,1,0,0,0,1,1,1,  
-    1,1,1,0,0,0,1,1,1,  
-    1,1,1,0,0,0,1,1,1,  
-};
-
-static uint8_t happy_face_sprite[9*9] = {   \
-    1,1,1,1,1,1,1,1,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,1,1,0,1,1,0,1,                    \
-    1,0,1,1,0,1,1,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,1,0,0,0,1,0,1,                    \
-    1,0,0,1,1,1,0,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,1,1,1,1,1,1,1,1  
-};
-
-static uint8_t surprised_face_sprite[9*9] = {   \
-    0,1,1,1,1,1,1,1,0,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,1,1,0,1,1,0,1,                    \
-    1,0,1,1,0,1,1,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,0,1,1,1,0,0,1,                    \
-    1,0,0,1,1,1,0,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    0,1,1,1,1,1,1,1,0  
-};
-
-static uint8_t neutral_face_sprite[9*9] = {   \
-    0,1,1,1,1,1,1,1,0,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,1,1,0,1,1,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,1,1,1,1,1,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    0,1,1,1,1,1,1,1,0  
-};
-
-static uint8_t sad_face_sprite[9*9] = {   \
-    0,1,1,1,1,1,1,1,0,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,1,1,0,1,1,0,1,                    \
-    1,0,1,1,0,1,1,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    1,0,0,1,1,1,0,0,1,                    \
-    1,0,1,0,0,0,1,0,1,                    \
-    1,0,0,0,0,0,0,0,1,                    \
-    0,1,1,1,1,1,1,1,0  
-};
-
-
-static uint8_t tree_sprite[9*9] = {   \
-    0,0,1,0,1,0,1,0,0,                    \
-    0,1,0,1,0,1,0,1,0,                    \
-    1,0,1,0,1,0,1,0,1,                    \
-    1,0,1,0,1,0,1,0,1,                    \
-    0,1,0,1,0,1,0,1,0,                    \
-    0,0,1,0,1,0,1,0,0,                    \
-    0,0,0,1,1,1,0,0,0,                    \
-    0,0,0,1,1,1,0,0,0,                    \
-    0,1,1,1,1,1,1,1,0  
-};
-
-static uint8_t grass_sprite[9*9] = {   \
-    2,2,1,2,2,2,2,2,2,                    \
-    1,2,2,1,2,2,1,2,1,                    \
-    2,1,2,1,2,1,1,2,1,                    \
-    2,1,2,1,2,1,2,1,1,                    \
-    2,1,2,1,2,1,1,1,2,                    \
-    2,1,2,2,1,1,1,2,2,                    \
-    2,1,1,1,1,1,1,2,2,                    \
-    1,1,1,1,1,1,1,1,1,                    \
-    2,1,1,2,1,1,1,2,2  
-};
-
-
-
-static uint8_t grid_sprite[9*9] = {   \
-    1,1,1,1,1,1,1,1,1,                \
-    0,1,0,1,0,1,0,1,0,                \
-    1,1,1,1,1,1,1,1,1,                \
-    0,1,0,1,0,1,0,1,0,                \
-    1,1,1,1,1,1,1,1,1,                \
-    0,1,0,1,0,1,0,1,0,                \
-    1,1,1,1,1,1,1,1,1,                \
-    0,1,0,1,0,1,0,1,0,                \
-    1,1,1,1,1,1,1,1,1,                \
-};
-
-
-
-
-static uint8_t grid_sprite2[9*6] = {   \
-    2,2,2,1,1,2,2,2,2,               \
-    2,2,1,1,0,1,2,2,2,               \
-    2,1,0,0,1,1,1,2,2,               \
-    1,0,0,1,1,1,1,1,1,               \
-    1,0,0,1,1,1,1,1,1,               \
-    1,1,1,1,1,1,1,1,2,               \
-    2,2,2,2,2,2,2,2,2,               \
-    2,2,2,2,2,2,2,2,2,               \
-    2,2,2,2,2,2,2,2,2,               \
-};
-
-
-
-static uint8_t car_sprite[16*8] = {   \
-    2,2,1,1,1,1,1,1,1,1,1,2,2,2,2,2,     \
-    2,1,0,0,0,0,1,0,0,0,0,1,2,2,2,2,     \
-    2,1,0,0,0,0,1,0,0,0,0,0,1,1,1,1,     \
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,     \
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,     \
-    1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,      \
-    1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,      \
-    2,2,2,1,1,2,2,2,2,2,2,1,1,2,2,2      \
-};
-
-
-static uint8_t mountain_sprite[16*8] = {   \
-    2,2,2,2,2,2,2,1,1,1,1,1,1,2,2,2,     \
-    2,2,2,2,2,2,1,1,1,1,1,1,1,2,2,2,     \
-    2,2,2,2,1,1,1,1,1,1,1,1,1,1,2,2,     \
-    2,2,2,1,1,1,1,1,1,1,1,1,1,1,2,2,     \
-    2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,     \
-    2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,      \
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,      \
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1      \
-};
+#include "sprite_collection.h"
 
 stars_t* create_stars(int instances){
     stars_t* stars = (stars_t*)malloc(sizeof(stars_t));
@@ -270,16 +113,16 @@ void app_main(){
     uCanvas_Compose_2DSprite_Obj(&surprised_face_scaled_obj ,surprised_face_scaled_sprite, 9*scale,9*scale);
     uCanvas_Compose_2DSprite_Obj(&neutral_face_scaled_obj   ,neutral_face_scaled_sprite  , 9*scale,9*scale);
     uCanvas_Compose_2DSprite_Obj(&sad_face_scaled_obj       ,sad_face_scaled_sprite      , 9*scale,9*scale);
-    uCanvas_Compose_2DSprite_Obj(&tree_scaled_obj           ,tree_scaled_sprite      , 9*scale2,9*scale2);
-    uCanvas_Compose_2DSprite_Obj(&tree_obj                  ,tree_sprite      , 9,9);
-    uCanvas_Compose_2DSprite_Obj(&grid_obj                  ,grid_sprite      , 9,9);
-    uCanvas_Compose_2DSprite_Obj(&grid_obj2                  ,grid_sprite2      , 9,6);
-    uCanvas_Compose_2DSprite_Obj(&car_obj1                  ,car_sprite      , 16,8);
-    uCanvas_Compose_2DSprite_Obj(&car_obj2                  ,car_scaled_sprite      , 16*car_scale,8*car_scale);
-    uCanvas_Compose_2DSprite_Obj(&grass_obj                  ,grass_sprite      , 9,9);
-    uCanvas_Compose_2DSprite_Obj(&mountain_obj                  ,mountain_sprite      , 16,8);
-    uCanvas_Compose_2DSprite_Obj(&building_obj                  ,building_sprite      , 9,16);
-    uCanvas_Compose_2DSprite_Obj(&house_obj                  ,house_sprite      , 16,8);
+    uCanvas_Compose_2DSprite_Obj(&tree_scaled_obj           ,tree_scaled_sprite          , 9*scale2,9*scale2);
+    uCanvas_Compose_2DSprite_Obj(&tree_obj                  ,tree_sprite                 , 9,9);
+    uCanvas_Compose_2DSprite_Obj(&grid_obj                  ,grid_sprite                 , 9,9);
+    uCanvas_Compose_2DSprite_Obj(&grid_obj2                 ,grid_sprite2                , 9,6);
+    uCanvas_Compose_2DSprite_Obj(&car_obj1                  ,car_sprite                  , 16,8);
+    uCanvas_Compose_2DSprite_Obj(&car_obj2                  ,car_scaled_sprite           , 16*car_scale,8*car_scale);
+    uCanvas_Compose_2DSprite_Obj(&grass_obj                 ,grass_sprite                , 9,9);
+    uCanvas_Compose_2DSprite_Obj(&mountain_obj              ,mountain_sprite             , 16,8);
+    uCanvas_Compose_2DSprite_Obj(&building_obj              ,building_sprite             , 9,16);
+    uCanvas_Compose_2DSprite_Obj(&house_obj                 ,house_sprite                , 16,8);
 
 
     /**
@@ -307,7 +150,7 @@ void app_main(){
      uCanvas_universal_obj_t* map_features[13];
     for (int i = 0; i < 13; i++)
     {
-        map_features[i] =New_uCanvas_2DSprite(tree_obj,i*10,30);
+        map_features[i] =New_uCanvas_2DSprite(tree_obj,i*10+get_random_number(2,100),30+get_random_number(12,30));
     }
 
     
