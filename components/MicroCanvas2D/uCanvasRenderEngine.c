@@ -44,17 +44,18 @@ void push_element_to_display(uCanvas_universal_obj_t* obj){
       uint16_t y_ptr          = 0;
       color_t c;
       Coordinate2D_t pos;
+      if(obj->properties.visiblity == INVISIBLE)return;
       // printf("----start----\r\n");
       for (int i = 0; i < (sprite_width*sprite_height); i++)
       {
         
        
-        c.monochrome_pixel = obj->sprite_buffer[i];
+        c.monochrome_pixel = obj->invert_sprite_pixels ? !obj->sprite_buffer[i] : obj->sprite_buffer[i];
         pos.x = x_ptr + offset_x;
         pos.y = y_ptr + offset_y;
         // printf("(%d,%d),",pos.x,pos.y);
         // printf("(%d,%d) : %d|%d\r\n",x_ptr,y_ptr,i,obj->sprite_buffer[i]);
-        uCanvas_DrawPixel(pos,c);
+        if(obj->sprite_buffer[i]!=2)uCanvas_DrawPixel(pos,c);
         if(x_ptr < sprite_width-1){
           x_ptr++;
         }else{
@@ -83,7 +84,10 @@ void uCanvas_bg_render_engine_task(void*arg){
         uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
 				if(obj->properties.visiblity == VISIBLE){
 				  push_element_to_display(obj);
-				}   
+				}
+        else {
+          // printf("hidden object\r\n");
+        }   
         // if(obj->properties.type==SPRITE2D){
         //   printf("found\r\n");
         // }  

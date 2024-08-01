@@ -166,6 +166,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinat
 uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t sprite2D_obj,uint16_t pos_x, uint16_t pos_y){
     uCanvas_universal_obj_t* uCanvas_Sprite = uCanvas_Universal_Object;
     uCanvas_Set_Visiblity(uCanvas_Sprite,VISIBLE);
+    uCanvas_Sprite->invert_sprite_pixels = false;
     // uCanvas_Set_Obj_Type(uCanvas_Sprite, SPRITE2D);
     uCanvas_Sprite->properties.type = SPRITE2D;
     uCanvas_Set_Monochrome_Color(uCanvas_Sprite,1);

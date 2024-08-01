@@ -1,6 +1,6 @@
 #include "uCanvas_Physix.h"
 #include "uCanvas_User_IO.h"
-
+extern uCanvas_Scene_t* active_scene;
 
 void controller_task(controller_properties_t* player_obj){
     float velocity = 0;       
@@ -25,8 +25,9 @@ void controller_task(controller_properties_t* player_obj){
                 velocity = 0; 
                 isJumping = false;
             }
+            player_obj->control_object->properties.position.y = position;
         }
-        player_obj->control_object->properties.position.y = position;
+        
         // player_obj->control_object->properties.position.y = (uint16_t)position;
         uCanvas_Delay(1);
     }
@@ -57,3 +58,17 @@ void uCanvas_set_floor_level(controller_properties_t* player_obj,float floor_lev
     player_obj->floor_level = floor_leve;
 }
 
+
+void collison_dection_task(){
+    while (1)
+    {
+        for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
+        {
+            uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
+            if(obj->properties.collision_detection == true){
+
+            }
+        }
+        
+    }
+}

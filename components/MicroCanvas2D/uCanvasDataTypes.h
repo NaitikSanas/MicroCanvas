@@ -22,8 +22,8 @@
 
     typedef struct _point
     {
-        uint16_t x;
-        uint16_t y;
+        int x;
+        int y;
     }Coordinate2D_t;
 
     typedef enum {
@@ -45,12 +45,14 @@
 
     typedef struct uCanvas_base 
     { 
+        visibility_ctrl_t visiblity;
         uCanvas_element_type_t type;
         uint16_t index;
         Coordinate2D_t position;
         fill_t fill;
         color_t color;
-        visibility_ctrl_t visiblity;
+        
+        uint8_t collision_detection;
     }uCanvas_base_t;
 
 
@@ -89,7 +91,7 @@
 
         Coordinate2D_t sprite_resolution;
         uint8_t* sprite_buffer;
-
+        uint8_t invert_sprite_pixels;
         // sprite2D_t* sprite2D_obj;
     } uCanvas_universal_obj_t;
 
