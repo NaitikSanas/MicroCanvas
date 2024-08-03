@@ -22,11 +22,11 @@
     /**
      * Creates Independent Custom thread of Passed Loop function
     */
-    uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void* arg);
+    uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void* arg, int core_id);
     
     /* Pauses uCanvas Custom User tasks */
     void uCanvas_Pause_Task(uCanvas_Animation_task_handle_t task_handle);
-    
+    void uCanvas_Resume_Task(uCanvas_Animation_task_handle_t task_handle);
     /* Adds Delay in MS */
     void uCanvas_Delay(uint16_t delay);
 
@@ -88,6 +88,7 @@
      *      > Sprite_Height - Actual Height of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
      *      > Sprite_Width  - Actual Width  of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
      *      > Sprite_Orientation
+     * 
      * @param  obj : reference to object variable
      * @param  sprite_buffer : reference to sprite_buffer
      * @param  width : actual width of sprite_buffer content
@@ -133,5 +134,5 @@
 
     int get_random_number(int min, int max);
     
-
+    void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj);
 #endif

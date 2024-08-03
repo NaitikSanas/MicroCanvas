@@ -36,7 +36,7 @@ void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
 }
 
 void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
-    obj->text = text;
+    strncpy(obj->text,text,strlen(text));
 }
 
 void uCanvas_Set_Obj_Type(uCanvas_universal_obj_t*obj,uCanvas_element_type_t type){
@@ -123,8 +123,10 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
 
 uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
-    textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
-    textbox->text = text;
+    // textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE*sizeof(uint8_t));
+    memset(textbox->text,0,256);
+    strncpy(textbox->text, text,strlen(text));
+
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, TEXTBOX);
     uCanvas_Set_Color(textbox,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
@@ -192,9 +194,9 @@ void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16
     uCanvas_Set_Text(obj,text);
 }
 
-uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void *arg){
+uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void *arg, int core_id){
     uCanvas_Animation_task_handle_t task_handle = NULL;
-    xTaskCreate(animation_loop,"Task2",UCANVAS_TASK_STACK_SIZE,arg,1,task_handle);
+    xTaskCreatePinnedToCore(animation_loop,"Task2",UCANVAS_TASK_STACK_SIZE,arg,2,&task_handle,1);
     return task_handle;
 }
 
@@ -203,7 +205,11 @@ void uCanvas_Remove_Task(uCanvas_Animation_task_handle_t handle){
 }   
 
 void uCanvas_Pause_Task(uCanvas_Animation_task_handle_t task_handle){
-    vTaskSuspend(task_handle);
+    vTaskSuspend(task_handle); 
+}
+
+void uCanvas_Resume_Task(uCanvas_Animation_task_handle_t task_handle){
+    vTaskResume(task_handle);
 }
 
 void uCanvas_Delay(uint16_t delay){
@@ -242,4 +248,39 @@ void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint8_t* sprite_buffer,uint16
     obj->sprite_buf = sprite_buffer;
     obj->height = height;
     obj->width = width;
+}
+/**
+ * Deleting the object from scene requires to 
+ *  1. Free the object from location where it stored.
+ *  2. Remove from Active scene objects list
+ *  3. Re-arrange the list by right shifting other objects in list to prevent
+ *     empty object block inside the list. 
+ * 
+ * **********       Logic      **********************
+ *            obj to delete
+ *                |      
+ *[0][1][2][3][4][5][6][7][8] <- Object list or Array
+ *                |        |
+ *                |   _2D_Object_Ptr
+ *                |<-- 3 ->|   <- obj_to_delete - _2D_object_ptr
+ *
+ * --- iterations = 2 = (obj_to_delete - _2D_object_ptr) - 1
+ *    i = obj_to_delete_idx = 5;
+ * 
+ *    0 = 5 <- 6 = i <- i+1
+ *    1 = 6 <- 7 = i <- i+1
+ *                 
+ */
+void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj){
+    uint16_t obj_idx = obj->index;
+    free(obj);
+    active_scene->_2D_Objects[obj_idx] = NULL;
+    if(obj_idx < active_scene->_2D_Object_Ptr){
+        int objects_to_reorder = active_scene->_2D_Object_Ptr - obj_idx;
+        for (int i = 3; i < objects_to_reorder-1; i++)
+        {
+            active_scene[i] = active_scene[i+1];
+            printf("[uCanvas-Delete-Obj] Moving %d to %d\r\n",i+1, i);
+        }  
+    }
 }

@@ -1,5 +1,6 @@
 #include "uCanvas_Physix.h"
 #include "uCanvas_User_IO.h"
+#include "math.h"
 extern uCanvas_Scene_t* active_scene;
 
 void controller_task(controller_properties_t* player_obj){
@@ -7,14 +8,17 @@ void controller_task(controller_properties_t* player_obj){
     bool isJumping = false;
     uCanvas_Init_PushButton(player_obj->control_gpio);
     
-    int floor_height = player_obj->floor_level;
+    float floor_height = player_obj->floor_level;
     float position = floor_height;
+  
     while (1)
     {
         if(!isJumping){
             if(!uCanvas_Get_PushbuttonState(player_obj->control_gpio)){
                 isJumping = true;
+                player_obj->control_object->state = true;
                 velocity = player_obj->jump_height; 
+                if(player_obj->user_callback_pre_jump!=NULL)player_obj->user_callback_pre_jump();
             }
         }
         if (isJumping) {
@@ -24,18 +28,19 @@ void controller_task(controller_properties_t* player_obj){
                 position = floor_height;
                 velocity = 0; 
                 isJumping = false;
+                player_obj->control_object->state = false;
+                if(player_obj->user_callback_post_jump != NULL)player_obj->user_callback_post_jump();
             }
             player_obj->control_object->properties.position.y = position;
         }
-        
-        // player_obj->control_object->properties.position.y = (uint16_t)position;
+
         uCanvas_Delay(1);
     }
 }
 
 uCanvas_Animation_task_handle_t uCanvas_attach_type1_controller_script(uCanvas_universal_obj_t*obj,controller_properties_t* player_obj){
     player_obj->control_object = obj;
-    return uCanvas_Add_Task(controller_task,player_obj);
+    return uCanvas_Add_Task(controller_task,player_obj,1);
 }
 
 void detach_type1_controller_script(uCanvas_Animation_task_handle_t taskhandle){
@@ -71,4 +76,14 @@ void collison_dection_task(){
         }
         
     }
+}
+
+Coordinate2D_t ucanvas_get_xy_circular_cordinates(int angle, int rx, int ry, int xoffset, int yoffset){
+    Coordinate2D_t coordinates;
+    double theta = 2.0 * 3.14 * angle / 360;            
+    uint8_t x = rx * cos(theta) + xoffset;
+    uint8_t y = ry * sin(theta) + yoffset;
+    coordinates.x = x;
+    coordinates.y = y;
+    return coordinates;
 }

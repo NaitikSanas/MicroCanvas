@@ -8,3 +8,4 @@ void uCanvas_add_control_gpio               (controller_properties_t* player_obj
 void uCanvas_set_gravity                    (controller_properties_t* player_obj,float gravity);
 void uCanvas_set_jump_height                (controller_properties_t* player_obj,float jump_height);
 void uCanvas_set_floor_level                (controller_properties_t* player_obj,float floor_leve);
+Coordinate2D_t ucanvas_get_xy_circular_cordinates(int angle, int rx, int ry, int xoffset, int yoffset);

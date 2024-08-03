@@ -76,7 +76,7 @@
     {
         uCanvas_base_t properties; 
         uint16_t index;
-        char* text;
+        char text[256];
         
         uint16_t width;
         uint16_t height;
@@ -92,6 +92,7 @@
         Coordinate2D_t sprite_resolution;
         uint8_t* sprite_buffer;
         uint8_t invert_sprite_pixels;
+        uint8_t state;
         // sprite2D_t* sprite2D_obj;
     } uCanvas_universal_obj_t;
 
@@ -110,7 +111,8 @@
         uint16_t idx;
     }uCanvas_Scene_t;
 
-      typedef struct controller_properties
+    typedef void (*FunctionPointer)(void);
+    typedef struct controller_properties
     {
         float jump_velocity;
         float jump_height;
@@ -120,6 +122,8 @@
         float position_x;
         uint32_t control_gpio;
         uCanvas_universal_obj_t* control_object;
+        FunctionPointer user_callback_post_jump;
+        FunctionPointer user_callback_pre_jump;
     }controller_properties_t;
     
 #endif
