@@ -13,8 +13,8 @@ extern C {
 
 /* I2C address */
 #define I2C_MASTER_SDA_IO 6
-#define I2C_MASTER_SCL_IO 4
-#define I2C_MASTER_FREQ_HZ 400000
+#define I2C_MASTER_SCL_IO 7
+#define I2C_MASTER_FREQ_HZ 1000000
 
 
 #define SSD1306_I2C_ADDR         0x78
@@ -135,7 +135,7 @@ void SSD1306_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SSD130
  * @retval None
  */
 void SSD1306_DrawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t c);
-
+void SSD1306_DrawRectangle2(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t c) ;
 /**
  * @brief  Draws filled rectangle on LCD
  * @note   @ref SSD1306_UpdateScreen() must be called after that in order to see updated LCD screen
@@ -249,13 +249,13 @@ void SSD1306_Scrolldiagleft(uint8_t start_row, uint8_t end_row);
 void SSD1306_Stopscroll(void);
 
 
-// inverts the display i = 1->inverted, i = 0->normal
+// inverts the display i = 1->inverted, i = 0->normal                                                                                        
 
 void SSD1306_InvertDisplay (int i);
 
 
 
-
+void SSD1306_DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color) ;
 
 
 // clear the display
