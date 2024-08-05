@@ -104,6 +104,20 @@
         uint16_t height;
     } uCanvas_rectangle_t;
 
+    /**
+     * Scene object is composed of array of 2D Elements. 
+     * Any Element created by application will be appended to 
+     * current active scene which then forwarded to Render engine
+     * To read out element properties and draw on display accordingly.
+     * 
+     * having multiple scene object can allow application to switch between different
+     * 2D Secenes without recreating all the time allowing fast transitions. 
+     *  uCanvas_Scene_t ->
+     *      > Array : uCanvas_universal_obj_t //List of objects created in scene
+     *      > int   : Write Pointer //When object is appended in scene write pointer 
+     *                is incremented by +1
+     *      > int   : Scene Index (Can be used as a ID)
+    */
     typedef struct MicroCanvas2D_Scene
     {
         uCanvas_universal_obj_t* _2D_Objects[MAX_ELEMENTS_NUM];

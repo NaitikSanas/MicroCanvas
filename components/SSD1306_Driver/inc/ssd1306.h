@@ -135,7 +135,7 @@ void SSD1306_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SSD130
  * @retval None
  */
 void SSD1306_DrawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t c);
-
+void SSD1306_DrawRectangle2(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t c) ;
 /**
  * @brief  Draws filled rectangle on LCD
  * @note   @ref SSD1306_UpdateScreen() must be called after that in order to see updated LCD screen

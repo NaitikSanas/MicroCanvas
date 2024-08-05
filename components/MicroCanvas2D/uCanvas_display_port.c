@@ -32,7 +32,7 @@ void uCanvas_Draw_Rectangle(int x, int y, int h, int w, color_t color, fill_t fi
         SSD1306_DrawFilledRectangle(x,y,w,h,color.monochrome_pixel);
     }
     else {
-        SSD1306_DrawRectangle(x,y,w,h,color.monochrome_pixel);
+        SSD1306_DrawRectangle2(x,y,w,h,color.monochrome_pixel);
     }
 }
 

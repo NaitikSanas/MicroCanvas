@@ -10,11 +10,12 @@ void push_element_to_display(uCanvas_universal_obj_t* obj){
     {
     case RECTANGLE:{
         uCanvas_Draw_Rectangle(obj->properties.position.x, obj->properties.position.y,
-		obj->height,obj->width,obj->properties.color,obj->properties.fill);
+		    obj->height,obj->width,obj->properties.color,obj->properties.fill);
         break;
     }
 
     case TEXTBOX : {
+        
         uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color);
       break;
     }
