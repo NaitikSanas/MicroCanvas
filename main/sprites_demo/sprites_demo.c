@@ -34,9 +34,7 @@ void car_animation(uCanvas_universal_obj_t* obj){
         obj->properties.position.y -= 2;
         toggle = !toggle;
         uCanvas_Delay(30);              
-    }
-    
-    
+    } 
 }
 
 
