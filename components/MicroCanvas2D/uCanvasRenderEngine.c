@@ -45,12 +45,13 @@ void push_element_to_display(uCanvas_universal_obj_t* obj){
       uint16_t y_ptr          = 0;
       color_t c;
       Coordinate2D_t pos;
-      if(obj->properties.visiblity == INVISIBLE)return;
+      if(obj->properties.visiblity == INVISIBLE){
+        printf("[Warn]:It Should Not Return From Here \r\n");
+        return;
+      }
       // printf("----start----\r\n");
       for (int i = 0; i < (sprite_width*sprite_height); i++)
-      {
-        
-       
+      { 
         c.monochrome_pixel = obj->invert_sprite_pixels ? !obj->sprite_buffer[i] : obj->sprite_buffer[i];
         pos.x = x_ptr + offset_x;
         pos.y = y_ptr + offset_y;
