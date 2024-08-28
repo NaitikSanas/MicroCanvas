@@ -220,7 +220,7 @@ int get_random_number(int min, int max) {
     return (esp_random() % (max - min + 1)) + min;
 }
 
-void uCanvas_ScaleUp_Sprite2D(uint8_t* src, uint8_t* dest, int src_width, int src_height, int scale_factor){
+void uCanvas_ScaleUp_SpriteBuf(uint8_t* src, uint8_t* dest, int src_width, int src_height, int scale_factor){
     int dest_width = src_width * scale_factor;
     int dest_height = src_height * scale_factor;
 
@@ -231,6 +231,16 @@ void uCanvas_ScaleUp_Sprite2D(uint8_t* src, uint8_t* dest, int src_width, int sr
             dest[y * dest_width + x] = src[src_y * src_width + src_x];
         }
     }
+}
+
+
+
+void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint8_t* reference,uint8_t* buffer, int h, int w, int scale_factor){
+    int new_h = h*scale_factor;
+    int new_w = w*scale_factor;
+    memset(buffer,0,(new_h * new_w));
+    uCanvas_ScaleUp_SpriteBuf(reference,buffer,w,h,scale_factor);
+    uCanvas_Compose_2DSprite_Obj(sprite_obj,buffer,new_w,new_h);
 }
 
    
