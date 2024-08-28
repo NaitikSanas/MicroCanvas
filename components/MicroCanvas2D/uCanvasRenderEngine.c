@@ -69,12 +69,11 @@ void push_element_to_display(uCanvas_universal_obj_t* obj){
 
 void uCanvas_bg_render_engine_task(void*arg){
     while(1){ 
-		if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
-			if(LOCK_ACTIVE_SCENEB_BUF){ 
-				uCanvas_Display_clear_buffer();
-				for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
-				{
-
+	if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
+		if(LOCK_ACTIVE_SCENEB_BUF){ 
+			uCanvas_Display_clear_buffer();
+			for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
+			{
 				uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
 				if(obj->properties.visiblity == VISIBLE){
 					push_element_to_display(obj);
@@ -82,13 +81,13 @@ void uCanvas_bg_render_engine_task(void*arg){
 				else {
 					// printf("hidden object\r\n");
 				}   
-				}
-				uCanvas_Update_Display();
-				UNLOCK_ACTIVE_SCENEB_BUF;
-				//printf("time to draw %dms", xTaskGetTickCount()-start);  
 			}
+			uCanvas_Update_Display();
+			UNLOCK_ACTIVE_SCENEB_BUF;
+			//printf("time to draw %dms", xTaskGetTickCount()-start);  
 		}
-		uCanvas_Delay(1);
+	}
+	uCanvas_Delay(1);
 	}
 }
 
