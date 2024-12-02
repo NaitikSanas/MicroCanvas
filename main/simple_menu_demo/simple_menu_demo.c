@@ -17,7 +17,7 @@ static uint8_t selector_icon[9*9] = {   \
 };
 
 #define MENU_POSITION_X 5
-#define MENU_POSITION_Y 14
+#define MENU_POSITION_Y 18
 #define TEXT_OFFSET_X 2
 #define SPAN_X 5
 #define SPAN_Y 10
@@ -26,16 +26,38 @@ static selection_menu_obj_t menu_1;
 static selection_menu_obj_t menu_2;
 
 void onItemClicked(){
+    char content[32];
     int cursor_position = menu_get_current_index(&menu_1) ;
-    if(cursor_position != 9){
+    switch (cursor_position)
+    {
+    case 0:
         menu_1.user_data[cursor_position]++;
-        printf("Click Evt at %d Events\r\n",cursor_position);    
-        char content[32];
-        sprintf(content,"Item %d     %d",cursor_position,menu_1.user_data[cursor_position]);
+        sprintf(content,"Brightness %d",menu_1.user_data[cursor_position]);
         menu_set_content(&menu_1,content,cursor_position);
+        break;
+    
+    case 1:
+        menu_1.user_data[cursor_position]++;
+        sprintf(content,"Contrast   %d",menu_1.user_data[cursor_position]);
+        menu_set_content(&menu_1,content,cursor_position);
+        break;
+    case 2:
+        menu_1.user_data[cursor_position]++;
+        sprintf(content,"Volume     %d",menu_1.user_data[cursor_position]);
+        menu_set_content(&menu_1,content,cursor_position);
+        break;
+    
+    case 3:
+        menu_1.user_data[cursor_position]++;
+        sprintf(content,"Source     %d",menu_1.user_data[cursor_position]);
+        menu_set_content(&menu_1,content,cursor_position);
+        break;
+    
+    default:
+        break;
     }
 
-    if(cursor_position == 9){
+    if(cursor_position == 4){
         printf("Changing scene....\r\n");
         uCanvas_set_active_scene(scene2);
         uCanvas_Delay(100);
@@ -65,8 +87,26 @@ void onContentClicked(void){
 
     if(cursor_position == 9){
         printf("Changing scene....\r\n");
+        uint16_t initial_pos = menu_1.content[0]->properties.position.x;
+
+        for (int i = 0; i < menu_1.active_elements; i++)
+        {
+            menu_1.content[i]->properties.position.x = 130;
+        }
+        // uCanvas_Delay(50);
         uCanvas_set_active_scene(scene1);
-        uCanvas_Delay(100);
+
+        while (menu_1.content[0]->properties.position.x != initial_pos)
+        {        
+            for (int i = 0; i < menu_1.active_elements; i++)
+            {
+                menu_1.content[i]->properties.position.x--;
+            }
+            ets_delay_us(1000);
+            
+            // uCanvas_Delay(1);
+        }  
+        uCanvas_Delay(50);
         menu_set_active_state(&menu_1,true);
         menu_set_active_state(&menu_2,false);
     }
@@ -89,7 +129,7 @@ void create_menu_1_instace(void){
     menu_1.click_handler = onItemClicked;
     menu_1.select_btn_wait_to_release = true;
 
-    menu_set_active_elements(&menu_1,10);
+    menu_set_active_elements(&menu_1,5);
     menu_set_enable_cursor_index_text(&menu_1,true);
     menu_add_gpio_control(&menu_1,47,48,45);
     
@@ -99,9 +139,17 @@ void create_menu_1_instace(void){
 
     create_menu(&menu_1,selector);
     menu_set_title(&menu_1,"< Menu_1-Demo >"   ,20,0);
-    menu_set_content(&menu_1,"GOTO MENU-2",9);
-    New_uCanvas_2DLine(0,MENU_POSITION_Y-4,128,MENU_POSITION_Y-4);
-    New_uCanvas_2DLine(0,MENU_POSITION_Y-3,128,MENU_POSITION_Y-3);
+    
+    New_uCanvas_2DLine(0,MENU_POSITION_Y-8,128,MENU_POSITION_Y-8);
+    New_uCanvas_2DLine(0,MENU_POSITION_Y-7,128,MENU_POSITION_Y-7);
+
+
+    menu_set_content(&menu_1,"Brightness",0);
+    menu_set_content(&menu_1,"Contrast",1);
+    menu_set_content(&menu_1,"Volume",2);
+    menu_set_content(&menu_1,"Source",3);
+    menu_set_content(&menu_1,"Next-Page",4);
+    
     // New_uCanvas_2DLine(85,MENU_POSITION_Y-3,85,64);
 }
 
@@ -127,8 +175,8 @@ void create_menu_2_instace(void){
     create_menu(&menu_2,selector);
     menu_set_title(&menu_2,"< Menu_2-Demo >"   ,20,0);
     menu_set_content(&menu_2,"GOTO MENU-1",9);
-    New_uCanvas_2DLine(0,MENU_POSITION_Y-4,128,MENU_POSITION_Y-4);
-    New_uCanvas_2DLine(0,MENU_POSITION_Y-3,128,MENU_POSITION_Y-3);
+    New_uCanvas_2DLine(0,MENU_POSITION_Y-8,128,MENU_POSITION_Y-8);
+    New_uCanvas_2DLine(0,MENU_POSITION_Y-7,128,MENU_POSITION_Y-7);
     // New_uCanvas_2DLine(85,MENU_POSITION_Y-3,85,64);
 }
 
