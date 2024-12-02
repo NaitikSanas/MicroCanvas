@@ -161,3 +161,11 @@ void menu_set_title(selection_menu_obj_t* menu_obj,char* content, uint16_t x, ui
     sprintf(menu_obj->title->text,content);
     uCanvas_Set_Position(menu_obj->title,x,y);
 }
+
+void menu_set_active_state(selection_menu_obj_t* menu_obj,uint16_t state){
+    menu_obj->is_active = state;
+}
+
+uint16_t menu_get_active_state(selection_menu_obj_t* menu_obj){
+    return menu_obj->is_active;
+}

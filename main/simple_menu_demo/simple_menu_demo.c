@@ -24,65 +24,58 @@ static uint8_t selector_icon[9*9] = {   \
 
 static selection_menu_obj_t menu_1;
 static selection_menu_obj_t menu_2;
-uint8_t sync_1 = false;
-uint8_t sync_2 = false;
-void onItemClicked(){
-    if(!sync_1){
-        if(menu_1.cursor_index != 9){
-            menu_1.user_data[menu_1.cursor_index]++;
-            printf("Click Evt at %d Events\r\n",menu_1.cursor_index);
-            
-            char content[32];
-            sprintf(content,"Item %d     %d",menu_1.cursor_index,menu_1.user_data[menu_1.cursor_index]);
-            menu_set_content(&menu_1,content,menu_1.cursor_index);
-        }
-        if(menu_1.cursor_index == 9){
-            printf("Changing scene....\r\n");
-            sync_2 = true;
-            menu_1.is_active = false;
-            menu_2.is_active = true;
-            uCanvas_set_active_scene(scene2);
-            uCanvas_Delay(100);
-            sync_2 = false;
-        }
 
-        if(menu_1.is_active){    
-            menu_1.cursor->properties.visiblity = INVISIBLE;
-            uCanvas_Delay(10);
-            menu_1.cursor->properties.visiblity = VISIBLE;
-            uCanvas_Delay(10);
-        }
+void onItemClicked(){
+    int cursor_position = menu_get_current_index(&menu_1) ;
+    if(cursor_position != 9){
+        menu_1.user_data[cursor_position]++;
+        printf("Click Evt at %d Events\r\n",cursor_position);    
+        char content[32];
+        sprintf(content,"Item %d     %d",cursor_position,menu_1.user_data[cursor_position]);
+        menu_set_content(&menu_1,content,cursor_position);
+    }
+
+    if(cursor_position == 9){
+        printf("Changing scene....\r\n");
+        uCanvas_set_active_scene(scene2);
+        uCanvas_Delay(100);
+        menu_set_active_state(&menu_1,false);
+        menu_set_active_state(&menu_2,true);
+    }
+
+    if(menu_get_active_state(&menu_1)){    
+        menu_1.cursor->properties.visiblity = INVISIBLE;
+        uCanvas_Delay(10);
+        menu_1.cursor->properties.visiblity = VISIBLE;
+        uCanvas_Delay(10);
     }
 }
 
 void onContentClicked(void){
-    if(!sync_2){
-        printf("EVENT onContentClicked \r\n");
-        if(menu_2.cursor_index != 9){
-            menu_2.user_data[menu_2.cursor_index]++;
-            printf("Click Evt at %d %d Events\r\n",menu_2.cursor_index,menu_2.user_data[menu_2.cursor_index]);
-            
-            char content[32];
-            sprintf(content,"Content %d  %d",menu_2.cursor_index,menu_2.user_data[menu_2.cursor_index]);
-            menu_set_content(&menu_2,content,menu_2.cursor_index);
-        }
+    printf("EVENT onContentClicked \r\n");
+    int cursor_position = menu_get_current_index(&menu_2) ;
+    if(cursor_position != 9){
+        menu_2.user_data[cursor_position]++;
+        printf("Click Evt at %d %d Events\r\n",cursor_position,menu_2.user_data[cursor_position]);
+        
+        char content[32];
+        sprintf(content,"Content %d  %d",cursor_position,menu_2.user_data[cursor_position]);
+        menu_set_content(&menu_2,content,cursor_position);
+    }
 
-        if(menu_2.cursor_index == 9){
-            printf("Changing scene....\r\n");
-            menu_1.is_active = true;
-            menu_2.is_active = false;
-            uCanvas_set_active_scene(scene1);
-            sync_1 = true;
-            uCanvas_Delay(100);
-            sync_1 = false;
-        }
+    if(cursor_position == 9){
+        printf("Changing scene....\r\n");
+        uCanvas_set_active_scene(scene1);
+        uCanvas_Delay(100);
+        menu_set_active_state(&menu_1,true);
+        menu_set_active_state(&menu_2,false);
+    }
 
-        if(menu_2.is_active){
-            menu_2.cursor->properties.visiblity = INVISIBLE;
-            uCanvas_Delay(10);
-            menu_2.cursor->properties.visiblity = VISIBLE;
-            uCanvas_Delay(10);
-        }
+    if(menu_get_active_state(&menu_2)){
+        menu_2.cursor->properties.visiblity = INVISIBLE;
+        uCanvas_Delay(10);
+        menu_2.cursor->properties.visiblity = VISIBLE;
+        uCanvas_Delay(10);
     }
 }
 
@@ -152,9 +145,9 @@ void simple_menu_demo_setup(void){
     create_menu_1_instace();
     create_menu_2_instace();
     uCanvas_set_active_scene(scene1); 
-
-    menu_1.is_active = true;
-    menu_2.is_active = false;
+    
+    menu_set_active_state(&menu_1,true);
+    menu_set_active_state(&menu_2,false);
 }
 
 void simple_menu_demo_App_Main(void){

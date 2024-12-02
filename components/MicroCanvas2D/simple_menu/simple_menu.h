@@ -35,3 +35,5 @@ void menu_set_active_elements(selection_menu_obj_t* menu_obj,uint16_t active_ele
 void menu_set_enable_cursor_index_text(selection_menu_obj_t* menu_obj,uint16_t state);
 void menu_set_content(selection_menu_obj_t* menu_obj,char* content, uint8_t index);
 void menu_set_title(selection_menu_obj_t* menu_obj,char* content, uint16_t x, uint16_t y);
+void menu_set_active_state(selection_menu_obj_t* menu_obj,uint16_t state);
+uint16_t menu_get_active_state(selection_menu_obj_t* menu_obj);
