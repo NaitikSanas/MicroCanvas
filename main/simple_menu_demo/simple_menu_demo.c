@@ -2,7 +2,7 @@
 uCanvas_Scene_t* scene1;
 uCanvas_Scene_t* scene2;
 #include "ucanvas_button.h"
-#include "ssd1306.h"
+
 uCanvas_obj_t* selector;
 static uint8_t selector_icon[9*9] = {   \
     1,1,1,1,1,0,0,0,0,                    \
@@ -98,8 +98,7 @@ void simple_menu_demo_setup(void){
     start_uCanvas_engine();
     scene1 = New_uCanvas_Scene(); //This holds Menu_1 Instance
     scene2 = New_uCanvas_Scene(); //This holds Menu_2 Instance
-    
-
+    //GPIOs for Rotory encoder
     uCanvas_Init_PushButton(47);
     uCanvas_Init_PushButton(48);
     uCanvas_Init_PushButton(45);
@@ -115,17 +114,7 @@ void simple_menu_demo_setup(void){
         user input handling when the menu is no displayed on screen.
     */
     menu_set_active_state(&menu_1,true);
-    menu_set_active_state(&menu_2,false);
-
-   
-    // while (1)
-    // {
-    //     uCanvas_Delay(100);
-    //     ucanvas_switch_update_state(&btn1,SW_ON);
-    //     uCanvas_Delay(100);
-    //     ucanvas_switch_update_state(&btn1,SW_OFF);
-    // }
-    
+    menu_set_active_state(&menu_2,false);    
 }
 
 void simple_menu_demo_App_Main(void){
@@ -139,6 +128,11 @@ void simple_menu_demo_App_Main(void){
 void onItemClicked_Menu_1(){
     char content[32];
     int cursor_position = menu_get_current_index(&menu_1) ;
+    /*
+        Increment user_data field at cursor postion where click event was triggered. 
+        We are not limited to this You can do anything else here. this example showcases usage of
+        built in user_Data field that can be used to hold the state of UI, Other processes etc.
+    */
     switch (cursor_position)
     {
     case 0:
@@ -167,7 +161,9 @@ void onItemClicked_Menu_1(){
     default:
         break;
     }
-
+    /* When cursor is on position 4 that is memeber "Next-Page" We transition to Scene-2 and disabling this event handler 
+        untill menu_1 is active again.
+     */
     if(cursor_position == 4){
         printf("Changing scene....\r\n");
         uCanvas_set_active_scene(scene2);
@@ -200,6 +196,10 @@ void onContentClicked_Menu_2(void){
 
     if(cursor_position == 9){
         printf("Changing scene....\r\n");
+        /*
+            This block was my attempt to create transition animation between scene switch up and I think
+            it does look cool.
+        */
         uint16_t initial_pos = menu_1.content[0]->properties.position.x;
 
         for (int i = 0; i < menu_1.active_elements; i++)
