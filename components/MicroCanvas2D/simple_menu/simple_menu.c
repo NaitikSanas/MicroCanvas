@@ -46,8 +46,8 @@ void menu_task(selection_menu_obj_t* menu_obj){
                     }   
                     uCanvas_Delay(1);
                 }  
-                uCanvas_Delay(10);
-
+                // uCanvas_Delay(10);
+                ets_delay_us(1000);
                 if(menu_obj->enable_index_disp){
                     sprintf(buf,"%d",menu_obj->cursor_index);
                     printf("selector %d\r\n",menu_obj->cursor_index);
@@ -71,7 +71,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
                         }   
                         
                     }
-                    uCanvas_Delay(1);
+                    ets_delay_us(100);
                 }  
             }
         }
