@@ -1,5 +1,5 @@
 #include "uCanvas_User_IO.h"
-
+#include "uCanvas_api.h"
 void uCanvas_PB_Input_ISR(void* arg){
 
 }
@@ -14,4 +14,15 @@ void uCanvas_Init_PushButton(gpio_num_t gpio_num){
 
 uint8_t uCanvas_Get_PushbuttonState(gpio_num_t gpio_num){
     return gpio_get_level(gpio_num);
+}
+
+uint8_t uCanvas_Get_PushbuttonState_WTR(gpio_num_t gpio_num){
+    if(uCanvas_Get_PushbuttonState(gpio_num)==0){
+        while (!uCanvas_Get_PushbuttonState(gpio_num))
+        {
+            uCanvas_Delay(1);
+        }  
+        return 0;
+    }
+    else return uCanvas_Get_PushbuttonState(gpio_num);
 }

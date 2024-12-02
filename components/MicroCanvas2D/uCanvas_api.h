@@ -135,4 +135,5 @@
     int get_random_number(int min, int max);
     
     void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj);
+    void uCanvas_Delete_Scene(uCanvas_Scene_t* scene_obj);
 #endif

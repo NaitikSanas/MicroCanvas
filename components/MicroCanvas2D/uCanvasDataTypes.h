@@ -96,7 +96,7 @@
         // sprite2D_t* sprite2D_obj;
     } uCanvas_universal_obj_t;
 
-
+     typedef uCanvas_universal_obj_t uCanvas_obj_t;
     typedef struct uCanvas_rectangle
     {
         uCanvas_base_t properties; 

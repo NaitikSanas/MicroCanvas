@@ -36,6 +36,7 @@ void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
 }
 
 void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
+    memset(obj->text,0,256);
     strncpy(obj->text,text,strlen(text));
 }
 
@@ -293,4 +294,14 @@ void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj){
             printf("[uCanvas-Delete-Obj] Moving %d to %d\r\n",i+1, i);
         }  
     }
+}
+
+void uCanvas_Delete_Scene(uCanvas_Scene_t* scene_obj){
+    //First free up memory occupied by every objects stored in current scene
+    for (size_t i = 0; i < scene_obj->_2D_Object_Ptr; i++)
+    {
+        free(scene_obj->_2D_Objects[i]);
+    }
+    
+    free(scene_obj);  
 }

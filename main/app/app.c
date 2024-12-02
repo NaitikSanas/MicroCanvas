@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -10,6 +7,15 @@
 #include "math.h"
 #include "esp_log.h"
 #include "uCanvas_api.h"
-#include "sprites_demo.h"
 #include "uCanvas_Physix.h" 
 #include "sprite_collection.h"
+#include "uCanvas_User_IO.h"
+
+void uCanvas_Setup(void){
+ 
+    
+}
+
+void uCanvas_App_Main(void){
+  
+}
