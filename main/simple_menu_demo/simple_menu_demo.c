@@ -30,13 +30,14 @@ void onItemClicked_Menu_1(void);
 
 void create_menu_1_instace(void){
     uCanvas_set_active_scene(scene1);
-
+    
     menu_1.menu_position_x = MENU_POSITION_X;
     menu_1.menu_position_y = MENU_POSITION_Y;
     menu_1.span_x = SPAN_X;
     menu_1.span_y = SPAN_Y;
     menu_1.text_offset_x = 20;
-    menu_1.click_handler = onItemClicked_Menu_1;
+
+    menu_1.click_handler = onItemClicked_Menu_1; //This function will be called when select button is pressed
     menu_1.select_btn_wait_to_release = true;
 
     menu_set_active_elements(&menu_1,32); //Set Active Members of menu object
@@ -95,17 +96,24 @@ void create_menu_2_instace(void){
 
 void simple_menu_demo_setup(void){
     start_uCanvas_engine();
-    scene1 = New_uCanvas_Scene();
-    scene2 = New_uCanvas_Scene();
+    scene1 = New_uCanvas_Scene(); //This holds Menu_1 Instance
+    scene2 = New_uCanvas_Scene(); //This holds Menu_2 Instance
     
 
     uCanvas_Init_PushButton(47);
     uCanvas_Init_PushButton(48);
     uCanvas_Init_PushButton(45);
     
-    create_menu_1_instace();
-    create_menu_2_instace();
+    create_menu_1_instace(); //creates menu_1 page_1
+    create_menu_2_instace();//create menu_2 page 2
+
+    //Set  Scene1 as active to display Menu_1 Page
     uCanvas_set_active_scene(scene1); 
+
+    /*
+        setting is_Active flag of menu instace to false allows disabling
+        user input handling when the menu is no displayed on screen.
+    */
     menu_set_active_state(&menu_1,true);
     menu_set_active_state(&menu_2,false);
 
