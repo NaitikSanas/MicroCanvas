@@ -10,7 +10,7 @@
 #include "uCanvas_Physix.h" 
 #include "uCanvas_User_IO.h"
 #include "simple_menu.h"
-
+#include "ssd1306.h"
 void menu_task(selection_menu_obj_t* menu_obj);
 void create_menu(selection_menu_obj_t* menu_obj,uCanvas_universal_obj_t* cursor_object){
     char buf[32]={0};
@@ -25,12 +25,15 @@ void create_menu(selection_menu_obj_t* menu_obj,uCanvas_universal_obj_t* cursor_
         printf("enable_index_disp true\r\n");
         menu_obj->index_disp = New_uCanvas_2DTextbox("--",0,0);
     }
+    // New_uCanvas_2DRectangle(menu_obj->title_position_x,menu_obj->title_position_y,menu_obj->span_y,50);
+    menu_obj->title = New_uCanvas_2DTextbox("",menu_obj->title_position_x,menu_obj->title_position_y);
     uCanvas_Add_Task(menu_task,menu_obj,1);
 }
 
 void menu_task(selection_menu_obj_t* menu_obj){
     while(1){
         char buf[32]={0};
+        if(menu_obj->is_active){
         int active = menu_obj->active_elements - 1;
         if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->up_btn)){
             if(menu_obj->cursor_index < active){
@@ -41,7 +44,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
                     {
                         menu_obj->content[j]->properties.position.y--;
                     }   
-                    uCanvas_Delay(2);
+                    uCanvas_Delay(1);
                 }  
                 uCanvas_Delay(10);
 
@@ -66,8 +69,9 @@ void menu_task(selection_menu_obj_t* menu_obj){
                         {
                             menu_obj->content[j]->properties.position.y++;
                         }   
-                        uCanvas_Delay(1);
+                        
                     }
+                    uCanvas_Delay(1);
                 }  
             }
         }
@@ -81,7 +85,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
                     {
                         menu_obj->content[j]->properties.position.y++;
                     }   
-                    uCanvas_Delay(2);
+                    uCanvas_Delay(1);
                 }  
                 uCanvas_Delay(10);
 
@@ -106,17 +110,27 @@ void menu_task(selection_menu_obj_t* menu_obj){
                         {
                             menu_obj->content[j]->properties.position.y--;
                         }   
-                        uCanvas_Delay(1);
+                        
                     }
+                    uCanvas_Delay(1);
                 } 
+                
             }
         }
-        if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->select_btn)){
-            if(menu_obj->click_handler !=NULL){
-                menu_obj->click_handler();
+        if(menu_obj->click_handler !=NULL){
+            if(menu_obj->select_btn_wait_to_release){
+                if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->select_btn)){
+                    menu_obj->click_handler();
+                }
+            }
+            else {
+                if(!uCanvas_Get_PushbuttonState(menu_obj->select_btn)){
+                    menu_obj->click_handler();
+                }
+               
             }
         }
-
+        }
         uCanvas_Delay(1);
     }
 }
@@ -141,4 +155,9 @@ void menu_set_enable_cursor_index_text(selection_menu_obj_t* menu_obj,uint16_t s
 
 void menu_set_content(selection_menu_obj_t* menu_obj,char* content, uint8_t index){
     uCanvas_Set_Text(menu_obj->content[index],content);
+}
+
+void menu_set_title(selection_menu_obj_t* menu_obj,char* content, uint16_t x, uint16_t y){
+    sprintf(menu_obj->title->text,content);
+    uCanvas_Set_Position(menu_obj->title,x,y);
 }

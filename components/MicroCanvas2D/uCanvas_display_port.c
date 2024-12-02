@@ -47,6 +47,7 @@ void uCanvas_Draw_Circle(int x, int y, int r, color_t color, fill_t fill){
 
 
 void uCanvas_Draw_Line(Coordinate2D_t point1, Coordinate2D_t point2, color_t color){
+    // printf("line p1(%d, %d) , p2(%d, %d)\r\n",point1.x,point1.y,point2.x,point2.y);
         SSD1306_DrawLine(point1.x,point1.y,point2.x,point2.y,color.monochrome_pixel);
 }
 

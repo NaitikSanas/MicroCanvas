@@ -112,7 +112,7 @@ void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line, uint16_t x1, uin
 uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
     uCanvas_universal_obj_t* line = uCanvas_Universal_Object;
     
-    uCanvas_Set_Line_Coordinates(line,x1,y2, x2,y2);
+    uCanvas_Set_Line_Coordinates(line,x1,y1, x2,y2);
     uCanvas_Set_Visiblity(line,VISIBLE);
     uCanvas_Set_Obj_Type(line, LINE);
     uCanvas_Set_Color(line,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
