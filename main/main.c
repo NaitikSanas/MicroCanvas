@@ -2,8 +2,8 @@
 #include "app.h"
 #include "simple_menu_demo.h"
 
-#define RUN_APP_C
-// #define RUN_SIMPLE_MENU_DEMO
+// #define RUN_APP_C
+#define RUN_SIMPLE_MENU_DEMO 1
 // #define RUN_2D_SPRITE_DEMO 1
 void app_main(){
     #ifdef RUN_APP_C
