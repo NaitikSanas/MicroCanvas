@@ -12,4 +12,4 @@ set(COMPONENT_SRCS  "uCanvasRenderEngine.c"
 
 idf_component_register(SRCS "uCanvas_Frame_buffer.c" "uCanvas_draw.c" "uCanvas_Physix.c" "${COMPONENT_SRCS}"
                         INCLUDE_DIRS "." "simple_menu" "ucanvas_button" "ucanvas_slider"
-                       PRIV_REQUIRES driver SSD1306_Driver u8g2 u8g2-hal-esp-idf)
+                       PRIV_REQUIRES driver SSD1306_Driver )
