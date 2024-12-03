@@ -29,6 +29,19 @@ typedef struct menu_obj
     uCanvas_universal_obj_t* title;
 }selection_menu_obj_t;
 
+typedef struct prompt
+{
+    uCanvas_universal_obj_t* obj[5];
+    uint16_t box_h;
+    uint16_t box_w;
+    uint16_t prompt_position_x;
+    uint16_t prompt_position_y;
+    uint16_t relative_text_position_x;
+    uint16_t relative_text_position_y;
+    uint16_t state;
+}prompt_t;
+
+
 void create_menu(selection_menu_obj_t* menu_obj,uCanvas_universal_obj_t* cursor_object);
 void menu_task(selection_menu_obj_t* menu_obj);
 int menu_get_current_index(selection_menu_obj_t* menu_obj);
@@ -39,3 +52,8 @@ void menu_set_content(selection_menu_obj_t* menu_obj,char* content, uint8_t inde
 void menu_set_title(selection_menu_obj_t* menu_obj,char* content, uint16_t x, uint16_t y);
 void menu_set_active_state(selection_menu_obj_t* menu_obj,uint16_t state);
 uint16_t menu_get_active_state(selection_menu_obj_t* menu_obj);
+
+void create_prompt(prompt_t* pObj);
+void set_prompt_content(prompt_t* pObj,char* content_line_1, char* content_line_2);
+void hide_prompt(prompt_t* pObj);
+void show_prompt(prompt_t* pObj);

@@ -52,7 +52,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
                 ets_delay_us(1000);
                 if(menu_obj->enable_index_disp){
                     sprintf(buf,"%d",menu_obj->cursor_index);
-                    printf("selector %d\r\n",menu_obj->cursor_index);
+                    // printf("selector %d\r\n",menu_obj->cursor_index);
                     uCanvas_Set_Text(menu_obj->index_disp,buf);
                 }
             }  
@@ -60,7 +60,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
                 menu_obj->cursor_index = 0;
                 if(menu_obj->enable_index_disp){
                     sprintf(buf,"%d",menu_obj->cursor_index);
-                    printf("selector %d\r\n",menu_obj->cursor_index);
+                    // printf("selector %d\r\n",menu_obj->cursor_index);
                     uCanvas_Set_Text(menu_obj->index_disp,buf);
                 }
                 for (int k = 0; k < active; k++)
@@ -95,7 +95,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
 
                 if(menu_obj->enable_index_disp){
                     sprintf(buf,"%d",menu_obj->cursor_index);
-                    printf("selector %d\r\n",menu_obj->cursor_index);
+                    // printf("selector %d\r\n",menu_obj->cursor_index);
                     uCanvas_Set_Text(menu_obj->index_disp,buf);
                 }
             }  
@@ -103,7 +103,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
                 menu_obj->cursor_index = menu_obj->active_elements-1;
                 if(menu_obj->enable_index_disp){
                     sprintf(buf,"%d",menu_obj->cursor_index);
-                    printf("selector %d\r\n",menu_obj->cursor_index);
+                    // printf("selector %d\r\n",menu_obj->cursor_index);
                     uCanvas_Set_Text(menu_obj->index_disp,buf);
                 }
                 for (int k = 0; k < active; k++)
@@ -172,4 +172,39 @@ void menu_set_active_state(selection_menu_obj_t* menu_obj,uint16_t state){
 
 uint16_t menu_get_active_state(selection_menu_obj_t* menu_obj){
     return menu_obj->is_active;
+}
+
+
+void create_prompt(prompt_t* pObj){
+    pObj->obj[0] = New_uCanvas_2DRectangle(pObj->prompt_position_x,pObj->prompt_position_y,pObj->box_h, pObj->box_w);
+    pObj->obj[0]->properties.color.monochrome_pixel = 0;
+    pObj->obj[0]->properties.fill = FILL;
+
+    pObj->obj[1] = New_uCanvas_2DRectangle(pObj->prompt_position_x,pObj->prompt_position_y,pObj->box_h, pObj->box_w);
+    pObj->obj[2] = New_uCanvas_2DTextbox("prompt_line_1",(pObj->relative_text_position_x + pObj->prompt_position_x), (pObj->relative_text_position_y + pObj->prompt_position_y));
+    pObj->obj[3] = New_uCanvas_2DTextbox("prompt_line_2",(pObj->relative_text_position_x + pObj->prompt_position_x), (pObj->relative_text_position_y + pObj->prompt_position_y+12));
+
+    for (int i = 0; i < 4; i++)
+    {
+        pObj->obj[i]->properties.visiblity = INVISIBLE;
+    }
+}
+
+void show_prompt(prompt_t* pObj){
+    for (int i = 0; i < 4; i++)
+    {
+        pObj->obj[i]->properties.visiblity = VISIBLE;
+    }
+}
+
+void hide_prompt(prompt_t* pObj){
+    for (int i = 0; i < 4; i++)
+    {
+        pObj->obj[i]->properties.visiblity = INVISIBLE;
+    }
+}
+
+void set_prompt_content(prompt_t* pObj,char* content_line_1, char* content_line_2){
+    uCanvas_Set_Text(pObj->obj[2],content_line_1);
+    uCanvas_Set_Text(pObj->obj[3],content_line_2);
 }

@@ -25,15 +25,18 @@ static uint8_t selector_icon[9*9] = {   \
 static selection_menu_obj_t menu_1;
 static selection_menu_obj_t menu_2;
 
+prompt_t prompt_1;
+
 void onContentClicked_Menu_2(void);
 void onItemClicked_Menu_1(void);
 
 void onScrollUp_Menu_1(void){
-    printf("[Event]:Scroll-Up\r\n");
+    printf("[Event]:Scroll-Up : idx %d\r\n",menu_get_current_index(&menu_1));
 }
 void onScrollDown_Menu_1(void){
-    printf("[Event]:Scroll-Down\r\n");    
+    printf("[Event]:Scroll-Down : idx %d\r\n",menu_get_current_index(&menu_1));  
 }
+
 void create_menu_1_instace(void){
     uCanvas_set_active_scene(scene1);
     
@@ -73,6 +76,17 @@ void create_menu_1_instace(void){
     menu_set_content(&menu_1,"Volume"    ,2);
     menu_set_content(&menu_1,"Source"    ,3);
     menu_set_content(&menu_1,"Next-Page" ,4);
+    
+    
+    prompt_1.box_h = 32;
+    prompt_1.box_w = 100;
+    prompt_1.prompt_position_x = 10;
+    prompt_1.prompt_position_y = 20;
+    prompt_1.relative_text_position_x = 5;
+    prompt_1.relative_text_position_y = 5;
+
+    create_prompt(&prompt_1);
+
 }
 
 
@@ -161,7 +175,12 @@ void onItemClicked_Menu_1(){
         break;
     
     case 3:
-        menu_1.user_data[cursor_position]++;
+        if(menu_1.user_data[cursor_position] ){
+            show_prompt(&prompt_1);
+        }else {
+            hide_prompt(&prompt_1);
+        }
+        menu_1.user_data[cursor_position] = ! menu_1.user_data[cursor_position];
         sprintf(content,"Source     %d",menu_1.user_data[cursor_position]);
         menu_set_content(&menu_1,content,cursor_position);
         break;
