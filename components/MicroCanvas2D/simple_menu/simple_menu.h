@@ -20,6 +20,8 @@ typedef struct menu_obj
     uint16_t span_y;
     uint16_t text_offset_x;
     FunctionPointer click_handler;
+    FunctionPointer scroll_up_handler;
+    FunctionPointer scroll_down_handler;
     uint16_t user_data[32];
     uCanvas_universal_obj_t* content[32];
     uCanvas_universal_obj_t* cursor;

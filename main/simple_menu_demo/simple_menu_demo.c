@@ -28,6 +28,12 @@ static selection_menu_obj_t menu_2;
 void onContentClicked_Menu_2(void);
 void onItemClicked_Menu_1(void);
 
+void onScrollUp_Menu_1(void){
+    printf("[Event]:Scroll-Up\r\n");
+}
+void onScrollDown_Menu_1(void){
+    printf("[Event]:Scroll-Down\r\n");    
+}
 void create_menu_1_instace(void){
     uCanvas_set_active_scene(scene1);
     
@@ -37,7 +43,9 @@ void create_menu_1_instace(void){
     menu_1.span_y = SPAN_Y;
     menu_1.text_offset_x = 20;
 
-    menu_1.click_handler = onItemClicked_Menu_1; //This function will be called when select button is pressed
+    menu_1.click_handler        = onItemClicked_Menu_1; //This function will be called when select button is pressed
+    menu_1.scroll_up_handler    = onScrollUp_Menu_1;
+    menu_1.scroll_down_handler  = onScrollDown_Menu_1;
     menu_1.select_btn_wait_to_release = true;
 
     menu_set_active_elements(&menu_1,32); //Set Active Members of menu object

@@ -36,6 +36,8 @@ void menu_task(selection_menu_obj_t* menu_obj){
         if(menu_obj->is_active){
         int active = menu_obj->active_elements - 1;
         if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->up_btn)){
+            if(menu_obj->scroll_up_handler != NULL)
+                menu_obj->scroll_up_handler();
             if(menu_obj->cursor_index < active){
                 menu_obj->cursor_index++;
                 for (int i = 0; i < menu_obj->span_y; i++)
@@ -77,6 +79,8 @@ void menu_task(selection_menu_obj_t* menu_obj){
         }
         else 
         if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->down_btn)){
+            if(menu_obj->scroll_down_handler != NULL)
+                menu_obj->scroll_down_handler();
             if(menu_obj->cursor_index >0){
                 menu_obj->cursor_index--;
                 for (int i = 0; i < menu_obj->span_y; i++)
