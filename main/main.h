@@ -10,6 +10,4 @@
 #include "math.h"
 #include "esp_log.h"
 #include "uCanvas_api.h"
-#include "sprites_demo.h"
 #include "uCanvas_Physix.h" 
-#include "sprite_collection.h"
