@@ -19,25 +19,30 @@ int rpg_map[20][20] = {
 
 uint8_t brick_sprite[9*9] = {
     1,1,1,1,1,1,1,1,1,
-    1,0,1,0,0,0,1,0,1,
-    1,1,1,1,1,1,1,1,1,
-    1,0,0,0,1,0,0,0,1,
-    1,1,1,1,1,1,1,1,1,
-    1,0,0,1,0,0,1,0,1,
-    1,1,1,1,1,1,1,1,1,
-    1,0,1,0,0,1,0,0,1,
+    1,0,3,0,0,0,3,0,1,
+    1,2,2,2,2,2,2,2,1,
+    1,0,0,0,3,0,0,0,1,
+    1,2,2,2,2,2,2,2,1,
+    1,0,0,3,0,0,3,0,1,
+    1,2,2,2,2,2,2,2,1,
+    1,0,3,0,0,3,0,0,1,
     1,1,1,1,1,1,1,1,1,
 };
+
+#define CHARACTER_SKELETON_HEIGHT 64
+#define CHARACTER_SKELETON_WIDTH 64
+
+
 static uint8_t character_sprite_buf[9 * 9] = {
-    0, 1, 1, 1, 1, 1, 1, 1, 0,
-    1, 0, 0, 0, 1, 1, 0, 0, 1,
-    1, 0, 1, 1, 1, 0, 1, 0, 1,
-    1, 1, 0, 0, 1, 0, 0, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 0, 1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1, 0, 0, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1
+    3, 3, 3, 3, 3, 3, 3, 3, 3,
+    3, 0, 0, 0, 0, 0, 0, 0, 3,
+    3, 0, 3, 3, 0, 3, 3, 0, 3,
+    3, 0, 3, 3, 0, 3, 3, 0, 3,
+    3, 0, 3, 3, 0, 3, 3, 0, 3,
+    3, 0, 0, 0, 0, 0, 0, 0, 3,
+    3, 0, 3, 3, 3, 3, 3, 0, 3,
+    3, 0, 0, 0, 0, 0, 0, 0, 3,
+    3, 3, 3, 3, 3, 3, 3, 3, 3
 };
 
 // 2D array for map objects
@@ -129,14 +134,14 @@ void move_character(int new_x, int new_y) {
         return;  // Collision with wall
     }
     
-    if(character->properties.position.x > 120) {
-        pan_through_wall_map(map_objects,20,20,40,PAN_DIR_RIGHT,10000);
-         character->properties.position.x -= 40;
-    }
-    if(character->properties.position.y > 60) {
-        pan_through_wall_map(map_objects,20,20,40,PAN_DIR_DOWN,10000);
-        character->properties.position.y -= 40;
-    }
+    // if(character->properties.position.x > 120) {
+    //     pan_through_wall_map(map_objects,20,20,40,PAN_DIR_RIGHT,10000);
+    //      character->properties.position.x -= 40;
+    // }
+    // if(character->properties.position.y > 60) {
+    //     pan_through_wall_map(map_objects,20,20,40,PAN_DIR_DOWN,10000);
+    //     character->properties.position.y -= 40;
+    // }
 
     char_x = new_x;
     char_y = new_y;
@@ -181,13 +186,13 @@ void uCanvas_Setup() {
     uCanvas_Compose_2DSprite_Obj(&wall_sprite, brick_sprite, 10, 10);
     // uCanvas_Compose_2DSprite_Obj(&floor_sprite, floor_sprite_buf, 10, 10);
     // uCanvas_Compose_2DSprite_Obj(&door_sprite, door_sprite_buf, 10, 10);
-    uCanvas_Compose_2DSprite_Obj(&character_sprite, character_sprite_buf, 10, 10);
+    uCanvas_Compose_2DSprite_Obj(&character_sprite, character_sprite_buf, 9, 9);
 
     // Build the map
     build_rpg_map();
 
     // Create the character
-    character = New_uCanvas_2DSprite(character_sprite, char_x * 10, char_y * 10);
+    character = New_uCanvas_2DSprite(character_sprite, char_x * 9, char_y * 9);
 
     // Main game loop
     while (1) {

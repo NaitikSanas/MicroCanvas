@@ -3,7 +3,9 @@
     #include <stdio.h>
     #include <string.h>
     #include "uCanvas_Settings.h"
-   
+    #include "freertos/FreeRTOS.h"
+    #include "freertos/task.h"
+    #include "freertos/semphr.h"
     #define UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE       (256)
 
     typedef TaskFunction_t uCanvas_Animation_task_t;
@@ -53,6 +55,7 @@
         color_t color;
         
         uint8_t collision_detection;
+        uint8_t flip_x;
     }uCanvas_base_t;
 
 
@@ -66,10 +69,11 @@
      */
     typedef struct sprite2D
     {
-        uint8_t* sprite_buf;
+        uint16_t* sprite_buf;
         uint16_t height;
         uint16_t width;
         uint8_t orientation;
+        
     }sprite2D_t;
     
     typedef struct uCanvas_universal_obj
@@ -90,10 +94,11 @@
         Coordinate2D_t point4;
 
         Coordinate2D_t sprite_resolution;
-        uint8_t* sprite_buffer;
+        uint16_t* sprite_buffer;
         uint8_t invert_sprite_pixels;
         uint8_t state;
         char text[256];
+        
         // sprite2D_t* sprite2D_obj;
     } uCanvas_universal_obj_t;
 

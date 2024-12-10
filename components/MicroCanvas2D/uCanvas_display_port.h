@@ -1,7 +1,7 @@
 #include "stdio.h"
-#include "ssd1306.h"
 #include "uCanvasDataTypes.h"
-
+// #define USE_SSD1306
+#define USE_ST7789
 typedef struct uCanvas_display_port
 {
     uint16_t xPos;
@@ -32,3 +32,5 @@ void uCanvas_Draw_Text                  (char* text, int x, int y, color_t color
 
 void uCanvas_Draw_Triangle              (Coordinate2D_t point1, Coordinate2D_t point2, Coordinate2D_t point3, color_t color, fill_t fill);
 void uCanvas_DrawPixel                  (Coordinate2D_t pos,color_t color);
+void uCanvas_DrawPixel565                  (Coordinate2D_t pos,uint16_t color);
+uint16_t convertToRGB565(color_t color) ;

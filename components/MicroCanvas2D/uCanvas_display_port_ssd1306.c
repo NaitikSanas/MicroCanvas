@@ -1,6 +1,6 @@
 #include "uCanvas_display_port.h"
-
-
+#include "ssd1306.h"
+#ifdef USE_SSD1306
 void uCanvas_Display_init(void){
     SSD1306_Init();
 }
@@ -66,3 +66,4 @@ void uCanvas_Draw_Triangle(Coordinate2D_t point1, Coordinate2D_t point2, Coordin
 void uCanvas_DrawPixel(Coordinate2D_t pos,color_t color){
     SSD1306_DrawPixel(pos.x,pos.y,color.monochrome_pixel);
 }
+#endif

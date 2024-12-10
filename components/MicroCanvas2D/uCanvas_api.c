@@ -181,7 +181,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t sprite2D_obj,uint16_t p
     uCanvas_Sprite->properties.position.x = pos_x;
     uCanvas_Sprite->properties.position.y = pos_y;
     uCanvas_push_object_to_activescene(uCanvas_Sprite);
-    printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
+    // printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
     return uCanvas_Sprite;
 }
 
