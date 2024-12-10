@@ -1,12 +1,13 @@
 #include "main.h"
 #include "app.h"
 #include "simple_menu_demo.h"
-
-// #define RUN_APP_C
-#define RUN_SIMPLE_MENU_DEMO 1
+#include "design_game_map.h"
+#define RUN_APP_C 1
+// #define RUN_DESIGN_GAME_MAP_DEMO 1
+// #define RUN_SIMPLE_MENU_DEMO 1
 // #define RUN_2D_SPRITE_DEMO 1
 void app_main(){
-    #ifdef RUN_APP_C
+    #if RUN_APP_C
     uCanvas_Setup();
     while (1)
     {
@@ -25,11 +26,16 @@ void app_main(){
     
     sprite_demo(); // explore sprites_demo.c     
 
+    #elif RUN_DESIGN_GAME_MAP_DEMO
+    
+        uCanvas_Setup1();
+        while (1)
+        {
+            uCanvas_App_Main1();
+            // uCanvas_Delay(1);
+        }
+        
     #endif
-    
-    
-    //
-    
     
     
 }

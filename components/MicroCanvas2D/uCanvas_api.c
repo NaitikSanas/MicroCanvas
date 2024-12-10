@@ -1,9 +1,10 @@
 #include "stdio.h"
 #include "uCanvas_api.h"
-
+#include "esp_random.h"
 uCanvas_Scene_t* active_scene;
-
-
+SemaphoreHandle_t active_scene_mutex;
+#define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,portMAX_DELAY)
+#define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
 void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
     if(active_scene != NULL){
         if(LOCK_ACTIVE_SCENEB_BUF){
@@ -196,7 +197,7 @@ void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16
 }
 
 uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void *arg, int core_id){
-    uCanvas_Animation_task_handle_t task_handle = NULL;
+    TaskHandle_t task_handle = NULL;
     xTaskCreatePinnedToCore(animation_loop,"Task2",UCANVAS_TASK_STACK_SIZE,arg,0,&task_handle,1);
     return task_handle;
 }

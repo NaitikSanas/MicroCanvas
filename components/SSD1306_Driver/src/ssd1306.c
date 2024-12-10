@@ -153,7 +153,7 @@ uint8_t SSD1306_Init(void) {
 	SSD1306_WRITECOMMAND(0x10); //---set high column address
 	SSD1306_WRITECOMMAND(0x40); //--set start line address
 	SSD1306_WRITECOMMAND(0x81); //--set contrast control register
-	SSD1306_WRITECOMMAND(0xFF);
+	SSD1306_WRITECOMMAND(0x04);
 	SSD1306_WRITECOMMAND(0xA1); //--set segment re-map 0 to 127
 	SSD1306_WRITECOMMAND(0xA6); //--set normal display
 	SSD1306_WRITECOMMAND(0xA8); //--set multiplex ratio(1 to 64)

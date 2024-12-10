@@ -11,7 +11,7 @@
 #include "uCanvas_User_IO.h"
 #include "simple_menu.h"
 #include "ssd1306.h"
-
+#include "esp_system.h "
 void menu_task(selection_menu_obj_t* menu_obj);
 void create_menu(selection_menu_obj_t* menu_obj,uCanvas_universal_obj_t* cursor_object){
     char buf[32]={0};
@@ -28,17 +28,17 @@ void create_menu(selection_menu_obj_t* menu_obj,uCanvas_universal_obj_t* cursor_
     }
     // New_uCanvas_2DRectangle(menu_obj->title_position_x,menu_obj->title_position_y,menu_obj->span_y,50);
     menu_obj->title = New_uCanvas_2DTextbox("",menu_obj->title_position_x,menu_obj->title_position_y);
-    uCanvas_Add_Task(menu_task,menu_obj,1);
+    uCanvas_Add_Task((uCanvas_Animation_task_t)menu_task,menu_obj,1);
 }
 
 void menu_task(selection_menu_obj_t* menu_obj){
+    printf("Menu state monitoring task started\r\n");
     while(1){
         char buf[32]={0};
         if(menu_obj->is_active){
         int active = menu_obj->active_elements - 1;
         if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->up_btn)){
-            if(menu_obj->scroll_up_handler != NULL)
-                menu_obj->scroll_up_handler();
+            
             if(menu_obj->cursor_index < active){
                 menu_obj->cursor_index++;
                 for (int i = 0; i < menu_obj->span_y; i++)
@@ -50,12 +50,13 @@ void menu_task(selection_menu_obj_t* menu_obj){
                     uCanvas_Delay(1);
                 }  
                 // uCanvas_Delay(10);
-                ets_delay_us(1000);
+                esp_rom_delay_us(1000);
                 if(menu_obj->enable_index_disp){
                     sprintf(buf,"%d",menu_obj->cursor_index);
                     // printf("selector %d\r\n",menu_obj->cursor_index);
                     uCanvas_Set_Text(menu_obj->index_disp,buf);
                 }
+                
             }  
             else {
                 menu_obj->cursor_index = 0;
@@ -74,14 +75,14 @@ void menu_task(selection_menu_obj_t* menu_obj){
                         }   
                         
                     }
-                    ets_delay_us(100);
+                    esp_rom_delay_us(100);
                 }  
             }
+            if(menu_obj->scroll_up_handler != NULL)
+                    menu_obj->scroll_up_handler();
         }
         else 
-        if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->down_btn)){
-            if(menu_obj->scroll_down_handler != NULL)
-                menu_obj->scroll_down_handler();
+        if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->down_btn)){           
             if(menu_obj->cursor_index >0){
                 menu_obj->cursor_index--;
                 for (int i = 0; i < menu_obj->span_y; i++)
@@ -118,9 +119,10 @@ void menu_task(selection_menu_obj_t* menu_obj){
                         
                     }
                     uCanvas_Delay(1);
-                } 
-                
+                }             
             }
+            if(menu_obj->scroll_down_handler != NULL)
+                menu_obj->scroll_down_handler();
         }
         if(menu_obj->click_handler !=NULL){
             if(menu_obj->select_btn_wait_to_release){
@@ -182,8 +184,8 @@ void create_prompt(prompt_t* pObj){
     pObj->obj[0]->properties.fill = FILL;
 
     pObj->obj[1] = New_uCanvas_2DRectangle(pObj->prompt_position_x,pObj->prompt_position_y,pObj->box_h, pObj->box_w);
-    pObj->obj[2] = New_uCanvas_2DTextbox("prompt_line_1",(pObj->relative_text_position_x + pObj->prompt_position_x), (pObj->relative_text_position_y + pObj->prompt_position_y));
-    pObj->obj[3] = New_uCanvas_2DTextbox("prompt_line_2",(pObj->relative_text_position_x + pObj->prompt_position_x), (pObj->relative_text_position_y + pObj->prompt_position_y+12));
+    pObj->obj[2] = New_uCanvas_2DTextbox("",(pObj->relative_text_position_x + pObj->prompt_position_x), (pObj->relative_text_position_y + pObj->prompt_position_y));
+    pObj->obj[3] = New_uCanvas_2DTextbox("",(pObj->relative_text_position_x + pObj->prompt_position_x), (pObj->relative_text_position_y + pObj->prompt_position_y+12));
 
     for (int i = 0; i < 4; i++)
     {

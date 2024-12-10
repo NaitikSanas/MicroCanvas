@@ -1,7 +1,9 @@
 
 #include "uCanvas_display_port.h"
 #include "uCanvasRenderEngine.h"
-
+extern SemaphoreHandle_t active_scene_mutex;
+#define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,portMAX_DELAY)
+#define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
 TaskHandle_t uCanvas_taskhandle;
 extern uCanvas_Scene_t* active_scene;
 
@@ -98,5 +100,5 @@ void start_uCanvas_engine(void){
     active_scene_mutex = xSemaphoreCreateBinary();
     UNLOCK_ACTIVE_SCENEB_BUF;
 
-    xTaskCreatePinnedToCore(&uCanvas_bg_render_engine_task,"Task",UCANVAS_RENDER_TASK_STACK_SIZE,NULL,UCANVAS_RENDER_TASK_PRIORITY,uCanvas_taskhandle,1);
+    xTaskCreatePinnedToCore(&uCanvas_bg_render_engine_task,"Task",UCANVAS_RENDER_TASK_STACK_SIZE,NULL,UCANVAS_RENDER_TASK_PRIORITY,&uCanvas_taskhandle,1);
 }

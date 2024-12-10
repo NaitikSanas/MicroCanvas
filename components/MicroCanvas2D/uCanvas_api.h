@@ -5,11 +5,10 @@
     #include "freertos/semphr.h"
     #include "uCanvasDataTypes.h"
 
-    SemaphoreHandle_t active_scene_mutex;
+   
     #define uCanvas_Universal_Object    (uCanvas_universal_obj_t*)malloc(sizeof(uCanvas_universal_obj_t))
     #define uCanvas_Scene_Object        (uCanvas_Scene_t*)malloc(sizeof(uCanvas_Scene_t)) 
-    #define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,portMAX_DELAY)
-    #define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
+    
 
     /*Starts Rendering Engine and Initializes Display*/
     void start_uCanvas_engine(void);

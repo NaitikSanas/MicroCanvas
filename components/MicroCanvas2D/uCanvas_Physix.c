@@ -40,7 +40,7 @@ void controller_task(controller_properties_t* player_obj){
 
 uCanvas_Animation_task_handle_t uCanvas_attach_type1_controller_script(uCanvas_universal_obj_t*obj,controller_properties_t* player_obj){
     player_obj->control_object = obj;
-    return uCanvas_Add_Task(controller_task,player_obj,1);
+    return uCanvas_Add_Task((uCanvas_Animation_task_t)controller_task,player_obj,1);
 }
 
 void detach_type1_controller_script(uCanvas_Animation_task_handle_t taskhandle){
