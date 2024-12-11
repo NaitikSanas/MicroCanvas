@@ -13,5 +13,5 @@
 #include "uCanvas_Physix.h" 
 #include "uCanvas_User_IO.h"
 
-void uCanvas_Setup1(void);
-void uCanvas_App_Main1(void);
+void uCanvas_Game_Design_Demo_Setup(void);
+void uCanvas_Game_Design_Demo_Loop(void);

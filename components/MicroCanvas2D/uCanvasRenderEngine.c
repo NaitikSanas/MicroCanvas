@@ -6,7 +6,42 @@ extern SemaphoreHandle_t active_scene_mutex;
 #define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
 TaskHandle_t uCanvas_taskhandle;
 extern uCanvas_Scene_t* active_scene;
-uint16_t rgba565_to_rgb565(uint16_t rgba565) {
+
+
+
+// Clamp function to ensure values stay within bounds
+static inline uint8_t clamp(int value, int min, int max) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
+// Function to modify pixel data for contrast adjustment without floats
+static uint16_t adjust_pixel_contrast(uint16_t color, int contrast) {
+    // Extract RGB565 components
+    uint8_t red = (color >> 11) & 0x1F;   // 5 bits for red
+    uint8_t green = (color >> 5) & 0x3F;  // 6 bits for green
+    uint8_t blue = color & 0x1F;          // 5 bits for blue
+
+    // Midpoints for each color component
+    int red_mid = 16;    // Midpoint for 5-bit red (0-31)
+    int green_mid = 32;  // Midpoint for 6-bit green (0-63)
+    int blue_mid = 16;   // Midpoint for 5-bit blue (0-31)
+
+    // Adjust contrast using integer math
+    // Formula: new_value = midpoint + ((value - midpoint) * contrast / 256)
+    red = clamp(red_mid + (((red - red_mid) * contrast) >> 8), 0, 31);
+    green = clamp(green_mid + (((green - green_mid) * contrast) >> 8), 0, 63);
+    blue = clamp(blue_mid + (((blue - blue_mid) * contrast) >> 8), 0, 31);
+
+    // Recombine RGB components into RGB565 format
+    uint16_t new_color = (red << 11) | (green << 5) | blue;
+
+    return new_color;
+}
+
+
+static inline uint16_t rgba565_to_rgb565(uint16_t rgba565) {
     // Mask to extract RGB components
     uint16_t r = (rgba565 & 0xF800); // Red (5 bits)
     uint16_t g = (rgba565 & 0x07E0); // Green (6 bits)
@@ -109,7 +144,8 @@ void push_element_to_display(uCanvas_universal_obj_t* obj){
 
                 // Draw the pixel if necessary
                 if ((obj->sprite_buffer[i] & 0x01) == 1) {
-                    uCanvas_DrawPixel565(pos, rgba565_to_rgb565(obj->sprite_buffer[i]));
+                    uCanvas_DrawPixel565(pos,adjust_pixel_contrast(rgba565_to_rgb565(obj->sprite_buffer[i]),600));
+                    // uCanvas_DrawPixel565(pos,rgba565_to_rgb565(obj->sprite_buffer[i]));
                 }
 
                 // Update x_ptr and y_ptr

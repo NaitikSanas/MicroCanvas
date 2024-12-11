@@ -258,6 +258,9 @@ void lcdInit(TFT_t * dev, int width, int height, int offsetx, int offsety)
 
 	spi_master_write_command(dev, 0x13);	//Normal Display Mode On
 	delayMS(10);
+	
+	spi_master_write_command(dev, 0x26);  // Gamma Set Command
+    spi_master_write_data_byte(dev, 4); // Gamma curve selection (1 to 4)
 
 	spi_master_write_command(dev, 0x29);	//Display ON
 	delayMS(255);
