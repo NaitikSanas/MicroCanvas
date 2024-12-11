@@ -10,15 +10,9 @@
 
 
 
-uint16_t convertToRGB565(color_t color) {
-    // Scale down the RGB values to fit in 5, 6, and 5 bits respectively
-    uint16_t red = (color.red * 31) / 255;
-    uint16_t green = (color.green * 63) / 255;
-    uint16_t blue = (color.blue * 31) / 255;
-
+uint16_t IRAM_ATTR convertToRGB565(color_t color) {
     // Combine into RGB565 format
-    uint16_t rgb565 = (red << 11) | (green << 5) | blue;
-    return rgb565;
+  	return (((color.red * 31) / 255) << 11) | (((color.green * 63) / 255) << 5) | ((color.blue * 31) / 255);
 }
 FontxFile fx16G[2];
 FontxFile fx24G[2];
@@ -98,7 +92,7 @@ void uCanvas_Display_clear_buffer(void){
 }
 
 
-void uCanvas_Update_Display(void){
+void IRAM_ATTR uCanvas_Update_Display(void){
     lcdDrawFinish(&dev);
 }
 
@@ -131,11 +125,14 @@ void uCanvas_Draw_Text (char* text, int x, int y, color_t color){
 	lcdDrawString(&dev,fx32M,x,y,(uint8_t*)text,color565);
 }
 void uCanvas_DrawPixel(Coordinate2D_t pos,color_t color){
-	uint16_t color565 = convertToRGB565(color);
-	lcdDrawPixel(&dev,pos.x, pos.y, color565);
+	lcdDrawPixel(&dev,pos.x, pos.y,  convertToRGB565(color));
 }
 void uCanvas_DrawPixel565 (Coordinate2D_t pos,uint16_t color){
 	lcdDrawPixel(&dev,pos.x, pos.y, color);
+}
+
+void uCanvas_DrawPixel5652 (uint16_t x, uint16_t y,uint16_t color){
+	lcdDrawPixel(&dev,x,y, color);
 }
 void uCanvas_Draw_Triangle(Coordinate2D_t point1, Coordinate2D_t point2, Coordinate2D_t point3, color_t color, fill_t fill){
 

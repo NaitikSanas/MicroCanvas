@@ -62,7 +62,7 @@ void build_rpg_map() {
         for (int col = 0; col < 20; col++) {
             switch (rpg_map[row][col]) {
                 case 1:  // Wall
-                    map_objects[row][col] = New_uCanvas_2DSprite(wall_sprite, col * 10, row * 10);
+                    map_objects[row][col] = New_uCanvas_2DSprite(&wall_sprite, col * 10, row * 10);
                     break;
 
                 // case 0:  // Floor
@@ -192,7 +192,7 @@ void uCanvas_Setup() {
     build_rpg_map();
 
     // Create the character
-    character = New_uCanvas_2DSprite(character_sprite, char_x * 9, char_y * 9);
+    character = New_uCanvas_2DSprite(&character_sprite, char_x * 9, char_y * 9);
 
     // Main game loop
     while (1) {

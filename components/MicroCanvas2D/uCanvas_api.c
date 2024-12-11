@@ -38,7 +38,7 @@ void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
 
 void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
     memset(obj->text,0,256);
-    strncpy(obj->text,text,strlen(text));
+    sprintf(obj->text,"%s",text);
 }
 
 void uCanvas_Set_Obj_Type(uCanvas_universal_obj_t*obj,uCanvas_element_type_t type){
@@ -127,7 +127,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
     // textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE*sizeof(uint8_t));
     memset(textbox->text,0,256);
-    strncpy(textbox->text, text,strlen(text));
+    sprintf(textbox->text,"%s",text);
 
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, TEXTBOX);
@@ -167,17 +167,18 @@ uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinat
     return triangle;
 }
 
-uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t sprite2D_obj,uint16_t pos_x, uint16_t pos_y){
+uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t pos_x, uint16_t pos_y){
     uCanvas_universal_obj_t* uCanvas_Sprite = uCanvas_Universal_Object;
     uCanvas_Set_Visiblity(uCanvas_Sprite,VISIBLE);
     uCanvas_Sprite->invert_sprite_pixels = false;
-    // uCanvas_Set_Obj_Type(uCanvas_Sprite, SPRITE2D);
     uCanvas_Sprite->properties.type = SPRITE2D;
     uCanvas_Set_Monochrome_Color(uCanvas_Sprite,1);
-    uCanvas_Sprite->sprite_buffer = sprite2D_obj.sprite_buf;
-    // memcpy(uCanvas_Sprite->sprite_buffer,sprite_buffer,(size.x*size.y));
-    uCanvas_Sprite->sprite_resolution.x = sprite2D_obj.width;
-    uCanvas_Sprite->sprite_resolution.y = sprite2D_obj.height;
+
+    // uCanvas_Sprite->sprite_buffer = sprite2D_obj.sprite_buf;
+    // uCanvas_Sprite->sprite_resolution.x = sprite2D_obj.width;
+    // uCanvas_Sprite->sprite_resolution.y = sprite2D_obj.height;
+    uCanvas_Sprite->sprite_obj = sprite2D_obj;
+    printf("created sprite of res : %dx%d\r\n",uCanvas_Sprite->sprite_obj->width,uCanvas_Sprite->sprite_obj->height);
     uCanvas_Sprite->properties.position.x = pos_x;
     uCanvas_Sprite->properties.position.y = pos_y;
     uCanvas_push_object_to_activescene(uCanvas_Sprite);
@@ -247,11 +248,12 @@ void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint8_t* reference,uint8_t*
 
    
    
-void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t sprite_obj){
+void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t* sprite_obj){
         if(LOCK_ACTIVE_SCENEB_BUF){
-            obj->sprite_buffer       = sprite_obj.sprite_buf;
-            obj->sprite_resolution.x = sprite_obj.width;
-            obj->sprite_resolution.y = sprite_obj.height;
+            obj->sprite_obj = sprite_obj;
+            // obj->sprite_buffer       = sprite_obj.sprite_buf;
+            // obj->sprite_resolution.x = sprite_obj.width;
+            // obj->sprite_resolution.y = sprite_obj.height;
             UNLOCK_ACTIVE_SCENEB_BUF;
         }
 }

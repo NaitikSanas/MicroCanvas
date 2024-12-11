@@ -92,13 +92,11 @@
         Coordinate2D_t point2; 
         Coordinate2D_t point3;
         Coordinate2D_t point4;
-
-        Coordinate2D_t sprite_resolution;
-        uint16_t* sprite_buffer;
         uint8_t invert_sprite_pixels;
         uint8_t state;
         char text[256];
         
+        sprite2D_t* sprite_obj;
         // sprite2D_t* sprite2D_obj;
     } uCanvas_universal_obj_t;
 

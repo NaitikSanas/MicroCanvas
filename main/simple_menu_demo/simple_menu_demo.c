@@ -4,7 +4,7 @@ uCanvas_Scene_t* scene2;
 #include "ucanvas_button.h"
 
 uCanvas_obj_t* selector;
-static uint8_t selector_icon[9*9] = {   \
+ uint16_t selector_icon[9*9] = {   \
     1,1,1,1,1,0,0,0,0,                    \
     1,1,1,1,1,1,0,0,0,                    \
     1,1,1,1,1,1,1,0,0,                    \
@@ -13,7 +13,7 @@ static uint8_t selector_icon[9*9] = {   \
     1,1,1,1,1,1,1,1,0,                    \
     1,1,1,1,1,1,1,0,0,                    \
     1,1,1,1,1,1,0,0,0,                    \
-    1,1,1,1,1,0,0,0,0  
+    1,1,1,1,1,0,0,0,0,0  
 };
 
 #define MENU_POSITION_X 5
@@ -58,9 +58,9 @@ void create_menu_1_instace(void){
     /*
         The selector or cursor can be any object like sprite, rectangle, circle etc.
     */
-    sprite2D_t selector_sprite;
+    static sprite2D_t selector_sprite;
     uCanvas_Compose_2DSprite_Obj(&selector_sprite,selector_icon,9,9);
-    selector = New_uCanvas_2DSprite(selector_sprite, MENU_POSITION_X,MENU_POSITION_Y);  
+    selector = New_uCanvas_2DSprite(&selector_sprite, MENU_POSITION_X,MENU_POSITION_Y);  
 
     /*Instantiate Menu Object*/
     create_menu(&menu_1,selector);
@@ -106,7 +106,7 @@ void create_menu_2_instace(void){
     
     sprite2D_t selector_sprite;
     uCanvas_Compose_2DSprite_Obj(&selector_sprite,selector_icon,9,9);
-    selector = New_uCanvas_2DSprite(selector_sprite, MENU_POSITION_X,MENU_POSITION_Y);  
+    selector = New_uCanvas_2DSprite(&selector_sprite, MENU_POSITION_X,MENU_POSITION_Y);  
 
     create_menu(&menu_2,selector);
     menu_set_title(&menu_2,"< Menu_2-Demo >"   ,20,0);
@@ -138,10 +138,23 @@ void simple_menu_demo_setup(void){
     menu_set_active_state(&menu_1,true);
     menu_set_active_state(&menu_2,false);    
 }
-
+extern int64_t elapsed_time;
+extern int64_t time_to_draw_element;
+extern int64_t time_to_draw_frame_buf;
+extern int64_t on_screen_draw_time;
+   
 void simple_menu_demo_App_Main(void){
+     printf("--------------------------------\r\n");
+    printf("FPS: %lld \r\n", 1000000/elapsed_time );
+    printf("Frame Time: %.2f ms \r\n", (float)elapsed_time/1000.0 );
+    printf("On Screen Draw Time: %.2f ms \r\n", (float)on_screen_draw_time/1000.0 );
+    printf("OSDPS : %.2f\r\n", (float)1000000.0/on_screen_draw_time );
+    printf("Element Draw time: %.2f ms\r\n", (float)time_to_draw_element/1000.0 );
+    printf("Frame Buf Prepare: %f ms\r\n", (float)time_to_draw_frame_buf/1000.0 );
+    printf("FBPS: %f \r\n", (float)1000000.0/time_to_draw_frame_buf);
+    printf("--------------------------------\r\n\r\n");
     // printf("Index = %d\r\n",menu_get_current_index(&menu_1));
-    uCanvas_Delay(100);
+    uCanvas_Delay(10);
 }
 
 /*

@@ -59,7 +59,7 @@
      * @param pos_x : absolute x axis position on active scene
      * @param pos_y : absolute y axis position on active scene
      */
-    uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t sprite2D_obj,uint16_t pos_x, uint16_t pos_y);
+    uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t pos_x, uint16_t pos_y);
     
     /**
      * @brief This API let's user scale up their custom 2D sprite Buffers. 
@@ -76,7 +76,7 @@
      * @param obj           : reference to sprite element
      * @param sprite_obj    : reference to new sprite object to replace with
      */
-    void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t sprite_obj);
+    void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t* sprite_obj);
     
     /**
      * @paragraph
