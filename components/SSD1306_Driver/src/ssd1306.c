@@ -153,7 +153,7 @@ uint8_t SSD1306_Init(void) {
 	SSD1306_WRITECOMMAND(0x10); //---set high column address
 	SSD1306_WRITECOMMAND(0x40); //--set start line address
 	SSD1306_WRITECOMMAND(0x81); //--set contrast control register
-	SSD1306_WRITECOMMAND(0xFF);
+	SSD1306_WRITECOMMAND(0x04);
 	SSD1306_WRITECOMMAND(0xA1); //--set segment re-map 0 to 127
 	SSD1306_WRITECOMMAND(0xA6); //--set normal display
 	SSD1306_WRITECOMMAND(0xA8); //--set multiplex ratio(1 to 64)
@@ -404,6 +404,7 @@ void SSD1306_DrawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD13
 	
 	/* Draw 4 lines */
 	SSD1306_DrawLine(x, y, x + w, y, c);         /* Top line */
+	SSD1306_DrawLine(x, y+1, x + w, y, c);         /* Top line */
 	SSD1306_DrawLine(x, y + h, x + w, y + h, c); /* Bottom line */
 	SSD1306_DrawLine(x, y, x, y + h, c);         /* Left line */
 	SSD1306_DrawLine(x + w, y, x + w, y + h, c); /* Right line */

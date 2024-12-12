@@ -1,0 +1,149 @@
+#include "app.h"
+#include "uCanvas_api.h"
+#include "ucanvas_slider.h"
+#include "uCanvas_display_port.h"
+
+// Maze dimensions
+#define MAZE_ROWS 20
+#define MAZE_COLS 20
+#define CELL_SIZE 9 // Size of each maze cell (pixels)
+
+// Define the 20x20 maze (1 = wall, 0 = path)
+static uint8_t maze[MAZE_ROWS][MAZE_COLS] = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1},
+    {1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1},
+    {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+};
+
+// Brick sprite buffer
+static uint8_t brick_sprite_buf[9 * 9] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 1, 1, 0, 0, 1,
+    1, 0, 1, 1, 1, 0, 1, 0, 1,
+    1, 1, 0, 0, 1, 0, 0, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 1, 0, 1, 0, 1,
+    1, 0, 1, 0, 1, 0, 1, 0, 1,
+    1, 0, 1, 0, 1, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1
+};
+
+uCanvas_Scene_t* scene;
+uCanvas_universal_obj_t* walls[MAZE_ROWS][MAZE_COLS];
+typedef enum {
+    PAN_DIR_LEFT = 0,
+    PAN_DIR_RIGHT,
+    PAN_DIR_UP,
+    PAN_DIR_DOWN,
+}pan_direction_t;
+    
+void pan_through_wall_map(
+    uCanvas_universal_obj_t* wall[][20],  // 2D array of wall objects (e.g., 20x20 maze)
+    uint16_t rows,                       // Number of rows in the wall array
+    uint16_t cols,                       // Number of columns in the wall array
+    uint16_t steps,                      // Number of panning steps
+    pan_direction_t direction,           // Panning direction
+    uint16_t delay_us                    // Delay between steps
+) {
+    for (int p = 0; p < steps; p++) {
+        // Iterate through all objects in the 2D wall array
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                // Check if the current cell contains an object
+                if (wall[row][col] != NULL) {
+                    switch (direction) {
+                        case PAN_DIR_LEFT:
+                            wall[row][col]->properties.position.x++;   
+                            break;
+                        case PAN_DIR_RIGHT:
+                            wall[row][col]->properties.position.x--;   
+                            break;
+                        case PAN_DIR_UP:
+                            wall[row][col]->properties.position.y++;   
+                            break;
+                        case PAN_DIR_DOWN:
+                            wall[row][col]->properties.position.y--;   
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+        // Add delay between steps
+        ets_delay_us(delay_us);
+    }
+}
+void uCanvas_Setup(void) {
+    start_uCanvas_engine();
+    scene = New_uCanvas_Scene();
+    uCanvas_set_active_scene(scene);
+
+    sprite2D_t brick_sprite_obj;
+    uCanvas_Compose_2DSprite_Obj(&brick_sprite_obj, brick_sprite_buf, CELL_SIZE, CELL_SIZE);
+    uCanvas_Init_PushButton(47);
+    uCanvas_Init_PushButton(48);
+    uCanvas_Init_PushButton(45);
+    // Create the maze
+    for (int row = 0; row < MAZE_ROWS; row++) {
+        for (int col = 0; col < MAZE_COLS; col++) {
+            if (maze[row][col] == 1) { // Wall
+                walls[row][col] = New_uCanvas_2DSprite(brick_sprite_obj, col * CELL_SIZE, row * CELL_SIZE);
+            } else {
+                walls[row][col] = NULL; // No wall at this position
+            }
+        }
+    }
+}
+
+void uCanvas_App_Main(void) {
+    pan_direction_t dir = 0;
+    uint16_t steps = 10;
+    uint32_t slide_animation_delay = 1000000;
+    while (1) {
+        if(!uCanvas_Get_PushbuttonState_WTR(45)){
+            dir = !dir;
+            if(dir)printf("RIGHT-LEFT\r\n");
+            else printf("UP-DOWN\r\n");
+        }
+
+        if(!uCanvas_Get_PushbuttonState_WTR(47)){
+            if(dir == 1){
+                printf("PAN_DIR_RIGHT\r\n");
+                pan_through_wall_map(walls,20,20,steps,PAN_DIR_RIGHT,slide_animation_delay);
+            }
+            else {
+                printf("PAN_DIR_DOWN\r\n");
+                pan_through_wall_map(walls,20,20,steps,PAN_DIR_DOWN,slide_animation_delay);
+            }
+            printf("anim_done\r\n");
+        }
+        if(!uCanvas_Get_PushbuttonState_WTR(48)){
+            if(dir == 1){
+                printf("PAN_DIR_LEFT\r\n");
+                pan_through_wall_map(walls,20,20,steps,PAN_DIR_LEFT,slide_animation_delay);
+            }
+            else {
+                printf("PAN_DIR_UP\r\n");
+                pan_through_wall_map(walls,20,20,steps,PAN_DIR_UP ,slide_animation_delay);
+            }
+            printf("anim_done\r\n");
+        }
+        
+        uCanvas_Delay(1);
+    }
+}

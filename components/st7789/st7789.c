@@ -107,7 +107,7 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 	spi_device_interface_config_t devcfg;
 	memset(&devcfg, 0, sizeof(devcfg));
 	//devcfg.clock_speed_hz = SPI_Frequency;
-	devcfg.clock_speed_hz = SPI_MASTER_FREQ_40M;
+	devcfg.clock_speed_hz = SPI_MASTER_FREQ_80M;
 	devcfg.queue_size = 7;
 	//devcfg.mode = 2;
 	devcfg.mode = 3;
@@ -128,7 +128,7 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 	dev->_SPIHandle = handle;
 }
 
-bool spi_master_write_byte(spi_device_handle_t SPIHandle, const uint8_t* Data, size_t DataLength)
+bool IRAM_ATTR spi_master_write_byte(spi_device_handle_t SPIHandle, const uint8_t* Data, size_t DataLength)
 {
 	spi_transaction_t SPITransaction;
 	esp_err_t ret;
@@ -148,7 +148,7 @@ bool spi_master_write_byte(spi_device_handle_t SPIHandle, const uint8_t* Data, s
 	return true;
 }
 
-bool spi_master_write_command(TFT_t * dev, uint8_t cmd)
+bool IRAM_ATTR spi_master_write_command(TFT_t * dev, uint8_t cmd)
 {
 	static uint8_t Byte = 0;
 	Byte = cmd;
@@ -156,7 +156,7 @@ bool spi_master_write_command(TFT_t * dev, uint8_t cmd)
 	return spi_master_write_byte( dev->_SPIHandle, &Byte, 1 );
 }
 
-bool spi_master_write_data_byte(TFT_t * dev, uint8_t data)
+bool IRAM_ATTR spi_master_write_data_byte(TFT_t * dev, uint8_t data)
 {
 	static uint8_t Byte = 0;
 	Byte = data;
@@ -174,7 +174,7 @@ bool spi_master_write_data_word(TFT_t * dev, uint16_t data)
 	return spi_master_write_byte( dev->_SPIHandle, Byte, 2);
 }
 
-bool spi_master_write_addr(TFT_t * dev, uint16_t addr1, uint16_t addr2)
+bool IRAM_ATTR spi_master_write_addr(TFT_t * dev, uint16_t addr1, uint16_t addr2)
 {
 	static uint8_t Byte[4];
 	Byte[0] = (addr1 >> 8) & 0xFF;
@@ -185,7 +185,7 @@ bool spi_master_write_addr(TFT_t * dev, uint16_t addr1, uint16_t addr2)
 	return spi_master_write_byte( dev->_SPIHandle, Byte, 4);
 }
 
-bool spi_master_write_color(TFT_t * dev, uint16_t color, uint16_t size)
+bool  IRAM_ATTR spi_master_write_color(TFT_t * dev, uint16_t color, uint16_t size)
 {
 	static uint8_t Byte[1024];
 	int index = 0;
@@ -197,12 +197,44 @@ bool spi_master_write_color(TFT_t * dev, uint16_t color, uint16_t size)
 	return spi_master_write_byte( dev->_SPIHandle, Byte, size*2);
 }
 
+// Clamp function to ensure values stay within bounds
+static inline uint8_t clamp(int value, int min, int max) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
+static IRAM_ATTR uint16_t adjust_pixel_contrast(uint16_t color, int contrast) {
+    // Extract RGB565 components
+    uint8_t red = (color >> 11) & 0x1F;   // 5 bits for red
+    uint8_t green = (color >> 5) & 0x3F;  // 6 bits for green
+    uint8_t blue = color & 0x1F;          // 5 bits for blue
+
+    // Midpoints for each color component
+    const int red_mid = 16;    // Midpoint for 5-bit red (0-31)
+    const int green_mid = 32;  // Midpoint for 6-bit green (0-63)
+    const int blue_mid = 16;   // Midpoint for 5-bit blue (0-31)
+
+    // Adjust contrast
+    int red_adjusted = red_mid + (((red - red_mid) * contrast) >> 8);
+    int green_adjusted = green_mid + (((green - green_mid) * contrast) >> 8);
+    int blue_adjusted = blue_mid + (((blue - blue_mid) * contrast) >> 8);
+
+    // Inline clamp for each component
+    red_adjusted = (red_adjusted < 0) ? 0 : (red_adjusted > 31) ? 31 : red_adjusted;
+    green_adjusted = (green_adjusted < 0) ? 0 : (green_adjusted > 63) ? 63 : green_adjusted;
+    blue_adjusted = (blue_adjusted < 0) ? 0 : (blue_adjusted > 31) ? 31 : blue_adjusted;
+
+    // Recombine RGB components into RGB565 format
+    return (red_adjusted << 11) | (green_adjusted << 5) | blue_adjusted;
+}
 // Add 202001
-bool spi_master_write_colors(TFT_t * dev, uint16_t * colors, uint16_t size)
+inline bool spi_master_write_colors(TFT_t * dev, uint16_t * colors, uint16_t size)
 {
 	static uint8_t Byte[1024];
 	int index = 0;
 	for(int i=0;i<size;i++) {
+		colors[i] = adjust_pixel_contrast(colors[i],600);
 		Byte[index++] = (colors[i] >> 8) & 0xFF;
 		Byte[index++] = colors[i] & 0xFF;
 	}
@@ -258,6 +290,9 @@ void lcdInit(TFT_t * dev, int width, int height, int offsetx, int offsety)
 
 	spi_master_write_command(dev, 0x13);	//Normal Display Mode On
 	delayMS(10);
+	
+	spi_master_write_command(dev, 0x26);  // Gamma Set Command
+    spi_master_write_data_byte(dev, 4); // Gamma curve selection (1 to 4)
 
 	spi_master_write_command(dev, 0x29);	//Display ON
 	delayMS(255);
@@ -284,26 +319,74 @@ void lcdInit(TFT_t * dev, int width, int height, int offsetx, int offsety)
 // x:X coordinate
 // y:Y coordinate
 // color:color
-void lcdDrawPixel(TFT_t * dev, uint16_t x, uint16_t y, uint16_t color){
+void IRAM_ATTR lcdDrawPixel(TFT_t * dev, uint16_t x, uint16_t y, uint16_t color){
 	if (x >= dev->_width) return;
 	if (y >= dev->_height) return;
+	dev->_frame_buffer[y*dev->_width+x] = color;
+	// if (dev->_use_frame_buffer) {
+		
+	// } else {
+	// 	uint16_t _x = x + dev->_offsetx;
+	// 	uint16_t _y = y + dev->_offsety;
 
-	if (dev->_use_frame_buffer) {
-		dev->_frame_buffer[y*dev->_width+x] = color;
-	} else {
-		uint16_t _x = x + dev->_offsetx;
-		uint16_t _y = y + dev->_offsety;
-
-		spi_master_write_command(dev, 0x2A);	// set column(x) address
-		spi_master_write_addr(dev, _x, _x);
-		spi_master_write_command(dev, 0x2B);	// set Page(y) address
-		spi_master_write_addr(dev, _y, _y);
-		spi_master_write_command(dev, 0x2C);	// Memory Write
-		//spi_master_write_data_word(dev, color);
-		spi_master_write_colors(dev, &color, 1);
-	}
+	// 	spi_master_write_command(dev, 0x2A);	// set column(x) address
+	// 	spi_master_write_addr(dev, _x, _x);
+	// 	spi_master_write_command(dev, 0x2B);	// set Page(y) address
+	// 	spi_master_write_addr(dev, _y, _y);
+	// 	spi_master_write_command(dev, 0x2C);	// Memory Write
+	// 	//spi_master_write_data_word(dev, color);
+	// 	spi_master_write_colors(dev, &color, 1);
+	// }
+}
+static inline uint16_t rgba565_to_rgb565(uint16_t rgba565) {
+    // Mask to extract RGB components
+    uint16_t r = (rgba565 & 0xF800); // Red (5 bits)
+    uint16_t g = (rgba565 & 0x07E0); // Green (6 bits)
+    uint16_t b = (rgba565 & 0x003E) >> 1; // Blue (5 bits)
+    
+    // Combine RGB without the alpha channel
+    uint16_t rgb565 = r | g | b;
+    return rgb565;
 }
 
+void IRAM_ATTR st7789_draw_sprite_batch(TFT_t *dev, uCanvas_universal_obj_t *obj) {
+    int offset_x = obj->properties.position.x;
+    int offset_y = obj->properties.position.y;
+    uint16_t sprite_width = obj->sprite_obj->width;
+    uint16_t sprite_height = obj->sprite_obj->height;
+    uint16_t *sprite_buf = obj->sprite_obj->sprite_buf;
+    bool flip_x = obj->properties.flip_x;
+
+    if (obj->properties.visiblity == INVISIBLE) {
+        return;
+    }
+
+    // Ensure the sprite fits within the frame buffer bounds
+    if (offset_x + sprite_width > dev->_width || offset_y + sprite_height > dev->_height) {
+        return;
+    }
+
+    for (uint16_t row = 0; row < sprite_height; row++) {
+        uint16_t *src_row = &sprite_buf[row * sprite_width];
+        uint16_t *dest_row = &dev->_frame_buffer[(row + offset_y) * dev->_width + offset_x];
+
+        if (flip_x) {
+            // Flip row horizontally (iterate backward over dest_row)
+            for (uint16_t col = 0; col < sprite_width; col++) {
+                if (src_row[col] & 0x01) {
+                    dest_row[sprite_width - 1 - col] = rgba565_to_rgb565(src_row[col]);
+                }
+            }
+        } else {
+            // Copy row directly
+            for (uint16_t col = 0; col < sprite_width; col++) {
+                if (src_row[col] & 0x01) {
+                    dest_row[col] = rgba565_to_rgb565(src_row[col]);
+                }
+            }
+        }
+    }
+}
 
 // Draw multi pixel
 // x:X coordinate
@@ -1066,7 +1149,7 @@ void lcdWrapArround(TFT_t * dev, SCROLL_TYPE_t scroll, int start, int end) {
 }
 
 // Draw Frame Buffer
-void lcdDrawFinish(TFT_t *dev)
+void IRAM_ATTR lcdDrawFinish(TFT_t *dev)
 {
 	if (dev->_use_frame_buffer == false) return;
 

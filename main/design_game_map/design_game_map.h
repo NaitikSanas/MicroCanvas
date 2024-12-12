@@ -11,3 +11,7 @@
 #include "esp_log.h"
 #include "uCanvas_api.h"
 #include "uCanvas_Physix.h" 
+#include "uCanvas_User_IO.h"
+
+void uCanvas_Game_Design_Demo_Setup(void);
+void uCanvas_Game_Design_Demo_Loop(void);
