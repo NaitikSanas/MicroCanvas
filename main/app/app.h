@@ -1,3 +1,5 @@
+#ifndef __app_c__
+#define __app_c__
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -15,3 +17,9 @@
 
 void uCanvas_Setup(void);
 void uCanvas_App_Main(void);
+
+
+#define EZGIF_FRAME_016_HEIGHT 64
+#define EZGIF_FRAME_016_WIDTH 64
+
+#endif

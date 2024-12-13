@@ -26,13 +26,13 @@ void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
 void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
     // 
     if(active_scene != NULL){
-        if(LOCK_ACTIVE_SCENEB_BUF){
+        // if(LOCK_ACTIVE_SCENEB_BUF){
             obj->index = active_scene->_2D_Object_Ptr;
             active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
             active_scene->_2D_Object_Ptr++;
             
-            UNLOCK_ACTIVE_SCENEB_BUF;
-        }
+            // UNLOCK_ACTIVE_SCENEB_BUF;
+        // }
     }
 }
 
@@ -173,16 +173,11 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t 
     uCanvas_Sprite->invert_sprite_pixels = false;
     uCanvas_Sprite->properties.type = SPRITE2D;
     uCanvas_Set_Monochrome_Color(uCanvas_Sprite,1);
-
-    // uCanvas_Sprite->sprite_buffer = sprite2D_obj.sprite_buf;
-    // uCanvas_Sprite->sprite_resolution.x = sprite2D_obj.width;
-    // uCanvas_Sprite->sprite_resolution.y = sprite2D_obj.height;
+    uCanvas_Sprite->properties.flip_x = false;
     uCanvas_Sprite->sprite_obj = sprite2D_obj;
-    printf("created sprite of res : %dx%d\r\n",uCanvas_Sprite->sprite_obj->width,uCanvas_Sprite->sprite_obj->height);
     uCanvas_Sprite->properties.position.x = pos_x;
     uCanvas_Sprite->properties.position.y = pos_y;
     uCanvas_push_object_to_activescene(uCanvas_Sprite);
-    // printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
     return uCanvas_Sprite;
 }
 

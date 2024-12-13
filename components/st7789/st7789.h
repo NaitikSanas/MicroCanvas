@@ -86,7 +86,5 @@ void lcdInversionOff(TFT_t * dev);
 void lcdInversionOn(TFT_t * dev);
 void lcdWrapArround(TFT_t * dev, SCROLL_TYPE_t scroll, int start, int end);
 void lcdDrawFinish(TFT_t *dev);
-
-void IRAM_ATTR st7789_draw_sprite_batch(TFT_t *dev, uCanvas_universal_obj_t *obj);
 #endif /* MAIN_ST7789_H_ */
 

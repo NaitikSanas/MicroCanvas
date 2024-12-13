@@ -6,10 +6,7 @@
 #include "esp_spiffs.h"
 #include "esp_err.h"
 #include "esp_log.h"
- TFT_t dev;
-
-
-
+TFT_t dev;
 uint16_t IRAM_ATTR convertToRGB565(color_t color) {
     // Combine into RGB565 format
   	return (((color.red * 31) / 255) << 11) | (((color.green * 63) / 255) << 5) | ((color.blue * 31) / 255);
@@ -137,4 +134,82 @@ void uCanvas_DrawPixel5652 (uint16_t x, uint16_t y,uint16_t color){
 void uCanvas_Draw_Triangle(Coordinate2D_t point1, Coordinate2D_t point2, Coordinate2D_t point3, color_t color, fill_t fill){
 
 }
+
+
+static inline uint16_t rgba565_to_rgb565(uint16_t rgba565) {
+    // Mask to extract RGB components
+    uint16_t r = (rgba565 & 0xF800); // Red (5 bits)
+    uint16_t g = (rgba565 & 0x07E0); // Green (6 bits)
+    uint16_t b = (rgba565 & 0x003E) >> 1; // Blue (5 bits)
+    
+    // Combine RGB without the alpha channel
+    uint16_t rgb565 = r | g | b;
+    return rgb565;
+}
+void flip_sprite_buffer(uint16_t *sprite_buf, uint16_t width, uint16_t height, bool flip_x, bool flip_y) {
+    if (!sprite_buf || (!flip_x && !flip_y)) {
+        return; // No operation needed
+    }
+
+    // Temporary buffer to hold one row for flipping
+    uint16_t temp_row[width];
+
+    // Flip horizontally (X-axis)
+    if (flip_x) {
+        for (uint16_t row = 0; row < height; row++) {
+            uint16_t *row_ptr = &sprite_buf[row * width];
+            for (uint16_t col = 0; col < width / 2; col++) {
+                uint16_t temp = row_ptr[col];
+                row_ptr[col] = row_ptr[width - 1 - col];
+                row_ptr[width - 1 - col] = temp;
+            }
+        }
+    }
+
+    // Flip vertically (Y-axis)
+    if (flip_y) {
+        for (uint16_t row = 0; row < height / 2; row++) {
+            uint16_t *top_row = &sprite_buf[row * width];
+            uint16_t *bottom_row = &sprite_buf[(height - 1 - row) * width];
+
+            // Swap entire rows
+            memcpy(temp_row, top_row, sizeof(uint16_t) * width);
+            memcpy(top_row, bottom_row, sizeof(uint16_t) * width);
+            memcpy(bottom_row, temp_row, sizeof(uint16_t) * width);
+        }
+    }
+}
+
+static uint16_t sprite_buf[128*128];
+void st7789_draw_sprite_batch( uCanvas_universal_obj_t *obj) { 
+    int offset_x = obj->properties.position.x;
+    int offset_y = obj->properties.position.y;
+    uint16_t sprite_width = obj->sprite_obj->width;
+    uint16_t sprite_height = obj->sprite_obj->height;
+    if (obj->properties.visiblity == INVISIBLE) {	
+        return;
+    }
+	memcpy(sprite_buf, obj->sprite_obj->sprite_buf,sizeof(uint16_t)*sprite_height*sprite_width);
+	if(obj->properties.flip_x==1)flip_sprite_buffer(sprite_buf,obj->sprite_obj->width,obj->sprite_obj->width,1,0);
+	if(obj->properties.flip_y==1)flip_sprite_buffer(sprite_buf,obj->sprite_obj->width,obj->sprite_obj->width,0,1);
+    // Iterate over sprite rows
+    for (int row = 0; row < sprite_height; row++) {
+        int pos_y = row + offset_y;
+        if (pos_y < 0 || pos_y >= dev._height) {
+            continue;  // Skip rows completely off-screen vertically
+        }
+        uint16_t *src_row = &sprite_buf[row * sprite_width];
+        uint16_t *dest_row = &dev._frame_buffer[pos_y * dev._width];
+        int start_col = (offset_x < 0) ? -offset_x : 0;  // First visible column
+        int end_col = (offset_x + sprite_width > dev._width) ? dev._width - offset_x : sprite_width;
+        // Iterate over visible columns
+        for (int col = start_col; col < end_col; col++) {
+            int pos_x = col + offset_x;
+            if ((src_row[col] & 0x01)) {  // Skip transparent or empty pixels
+                dest_row[pos_x] = rgba565_to_rgb565(src_row[col]);
+            }
+        }
+    }
+}
+
 #endif
