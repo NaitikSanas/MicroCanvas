@@ -121,8 +121,8 @@ void uCanvas_Draw_Text (char* text, int x, int y, color_t color){
 	lcdSetFontDirection(&dev,DIRECTION0);
 	lcdDrawString(&dev,fx32M,x,y,(uint8_t*)text,color565);
 }
-void uCanvas_DrawPixel(Coordinate2D_t pos,color_t color){
-	lcdDrawPixel(&dev,pos.x, pos.y,  convertToRGB565(color));
+void uCanvas_DrawPixel(int x, int y,color_t color){
+	lcdDrawPixel(&dev,x,y,  convertToRGB565(color));
 }
 void uCanvas_DrawPixel565 (Coordinate2D_t pos,uint16_t color){
 	lcdDrawPixel(&dev,pos.x, pos.y, color);
@@ -184,14 +184,14 @@ static uint16_t sprite_buf[128*128];
 void st7789_draw_sprite_batch( uCanvas_universal_obj_t *obj) { 
     int offset_x = obj->properties.position.x;
     int offset_y = obj->properties.position.y;
-    uint16_t sprite_width = obj->sprite_obj->width;
-    uint16_t sprite_height = obj->sprite_obj->height;
+    uint16_t sprite_width = obj-> sprite_resolution.x;
+    uint16_t sprite_height = obj->sprite_resolution.y;
     if (obj->properties.visiblity == INVISIBLE) {	
         return;
     }
-	memcpy(sprite_buf, obj->sprite_obj->sprite_buf,sizeof(uint16_t)*sprite_height*sprite_width);
-	if(obj->properties.flip_x==1)flip_sprite_buffer(sprite_buf,obj->sprite_obj->width,obj->sprite_obj->width,1,0);
-	if(obj->properties.flip_y==1)flip_sprite_buffer(sprite_buf,obj->sprite_obj->width,obj->sprite_obj->width,0,1);
+	memcpy(sprite_buf, obj->sprite_buffer,sizeof(uint16_t)*sprite_height*sprite_width);
+	if(obj->properties.flip_x==1)flip_sprite_buffer(sprite_buf,sprite_width,sprite_height,1,0);
+	if(obj->properties.flip_y==1)flip_sprite_buffer(sprite_buf,sprite_width,sprite_height,0,1);
     // Iterate over sprite rows
     for (int row = 0; row < sprite_height; row++) {
         int pos_y = row + offset_y;

@@ -1,10 +1,11 @@
 #include "simple_menu_demo.h"
-uCanvas_Scene_t* scene1;
-uCanvas_Scene_t* scene2;
+static uCanvas_Scene_t* scene1;
+static uCanvas_Scene_t* scene2;
 #include "ucanvas_button.h"
 
-uCanvas_obj_t* selector;
- uint16_t selector_icon[9*9] = {   \
+uCanvas_obj_t* selector1;
+uCanvas_obj_t* selector2;
+static uint16_t selector_icon[9*9] = {   \
     1,1,1,1,1,0,0,0,0,                    \
     1,1,1,1,1,1,0,0,0,                    \
     1,1,1,1,1,1,1,0,0,                    \
@@ -13,7 +14,7 @@ uCanvas_obj_t* selector;
     1,1,1,1,1,1,1,1,0,                    \
     1,1,1,1,1,1,1,0,0,                    \
     1,1,1,1,1,1,0,0,0,                    \
-    1,1,1,1,1,0,0,0,0,0  
+    1,1,1,1,1,0,0,0,0 
 };
 
 #define MENU_POSITION_X 5
@@ -60,10 +61,10 @@ void create_menu_1_instace(void){
     */
     static sprite2D_t selector_sprite;
     uCanvas_Compose_2DSprite_Obj(&selector_sprite,selector_icon,9,9);
-    selector = New_uCanvas_2DSprite(&selector_sprite, MENU_POSITION_X,MENU_POSITION_Y);  
+    selector1 = New_uCanvas_2DSprite(&selector_sprite, MENU_POSITION_X,MENU_POSITION_Y);  
 
     /*Instantiate Menu Object*/
-    create_menu(&menu_1,selector);
+    create_menu(&menu_1,selector1);
     
     menu_set_title(&menu_1,"< Menu_1-Demo >"   ,20,0);
     
@@ -106,9 +107,9 @@ void create_menu_2_instace(void){
     
     sprite2D_t selector_sprite;
     uCanvas_Compose_2DSprite_Obj(&selector_sprite,selector_icon,9,9);
-    selector = New_uCanvas_2DSprite(&selector_sprite, MENU_POSITION_X,MENU_POSITION_Y);  
+    selector2 = New_uCanvas_2DSprite(&selector_sprite, MENU_POSITION_X,MENU_POSITION_Y);  
 
-    create_menu(&menu_2,selector);
+    create_menu(&menu_2,selector2);
     menu_set_title(&menu_2,"< Menu_2-Demo >"   ,20,0);
     menu_set_content(&menu_2,"GOTO MENU-1",9);
     New_uCanvas_2DLine(0,MENU_POSITION_Y-8,128,MENU_POSITION_Y-8);
@@ -120,6 +121,9 @@ void simple_menu_demo_setup(void){
     start_uCanvas_engine();
     scene1 = New_uCanvas_Scene(); //This holds Menu_1 Instance
     scene2 = New_uCanvas_Scene(); //This holds Menu_2 Instance
+    if(scene2==NULL){
+        printf("why null?");
+    }
     //GPIOs for Rotory encoder
     uCanvas_Init_PushButton(47);
     uCanvas_Init_PushButton(48);
@@ -127,9 +131,7 @@ void simple_menu_demo_setup(void){
     
     create_menu_1_instace(); //creates menu_1 page_1
     create_menu_2_instace();//create menu_2 page 2
-
-    //Set  Scene1 as active to display Menu_1 Page
-    uCanvas_set_active_scene(scene1); 
+    uCanvas_set_active_scene(scene1);
 
     /*
         setting is_Active flag of menu instace to false allows disabling
@@ -144,15 +146,15 @@ extern int64_t time_to_draw_frame_buf;
 extern int64_t on_screen_draw_time;
    
 void simple_menu_demo_App_Main(void){
-     printf("--------------------------------\r\n");
-    printf("FPS: %lld \r\n", 1000000/elapsed_time );
-    printf("Frame Time: %.2f ms \r\n", (float)elapsed_time/1000.0 );
-    printf("On Screen Draw Time: %.2f ms \r\n", (float)on_screen_draw_time/1000.0 );
-    printf("OSDPS : %.2f\r\n", (float)1000000.0/on_screen_draw_time );
-    printf("Element Draw time: %.2f ms\r\n", (float)time_to_draw_element/1000.0 );
-    printf("Frame Buf Prepare: %f ms\r\n", (float)time_to_draw_frame_buf/1000.0 );
-    printf("FBPS: %f \r\n", (float)1000000.0/time_to_draw_frame_buf);
-    printf("--------------------------------\r\n\r\n");
+    //  printf("--------------------------------\r\n");
+    // printf("FPS: %lld \r\n", 1000000/elapsed_time );
+    // printf("Frame Time: %.2f ms \r\n", (float)elapsed_time/1000.0 );
+    // printf("On Screen Draw Time: %.2f ms \r\n", (float)on_screen_draw_time/1000.0 );
+    // printf("OSDPS : %.2f\r\n", (float)1000000.0/on_screen_draw_time );
+    // printf("Element Draw time: %.2f ms\r\n", (float)time_to_draw_element/1000.0 );
+    // printf("Frame Buf Prepare: %f ms\r\n", (float)time_to_draw_frame_buf/1000.0 );
+    // printf("FBPS: %f \r\n", (float)1000000.0/time_to_draw_frame_buf);
+    // printf("--------------------------------\r\n\r\n");
     // printf("Index = %d\r\n",menu_get_current_index(&menu_1));
     uCanvas_Delay(10);
 }

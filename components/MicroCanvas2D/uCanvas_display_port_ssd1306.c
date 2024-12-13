@@ -63,7 +63,7 @@ void uCanvas_Draw_Triangle(Coordinate2D_t point1, Coordinate2D_t point2, Coordin
     SSD1306_DrawTriangle(point1.x,point1.y,point2.x,point2.y,point3.x, point3.y,color.monochrome_pixel);
 }
 
-void uCanvas_DrawPixel(Coordinate2D_t pos,color_t color){
-    SSD1306_DrawPixel(pos.x,pos.y,color.monochrome_pixel);
+void uCanvas_DrawPixel(int x, int y,color_t color){
+    SSD1306_DrawPixel(x,y,color.monochrome_pixel);
 }
 #endif

@@ -73,8 +73,7 @@
         uint16_t* sprite_buf;
         uint16_t height;
         uint16_t width;
-        uint8_t orientation;
-        
+        uint8_t orientation;    
     }sprite2D_t;
     
     typedef struct uCanvas_universal_obj
@@ -96,8 +95,10 @@
         uint8_t invert_sprite_pixels;
         uint8_t state;
         char text[256];
+        uint16_t* sprite_buffer;
+        Coordinate2D_t sprite_resolution;
         
-        sprite2D_t* sprite_obj;
+        // sprite2D_t sprite_obj;
         // sprite2D_t* sprite2D_obj;
     } uCanvas_universal_obj_t;
 

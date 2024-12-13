@@ -5,9 +5,8 @@
 #include "uCanvas_Physix.h"
 
 // #define RUN_APP_C 1
-#define RUN_DESIGN_GAME_MAP_DEMO 1
-// #define RUN_SIMPLE_MENU_DEMO 1
-// #define RUN_2D_SPRITE_DEMO 1
+// #define RUN_DESIGN_GAME_MAP_DEMO 1
+#define RUN_SIMPLE_MENU_DEMO 1
 // array size is 8192
 
 
@@ -28,9 +27,6 @@ void app_main(){
     {
         simple_menu_demo_App_Main();
     }
-    #elif RUN_2D_SPRITE_DEMO
-    
-    sprite_demo(); // explore sprites_demo.c     
 
     #elif RUN_DESIGN_GAME_MAP_DEMO
     
