@@ -53,6 +53,7 @@ void build_rpg_map() {
     }
 }
 
+uCanvas_universal_obj_t* fps_counter;
 void uCanvas_Game_Design_Demo_Setup(){
     start_uCanvas_engine();
     uCanvas_Scene_t *scene = New_uCanvas_Scene();
@@ -80,7 +81,7 @@ void uCanvas_Game_Design_Demo_Setup(){
     
     uCanvas_universal_obj_t* tree3 = New_uCanvas_2DSprite(&tree_sprite_obj,-30,180);
     uCanvas_universal_obj_t* tree2 = New_uCanvas_2DSprite(&tree_sprite_obj,20,180);
-
+    fps_counter = New_uCanvas_2DTextbox("",10,20);
     uCanvas_Delay(1);
     uCanvas_Init_PushButton(45);
     uCanvas_Init_PushButton(48);
@@ -100,8 +101,11 @@ void uCanvas_Game_Design_Demo_Loop(void){
     printf("Element Draw time: %.2f ms\r\n", (float)time_to_draw_element/1000.0 );
     printf("Frame Buf Prepare: %f ms\r\n", (float)time_to_draw_frame_buf/1000.0 );
     printf("FBPS: %f \r\n", (float)1000000.0/time_to_draw_frame_buf);
+    // printf("x_flip: %d \r\n", character->properties.flip_x );
     printf("--------------------------------\r\n\r\n");
     
+    sprintf(fps_counter->text,"Frame Time: %.2f ms", (float)elapsed_time/1000.0 );
+
     // if(!uCanvas_Get_PushbuttonState(45)){
     //     dir = !dir;
     // }

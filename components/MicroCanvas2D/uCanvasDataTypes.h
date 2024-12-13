@@ -56,6 +56,7 @@
         
         uint8_t collision_detection;
         uint8_t flip_x;
+        uint8_t flip_y;
     }uCanvas_base_t;
 
 

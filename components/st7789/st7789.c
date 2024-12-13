@@ -338,55 +338,7 @@ void IRAM_ATTR lcdDrawPixel(TFT_t * dev, uint16_t x, uint16_t y, uint16_t color)
 	// 	spi_master_write_colors(dev, &color, 1);
 	// }
 }
-static inline uint16_t rgba565_to_rgb565(uint16_t rgba565) {
-    // Mask to extract RGB components
-    uint16_t r = (rgba565 & 0xF800); // Red (5 bits)
-    uint16_t g = (rgba565 & 0x07E0); // Green (6 bits)
-    uint16_t b = (rgba565 & 0x003E) >> 1; // Blue (5 bits)
-    
-    // Combine RGB without the alpha channel
-    uint16_t rgb565 = r | g | b;
-    return rgb565;
-}
 
-void IRAM_ATTR st7789_draw_sprite_batch(TFT_t *dev, uCanvas_universal_obj_t *obj) {
-    int offset_x = obj->properties.position.x;
-    int offset_y = obj->properties.position.y;
-    uint16_t sprite_width = obj->sprite_obj->width;
-    uint16_t sprite_height = obj->sprite_obj->height;
-    uint16_t *sprite_buf = obj->sprite_obj->sprite_buf;
-    bool flip_x = obj->properties.flip_x;
-
-    if (obj->properties.visiblity == INVISIBLE) {
-        return;
-    }
-
-    // Ensure the sprite fits within the frame buffer bounds
-    if (offset_x + sprite_width > dev->_width || offset_y + sprite_height > dev->_height) {
-        return;
-    }
-
-    for (uint16_t row = 0; row < sprite_height; row++) {
-        uint16_t *src_row = &sprite_buf[row * sprite_width];
-        uint16_t *dest_row = &dev->_frame_buffer[(row + offset_y) * dev->_width + offset_x];
-
-        if (flip_x) {
-            // Flip row horizontally (iterate backward over dest_row)
-            for (uint16_t col = 0; col < sprite_width; col++) {
-                if (src_row[col] & 0x01) {
-                    dest_row[sprite_width - 1 - col] = rgba565_to_rgb565(src_row[col]);
-                }
-            }
-        } else {
-            // Copy row directly
-            for (uint16_t col = 0; col < sprite_width; col++) {
-                if (src_row[col] & 0x01) {
-                    dest_row[col] = rgba565_to_rgb565(src_row[col]);
-                }
-            }
-        }
-    }
-}
 
 // Draw multi pixel
 // x:X coordinate
