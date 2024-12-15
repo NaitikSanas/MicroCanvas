@@ -97,12 +97,12 @@ uCanvas_Scene_t* New_uCanvas_Scene(void){
 void uCanvas_set_active_scene(uCanvas_Scene_t* scene){
 
     
-    if(LOCK_ACTIVE_SCENEB_BUF){
-        vTaskSuspend(uCanvas_taskhandle);
+    // if(LOCK_ACTIVE_SCENEB_BUF){
+        // vTaskSuspend(uCanvas_taskhandle);
         active_scene = scene;
-        vTaskResume(uCanvas_taskhandle);
-        UNLOCK_ACTIVE_SCENEB_BUF;
-    }
+    //     vTaskResume(uCanvas_taskhandle);
+    //     UNLOCK_ACTIVE_SCENEB_BUF;
+    // }
 }
 
 uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, uint16_t h, uint16_t w){
