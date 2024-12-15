@@ -201,6 +201,45 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t 
     return uCanvas_Sprite;
 }
 
+void uCanvas_Sprite_Adjust_Contrast(sprite2D_t *sprite, int contrast) {
+    // Validate inputs
+    if (!sprite || !sprite->sprite_buf || sprite->width <= 0 || sprite->height <= 0) {
+        return; // Invalid sprite
+    }
+
+    // Iterate over the sprite buffer
+    uint16_t *buffer = sprite->sprite_buf; // Assuming sprite->buffer is a pointer to uint16_t
+    size_t num_pixels = sprite->width * sprite->height;
+
+    for (size_t i = 0; i < num_pixels; i++) {
+        uint16_t pixel = buffer[i];
+
+        // Extract RGB components and alpha channel
+        uint8_t red = (pixel >> 11) & 0x1F;  // 5 bits for red
+        uint8_t green = (pixel >> 6) & 0x1F; // 5 bits for green
+        uint8_t blue = (pixel >> 1) & 0x1F;  // 5 bits for blue
+        uint8_t alpha = pixel & 0x01;        // 1 bit for alpha
+
+        // Midpoints for each color component
+        const int red_mid = 16;    // Midpoint for 5-bit red (0-31)
+        const int green_mid = 16;  // Midpoint for 5-bit green (0-31)
+        const int blue_mid = 16;   // Midpoint for 5-bit blue (0-31)
+
+        // Adjust contrast
+        int red_adjusted = red_mid + (((red - red_mid) * contrast) >> 8);
+        int green_adjusted = green_mid + (((green - green_mid) * contrast) >> 8);
+        int blue_adjusted = blue_mid + (((blue - blue_mid) * contrast) >> 8);
+
+        // Inline clamp for each component
+        red_adjusted = (red_adjusted < 0) ? 0 : (red_adjusted > 31) ? 31 : red_adjusted;
+        green_adjusted = (green_adjusted < 0) ? 0 : (green_adjusted > 31) ? 31 : green_adjusted;
+        blue_adjusted = (blue_adjusted < 0) ? 0 : (blue_adjusted > 31) ? 31 : blue_adjusted;
+
+        // Recombine components into the RRRRR GGGGG BBBBB A format
+        buffer[i] = (red_adjusted << 11) | (green_adjusted << 6) | (blue_adjusted << 1) | alpha;
+    }
+}
+
 void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16_t delay){
     char tmp[64] = {0};
     for (int i = 0; i < strlen(text); i++)

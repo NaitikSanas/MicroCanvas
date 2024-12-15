@@ -40,10 +40,10 @@ void build_rpg_map() {
                 map_objects[row][col] = New_uCanvas_2DSprite(&grass_sprite_obj3, col * 34, row * 34);
             }
             else if(type == 2){
-                if(get_random_number(1,2))
+                // if(get_random_number(1,2)==1)
                     map_objects[row][col] = New_uCanvas_2DSprite(&grass_sprite_obj, col * 34, row * 34);
-                else 
-                    map_objects[row][col] = New_uCanvas_2DSprite(&grass_sprite_obj, col * 34, row * 34);
+                // else 
+                    // map_objects[row][col] = New_uCanvas_2DSprite(&grass_sprite_obj, col * 34, row * 34);
             }
             else {
                 // if(get_random_number(1,2)==1) map_objects[row][col] = New_uCanvas_2DSprite(floor_sprite_obj, col * 10, row * 10);
@@ -73,6 +73,9 @@ void uCanvas_Game_Design_Demo_Setup(){
     uCanvas_Compose_2DSprite_Obj(&grass_sprite_obj,TX_Tileset_Grass,TX_TILESET_GRASS_WIDTH,TX_TILESET_GRASS_HEIGHT);
     uCanvas_Compose_2DSprite_Obj(&grass_sprite_obj2,TX_Tileset_Grass2,TX_TILESET_GRASS_WIDTH,TX_TILESET_GRASS_HEIGHT);
     uCanvas_Compose_2DSprite_Obj(&tree_sprite_obj,tree,48,64);
+
+    uCanvas_Sprite_Adjust_Contrast(&grass_sprite_obj3,500);
+    uCanvas_Sprite_Adjust_Contrast(&grass_sprite_obj,500);
 
     build_rpg_map();
     character = New_uCanvas_2DSprite(&character_sprite_obj2,50,150);

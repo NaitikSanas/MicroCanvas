@@ -19,7 +19,7 @@ menu "ST7789 Configuration"
 	config HEIGHT
 		int "SCREEN HEIGHT"
 		range 0 999
-		default 240
+		default 320
 		help
 			The height resolution of the screen.
 
