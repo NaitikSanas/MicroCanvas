@@ -51,9 +51,25 @@ void uCanvas_Draw_Line(Coordinate2D_t point1, Coordinate2D_t point2, color_t col
         SSD1306_DrawLine(point1.x,point1.y,point2.x,point2.y,color.monochrome_pixel);
 }
 
-void uCanvas_Draw_Text(char* text, int x, int y, color_t color){
+void uCanvas_Draw_Text (char* text, int x, int y, color_t color,uCanvas_font_properties_t font_properties){
     SSD1306_GotoXY(x,y);
-    SSD1306_Puts(text,&Font_7x10,color.monochrome_pixel);
+    FontDef_t active_font;
+    switch (font_properties.font_type)
+    {
+    case OLED_7x10:
+        active_font = Font_7x10;
+        break;
+    case OLED_11x18:
+        active_font = Font_11x18;
+        break;
+    case OLED_16x26:
+        active_font = Font_16x26;
+        break;
+    default:
+        active_font = Font_7x10;
+        break;
+    }
+    SSD1306_Puts(text,&active_font,color.monochrome_pixel);
 }
 
 void uCanvas_Draw_Triangle(Coordinate2D_t point1, Coordinate2D_t point2, Coordinate2D_t point3, color_t color, fill_t fill){
@@ -66,4 +82,6 @@ void uCanvas_Draw_Triangle(Coordinate2D_t point1, Coordinate2D_t point2, Coordin
 void uCanvas_DrawPixel(int x, int y,color_t color){
     SSD1306_DrawPixel(x,y,color.monochrome_pixel);
 }
+
+
 #endif

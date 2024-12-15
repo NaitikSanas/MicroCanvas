@@ -48,7 +48,7 @@ void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj){
     }
 
     case TEXTBOX : {
-        uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color);
+        uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color,obj->font_properties);
       break;
     }
 

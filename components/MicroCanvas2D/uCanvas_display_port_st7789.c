@@ -7,17 +7,21 @@
 #include "esp_err.h"
 #include "esp_log.h"
 TFT_t dev;
-uint16_t IRAM_ATTR convertToRGB565(color_t color) {
-    // Combine into RGB565 format
-  	return (((color.red * 31) / 255) << 11) | (((color.green * 63) / 255) << 5) | ((color.blue * 31) / 255);
-}
 FontxFile fx16G[2];
 FontxFile fx24G[2];
 FontxFile fx32G[2];
 FontxFile fx32L[2];
 FontxFile fx16M[2];
 FontxFile fx24M[2];
-FontxFile fx32M[2];
+FontxFile fx10M[2];
+
+
+
+uint16_t IRAM_ATTR convertToRGB565(color_t color) {
+    // Combine into RGB565 format
+  	return (((color.red * 31) / 255) << 11) | (((color.green * 63) / 255) << 5) | ((color.blue * 31) / 255);
+}
+
 static const char *TAG = "ST7789";
 
 static void SPIFFS_Directory(char * path) {
@@ -30,6 +34,13 @@ static void SPIFFS_Directory(char * path) {
 	}
 	closedir(dir);
 }
+
+
+
+void uCanvas_Set_Font_Type(uCanvas_universal_obj_t* obj,FontType_t FontType){
+	
+}
+
 void uCanvas_Display_init(void){
     // set font file
 	esp_vfs_spiffs_conf_t conf = {
@@ -71,11 +82,11 @@ void uCanvas_Display_init(void){
 	
 	InitFontx(fx16M,"/spiffs/ILMH16XB.FNT",""); // 8x16Dot Mincyo
 	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
-	InitFontx(fx32M,"/spiffs/FONT10X20.FNT",""); // 16x32Dot Mincyo
+	InitFontx(fx10M,"/spiffs/FONT10X20.FNT",""); // 16x32Dot Mincyo
 	
 	// spi_clock_speed(40000000); // 40MHz
 	// spi_clock_speed(60 000 000); // 60MHz
-	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);	
+	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);   
 	lcdInit(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, 0, 0);
 }
 
@@ -113,11 +124,39 @@ void uCanvas_Draw_Line (Coordinate2D_t point1, Coordinate2D_t point2, color_t co
 	uint16_t color565 = convertToRGB565(color);
 	lcdDrawLine(&dev,point1.x, point1.y,point2.x, point2.y,color565);
 }
-void uCanvas_Draw_Text (char* text, int x, int y, color_t color){
+void uCanvas_Draw_Text (char* text, int x, int y, color_t color,uCanvas_font_properties_t font_properties){
 	// printf("RENDERING : %s %d \r\n",text,strlen(text));
+	FontxFile* activefont = NULL;
+	switch (font_properties.font_type)
+	{
+	case FONT_16G:	
+		activefont = fx16G;
+		break;
+	case FONT_24G:	
+		activefont = fx24G;
+		break;
+	case FONT_32G:
+		activefont = fx32G;
+		break;
+	case FONT_32L:
+		activefont = fx32L;
+		break;
+	case FONT_16M:
+		activefont = fx16M;
+		break;
+	case FONT_24M :
+		activefont = fx24M;
+		break;
+	case FONT_10M : 
+		activefont = fx10M;
+		break;
+	default:
+		activefont = fx10M;
+		break;
+	}
 	uint16_t color565 = convertToRGB565(color);
-	lcdSetFontDirection(&dev,DIRECTION0);
-	lcdDrawString(&dev,fx32M,x,y,(uint8_t*)text,color565);
+	lcdSetFontDirection(&dev,font_properties.Font_Draw_Direction);
+	lcdDrawString(&dev,activefont,x,y,(uint8_t*)text,color565);
 }
 void uCanvas_DrawPixel(int x, int y,color_t color){
 	lcdDrawPixel(&dev,x,y,  convertToRGB565(color));

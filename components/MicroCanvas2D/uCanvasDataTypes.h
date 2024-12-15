@@ -10,6 +10,20 @@
 
     typedef TaskFunction_t uCanvas_Animation_task_t;
     typedef TaskHandle_t uCanvas_Animation_task_handle_t;
+    
+    typedef enum{
+        FONT_16G,
+        FONT_24G,
+        FONT_32G,
+        FONT_32L,
+        FONT_16M,
+        FONT_24M,
+        FONT_10M,
+        OLED_7x10,
+        OLED_11x18,
+        OLED_16x26,
+    }FontType_t;
+
 
   
     typedef enum{
@@ -76,6 +90,14 @@
         uint8_t orientation;    
     }sprite2D_t;
     
+    typedef enum {uCanvas_Font_Dir_0, uCanvas_Font_Dir_90, uCanvas_Font_Dir_180, uCanvas_Font_Dir_270} font_draw_direction_t;
+    
+    typedef struct uCanvas_font_properties
+    {
+        FontType_t font_type;
+        font_draw_direction_t Font_Draw_Direction;
+    }uCanvas_font_properties_t;
+    
     typedef struct uCanvas_universal_obj
     {
         uCanvas_base_t properties; 
@@ -95,6 +117,9 @@
         uint8_t invert_sprite_pixels;
         uint8_t state;
         char text[256];
+        uCanvas_font_properties_t font_properties;
+        
+        
         uint16_t* sprite_buffer;
         Coordinate2D_t sprite_resolution;
         

@@ -143,7 +143,8 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     // textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE*sizeof(uint8_t));
     memset(textbox->text,0,256);
     sprintf(textbox->text,"%s",text);
-
+    textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
+    textbox->font_properties.font_type = FONT_10M;
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, TEXTBOX);
     uCanvas_Set_Color(textbox,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);

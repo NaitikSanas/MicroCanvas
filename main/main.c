@@ -3,15 +3,17 @@
 #include "simple_menu_demo.h"
 #include "design_game_map.h"
 #include "uCanvas_Physix.h"
-
-#define RUN_APP_C 1
+#include "fonts_demo.h"
+// #define RUN_APP_C 1
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
-// array size is 8192
-
+#define RUN_FONTS_TESTING 1
 
 
 void app_main(){
+    
+    
+
     #if RUN_APP_C
     uCanvas_Setup();
     while (1)
@@ -36,7 +38,9 @@ void app_main(){
             uCanvas_Game_Design_Demo_Loop();
             uCanvas_Delay(1);
         }
-        
+    
+    #elif RUN_FONTS_TESTING
+        uCanvas_Run_Fonts_demo();
     #endif
     
 
