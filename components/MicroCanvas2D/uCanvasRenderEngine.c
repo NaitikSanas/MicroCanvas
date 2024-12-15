@@ -89,7 +89,8 @@ void IRAM_ATTR uCanvas_bg_render_engine_task(void*arg){
 
     while(1){ 
         int64_t start_time = esp_timer_get_time();
-		vTaskDelay(pdMS_TO_TICKS(9));
+		// vTaskDelay(pdMS_TO_TICKS(9));
+        uCanvas_Delay(1);
 		if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
 			if(LOCK_ACTIVE_SCENEB_BUF){ 
 				uCanvas_Display_clear_buffer();
