@@ -73,6 +73,7 @@
      */
     void uCanvas_ScaleUp_SpriteBuf(uint16_t* src, uint16_t* dest, int src_width, int src_height, int scale_factor);
     void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint8_t* reference,uint8_t* buffer, int h, int w, int scale_factor);
+    void uCanvas_Sprite_Adjust_Contrast(sprite2D_t *sprite, int contrast);
     /**
      * @brief This API dynamically changes the 2D sprite Object source to render on scene.
      * @param obj           : reference to sprite element

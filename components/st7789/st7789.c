@@ -234,7 +234,7 @@ inline bool spi_master_write_colors(TFT_t * dev, uint16_t * colors, uint16_t siz
 	static uint8_t Byte[1024];
 	int index = 0;
 	for(int i=0;i<size;i++) {
-		colors[i] = adjust_pixel_contrast(colors[i],500);
+		// colors[i] = adjust_pixel_contrast(colors[i],500);
 		Byte[index++] = (colors[i] >> 8) & 0xFF;
 		Byte[index++] = colors[i] & 0xFF;
 	}

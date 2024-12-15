@@ -5,9 +5,9 @@
 #include "uCanvas_Physix.h"
 #include "fonts_demo.h"
 // #define RUN_APP_C 1
-// #define RUN_DESIGN_GAME_MAP_DEMO 1
+#define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
-#define RUN_FONTS_TESTING 1
+// #define RUN_FONTS_TESTING 1
 
 
 void app_main(){
