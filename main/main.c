@@ -11,8 +11,8 @@
 
 
 void app_main(){
-    
-    
+
+
 
     #if RUN_APP_C
     uCanvas_Setup();

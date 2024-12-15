@@ -2,7 +2,7 @@
 
 typedef struct slider
 {
-    uCanvas_universal_obj_t* obj[5];
+    uCanvas_universal_obj_t* obj[6];
     uint32_t slider_gpio_1;
     uint32_t slider_gpio_2;
     uint32_t slider_gpio_3;
@@ -13,7 +13,7 @@ typedef struct slider
 
     int relative_label_pos_x;
     int relative_label_pos_y;
-
+    
     uint16_t slider_notch_radius;
     uint16_t slider_length;
     uint16_t slider_thickness;
@@ -24,7 +24,7 @@ typedef struct slider
     float max_value;    // Maximum value
     FunctionPointer slider_event_handler;
     FunctionPointer slider_pb_event_handler;
-    
+    uint8_t update_delay;
     uint8_t is_active;
 } slider_t;
 

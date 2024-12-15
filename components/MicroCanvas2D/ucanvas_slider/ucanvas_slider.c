@@ -2,9 +2,16 @@
 #include "uCanvas_User_IO.h"
 void create_slider(slider_t* slider_obj){
     slider_obj->obj[0] = New_uCanvas_2DRectangle(slider_obj->position_x,slider_obj->position_y,slider_obj->slider_thickness,slider_obj->slider_length);
+    slider_obj->obj[4] = New_uCanvas_2DCircle(slider_obj->position_x,slider_obj->position_y+(slider_obj->slider_thickness/2),slider_obj->slider_thickness/2);
+    slider_obj->obj[5] = New_uCanvas_2DCircle(slider_obj->position_x+slider_obj->slider_length,slider_obj->position_y+(slider_obj->slider_thickness/2),slider_obj->slider_thickness/2);
+    slider_obj->obj[5]->properties.fill = FILL;
+    slider_obj->obj[4]->properties.fill = FILL;
     slider_obj->obj[1] = New_uCanvas_2DCircle(slider_obj->position_x+5, slider_obj->position_y+ (slider_obj->slider_thickness/2),slider_obj->slider_notch_radius);
+    slider_obj->obj[3] = New_uCanvas_2DCircle(slider_obj->position_x+5, slider_obj->position_y+ (slider_obj->slider_thickness/2),slider_obj->slider_notch_radius-2);
+    
     slider_obj->obj[2] = New_uCanvas_2DTextbox("",slider_obj->position_x + slider_obj->relative_label_pos_x,slider_obj->position_y + slider_obj->relative_label_pos_y);
     slider_obj->obj[1]->properties.fill = FILL;
+    slider_obj->obj[3]->properties.fill = FILL;
     uCanvas_Add_Task((uCanvas_Animation_task_t)slider_task,slider_obj,1);
 }
 
@@ -29,6 +36,7 @@ void slider_task(slider_t* slider)
                 input1 = !uCanvas_Get_PushbuttonState_WTR(slider->slider_gpio_1);
             else 
                 input1 = !uCanvas_Get_PushbuttonState(slider->slider_gpio_1);
+
             if (input1)
             {
                 // Increment slider value
@@ -37,8 +45,10 @@ void slider_task(slider_t* slider)
                     slider->slider_value += slider->slider_step;
 
                     // Update notch position
-                    slider->obj[1]->properties.position.x = 
-                        slider->position_x + ((slider->slider_value - slider->min_value) / (slider->max_value - slider->min_value)) * slider->slider_length;
+                    int pos = slider->position_x + ((slider->slider_value - slider->min_value) / (slider->max_value - slider->min_value)) * slider->slider_length;
+                    slider->obj[1]->properties.position.x = pos;
+                    slider->obj[3]->properties.position.x = pos;
+                        
                 }
                 // Update label text
                 sprintf(buf, "Value %.2f", slider->slider_value);
@@ -64,8 +74,10 @@ void slider_task(slider_t* slider)
                     slider->slider_value -= slider->slider_step;
 
                     // Update notch position
-                    slider->obj[1]->properties.position.x = 
-                        slider->position_x + ((slider->slider_value - slider->min_value) / (slider->max_value - slider->min_value)) * slider->slider_length;
+                    int pos = slider->position_x + ((slider->slider_value - slider->min_value) / (slider->max_value - slider->min_value)) * slider->slider_length;
+                    slider->obj[1]->properties.position.x = pos;
+                    slider->obj[3]->properties.position.x = pos;
+                        
                 }
                 // Update label text
                 sprintf(buf, "Value %.2f", slider->slider_value);
@@ -85,7 +97,7 @@ void slider_task(slider_t* slider)
                 }
             }
         }
-        uCanvas_Delay(1);
+        uCanvas_Delay(slider->update_delay);
 
     }
 }
@@ -103,9 +115,9 @@ void set_slider_position(slider_t* slider, float value)
     slider->slider_value = value;
 
     // Calculate the new notch position
-    slider->obj[1]->properties.position.x = 
-        slider->position_x + ((slider->slider_value - slider->min_value) / (slider->max_value - slider->min_value)) * slider->slider_length;
-
+    int pos =  slider->position_x + ((slider->slider_value - slider->min_value) / (slider->max_value - slider->min_value)) * slider->slider_length;
+    slider->obj[1]->properties.position.x = pos;       
+    slider->obj[3]->properties.position.x = pos;
     // Update the label text
     char buf[32] = {0};
     sprintf(buf, "Value %.2f", slider->slider_value);
