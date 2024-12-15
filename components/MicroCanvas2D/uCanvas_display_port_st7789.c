@@ -75,10 +75,8 @@ void uCanvas_Display_init(void){
 	
 	// spi_clock_speed(40000000); // 40MHz
 	// spi_clock_speed(60 000 000); // 60MHz
-	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);
-	
-	// spi_master_init(&dev, 5, 4, -1, 7, 6, 8);
-	lcdInit(&dev, 240, 320, 0, 0);
+	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);	
+	lcdInit(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, 0, 0);
 }
 
 
@@ -189,6 +187,11 @@ void st7789_draw_sprite_batch( uCanvas_universal_obj_t *obj) {
     if (obj->properties.visiblity == INVISIBLE) {	
         return;
     }
+	// printf("h,w = (%d,%d)\r\n",sprite_height,sprite_width);
+	if(sprite_height > 128 || sprite_width > 128){
+		printf("[ERROR]SPRITE_BUF OUT OF BOUNDS!!\r\n");
+		return;
+	}
 	memcpy(sprite_buf, obj->sprite_buffer,sizeof(uint16_t)*sprite_height*sprite_width);
 	if(obj->properties.flip_x==1)flip_sprite_buffer(sprite_buf,sprite_width,sprite_height,1,0);
 	if(obj->properties.flip_y==1)flip_sprite_buffer(sprite_buf,sprite_width,sprite_height,0,1);

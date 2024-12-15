@@ -89,9 +89,9 @@ void IRAM_ATTR uCanvas_bg_render_engine_task(void*arg){
 
     while(1){ 
         int64_t start_time = esp_timer_get_time();
-		
+		vTaskDelay(pdMS_TO_TICKS(9));
 		if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
-			if(LOCK_ACTIVE_SCENEB_BUF ==pdTRUE){ 
+			if(LOCK_ACTIVE_SCENEB_BUF){ 
 				uCanvas_Display_clear_buffer();
                 int64_t start_time2 = esp_timer_get_time();
 				for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
@@ -104,18 +104,19 @@ void IRAM_ATTR uCanvas_bg_render_engine_task(void*arg){
 						// printf("hidden object\r\n");
 					}   
 				}
+                
                 time_to_draw_frame_buf = esp_timer_get_time() - start_time2;
                 int64_t start_time3 = esp_timer_get_time();
 				uCanvas_Update_Display();
                 on_screen_draw_time = esp_timer_get_time() - start_time3;
-				UNLOCK_ACTIVE_SCENEB_BUF;
+                UNLOCK_ACTIVE_SCENEB_BUF;
 				//printf("time to draw %dms", xTaskGetTickCount()-start);  
 			}
         }
         // Calculate elapsed time
         elapsed_time = esp_timer_get_time() - start_time;
 
-        vTaskDelay(1);
+        
 		// vTaskDelayUntil()
 		
 	}

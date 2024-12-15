@@ -6,6 +6,13 @@ SemaphoreHandle_t active_scene_mutex;
 extern TaskHandle_t uCanvas_taskhandle;
 #define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,portMAX_DELAY)
 #define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
+
+void uCanvas_lock_scene(){
+    LOCK_ACTIVE_SCENEB_BUF;
+}
+void uCanvas_unlock_scene(){
+    UNLOCK_ACTIVE_SCENEB_BUF;
+}
 void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
     if(active_scene != NULL){
         if(LOCK_ACTIVE_SCENEB_BUF){
@@ -189,7 +196,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t 
     uCanvas_Sprite->properties.position.x = pos_x;
     uCanvas_Sprite->properties.position.y = pos_y;
     uCanvas_push_object_to_activescene(uCanvas_Sprite);
-    printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
+    // printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
     return uCanvas_Sprite;
 }
 
@@ -230,7 +237,7 @@ int get_random_number(int min, int max) {
     return (esp_random() % (max - min + 1)) + min;
 }
 
-void uCanvas_ScaleUp_SpriteBuf(uint8_t* src, uint8_t* dest, int src_width, int src_height, int scale_factor){
+void uCanvas_ScaleUp_SpriteBuf(uint16_t* src, uint16_t* dest, int src_width, int src_height, int scale_factor){
     int dest_width = src_width * scale_factor;
     int dest_height = src_height * scale_factor;
 
@@ -269,6 +276,7 @@ void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint1
     obj->sprite_buf = sprite_buffer;
     obj->height = height;
     obj->width = width;
+    // printf("composed sprite of %dx%d\r\n",width,height);
 }
 /**
  * Deleting the object from scene requires to 

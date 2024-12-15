@@ -4,9 +4,9 @@
 #include "design_game_map.h"
 #include "uCanvas_Physix.h"
 
-// #define RUN_APP_C 1
+#define RUN_APP_C 1
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
-#define RUN_SIMPLE_MENU_DEMO 1
+// #define RUN_SIMPLE_MENU_DEMO 1
 // array size is 8192
 
 
@@ -17,7 +17,7 @@ void app_main(){
     while (1)
     {
         uCanvas_App_Main();
-        uCanvas_Delay(1);
+        // uCanvas_Delay(1);
     }
 
     #elif RUN_SIMPLE_MENU_DEMO 

@@ -1,7 +1,7 @@
 #include "stdio.h"
 #include "uCanvasDataTypes.h"
-#define USE_SSD1306
-// #define USE_ST7789
+// #define USE_SSD1306
+#define USE_ST7789
 typedef struct uCanvas_display_port
 {
     uint16_t xPos;
