@@ -1,19 +1,47 @@
 #include "ucanvas_slider.h"
 #include "uCanvas_User_IO.h"
-void create_slider(slider_t* slider_obj){
+void uCanvas_Create_Slider(slider_t* slider_obj){
     slider_obj->obj[0] = New_uCanvas_2DRectangle(slider_obj->position_x,slider_obj->position_y,slider_obj->slider_thickness,slider_obj->slider_length);
     slider_obj->obj[4] = New_uCanvas_2DCircle(slider_obj->position_x,slider_obj->position_y+(slider_obj->slider_thickness/2),slider_obj->slider_thickness/2);
     slider_obj->obj[5] = New_uCanvas_2DCircle(slider_obj->position_x+slider_obj->slider_length,slider_obj->position_y+(slider_obj->slider_thickness/2),slider_obj->slider_thickness/2);
+    slider_obj->obj[0]->properties.fill = FILL;
     slider_obj->obj[5]->properties.fill = FILL;
     slider_obj->obj[4]->properties.fill = FILL;
+    uCanvas_Set_Color(slider_obj->obj[0],40,0,0);
+    uCanvas_Set_Color(slider_obj->obj[4],40,0,0);
+    uCanvas_Set_Color(slider_obj->obj[5],40,0,0);
+    
     slider_obj->obj[1] = New_uCanvas_2DCircle(slider_obj->position_x+5, slider_obj->position_y+ (slider_obj->slider_thickness/2),slider_obj->slider_notch_radius);
     slider_obj->obj[3] = New_uCanvas_2DCircle(slider_obj->position_x+5, slider_obj->position_y+ (slider_obj->slider_thickness/2),slider_obj->slider_notch_radius-2);
-    
-    slider_obj->obj[2] = New_uCanvas_2DTextbox("",slider_obj->position_x + slider_obj->relative_label_pos_x,slider_obj->position_y + slider_obj->relative_label_pos_y);
     slider_obj->obj[1]->properties.fill = FILL;
     slider_obj->obj[3]->properties.fill = FILL;
+    uCanvas_Set_Color(slider_obj->obj[1],255,0,0);
+    uCanvas_Set_Color(slider_obj->obj[3],140,0,0);
+
+    slider_obj->obj[2] = New_uCanvas_2DTextbox("",slider_obj->position_x + slider_obj->relative_label_pos_x,slider_obj->position_y + slider_obj->relative_label_pos_y);
+     uCanvas_Set_Color(slider_obj->obj[2],250,0,0);
+    slider_obj->obj[1]->properties.fill = FILL;
+    slider_obj->obj[3]->properties.fill = FILL;
+    slider_obj->obj[2]->font_properties.font_type = FONT_16G;
     uCanvas_Add_Task((uCanvas_Animation_task_t)slider_task,slider_obj,1);
 }
+
+void uCanvas_Set_Slider_Bar_Color(slider_t* slider_obj,uint16_t r, uint16_t g, uint16_t b){
+    slider_obj->obj[0]->properties.fill = FILL;
+    slider_obj->obj[5]->properties.fill = FILL;
+    slider_obj->obj[4]->properties.fill = FILL;
+    uCanvas_Set_Color(slider_obj->obj[0],r,g,b);
+    uCanvas_Set_Color(slider_obj->obj[4],r,g,b);
+    uCanvas_Set_Color(slider_obj->obj[5],r,g,b);
+}
+
+void uCanvas_Set_Slider_Notch_Color(slider_t* slider_obj,uint16_t r_outer, uint16_t g_outer, uint16_t b_outer,uint16_t r_inner, uint16_t g_inner, uint16_t b_inner){
+    slider_obj->obj[1]->properties.fill = FILL;
+    slider_obj->obj[3]->properties.fill = FILL;
+    uCanvas_Set_Color(slider_obj->obj[1],r_outer,g_outer,b_outer);
+    uCanvas_Set_Color(slider_obj->obj[3],r_inner,g_inner,b_inner);
+}
+
 
 void set_slider_visiblity(slider_t* slider_obj,visibility_ctrl_t v){
     slider_obj->obj[0]->properties.visiblity = v;
@@ -102,7 +130,7 @@ void slider_task(slider_t* slider)
     }
 }
 
-void set_slider_position(slider_t* slider, float value)
+void uCanvas_Set_Slider_Value(slider_t* slider, float value)
 {
     // Check if the value is within the slider's range
     if (value < slider->min_value || value > slider->max_value)

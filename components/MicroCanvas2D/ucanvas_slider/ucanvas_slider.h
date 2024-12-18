@@ -28,7 +28,9 @@ typedef struct slider
     uint8_t is_active;
 } slider_t;
 
-void create_slider(slider_t* slider_obj);
+void uCanvas_Create_Slider(slider_t* slider_obj);
+void uCanvas_Set_Slider_Bar_Color(slider_t* slider_obj,uint16_t r, uint16_t g, uint16_t b);
+void uCanvas_Set_Slider_Notch_Color(slider_t* slider_obj,uint16_t r_outer, uint16_t g_outer, uint16_t b_outer,uint16_t r_inner, uint16_t g_inner, uint16_t b_inner);
 void slider_task(slider_t* slider);
 void set_slider_visiblity(slider_t* slider_obj,visibility_ctrl_t v);
-void set_slider_position(slider_t* slider, float value);
+void uCanvas_Set_Slider_Value(slider_t* slider, float value);

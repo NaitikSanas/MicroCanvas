@@ -1,143 +1,129 @@
 #include "app.h"
 #include "uCanvas_api.h"
-#include "uCanvas_display_port.h"
+#include "ucanvas_slider.h"
+#include "uCanvas_User_IO.h"
 
-static sprite2D_t fences_sprite;
-static sprite2D_t flooring_sprite;
-static sprite2D_t terrain_1_sprite;
-static sprite2D_t terrain_2_sprite;
-static sprite2D_t terrain_3_sprite;
-static sprite2D_t block_1_sprite;
-static sprite2D_t green_bg_sprite;
-typedef enum{
-    EMPTY = 0,
-    FLOOR = 1,
-    TERRAIN = 2,
-    BLOCK = 3
-}sprite_type;
-
-
-uint16_t game_map[64][64] = {
-    {0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {2,2,2,2,2,2,2,2,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,2,2,2,2,2,2,2,2},
-    {2,2,2,2,2,2,2,2,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,2,2,2,2,2,2,2,2},
-};
-
-static uCanvas_universal_obj_t* map_objects[32][10];
-void build_game_map() {
-    for (int row = 0; row < 6; row++) {
-        for (int col = 0; col < 32; col++) {
-            
-            int type = game_map[row][col];
-            if (type == TERRAIN) {  // Only create objects for visible cells
-                map_objects[row][col] = New_uCanvas_2DSprite(&terrain_2_sprite, col * terrain_2_sprite.width, row * terrain_2_sprite.width);
-            }else 
-            if(type == FLOOR){
-                map_objects[row][col] = New_uCanvas_2DSprite(&terrain_3_sprite, col * terrain_3_sprite.width, row * terrain_3_sprite.height+120);
-            }
-            else if(type == BLOCK){
-                map_objects[row][col] = New_uCanvas_2DSprite(&block_1_sprite, col * block_1_sprite.width, row * block_1_sprite.height+120);
-            }
-            else {
-                map_objects[row][col] = 0;
-            }
-        }
-    }
-}
-
-uCanvas_universal_obj_t* floor_component[32]={0};
-uCanvas_universal_obj_t* blocks_component[32]={0};
-
-void pan(int dir){
-    int64_t start = esp_timer_get_time();
-    uCanvas_lock_scene();
-    for (int j = 0; j < 10; j++)
-    {
-        
-        for (int i = 0; i < 32; i++) {
-            if(floor_component[i] != NULL){
-                if(dir) floor_component[i]->properties.position.x += 1;
-                else floor_component[i]->properties.position.x -= 1;
-            }
-            if(blocks_component[i] != NULL){
-                if(dir) blocks_component[i]->properties.position.x += 1;
-                else blocks_component[i]->properties.position.x -= 1;
-            }         
-        }
-       
-        vTaskDelay(pdMS_TO_TICKS(9));
-    }
-     uCanvas_unlock_scene();
-    printf("--time elapsed %.2f\r\n",1000000.0/(esp_timer_get_time()-start));
-    
-}
-    // 
+uCanvas_universal_obj_t* rect;
+slider_t v_slider;
+slider_t p_slider;
 
 void uCanvas_Setup() {
     start_uCanvas_engine();
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
     uCanvas_set_active_scene(scene);
+    
     uCanvas_Init_PushButton(45);
     uCanvas_Init_PushButton(47);
-    uCanvas_Compose_2DSprite_Obj(&terrain_1_sprite,Terrain_1,TERRAIN_1_WIDTH,TERRAIN_1_HEIGHT);
-    uCanvas_Compose_2DSprite_Obj(&terrain_2_sprite,Terrain_2,TERRAIN_2_WIDTH,TERRAIN_2_HEIGHT);
-    uCanvas_Compose_2DSprite_Obj(&terrain_3_sprite,Terrain_3,TERRAIN_3_WIDTH,TERRAIN_3_HEIGHT);
-    uCanvas_Compose_2DSprite_Obj(&block_1_sprite,Block,BLOCK_WIDTH,BLOCK_WIDTH);
-    uCanvas_Compose_2DSprite_Obj(&green_bg_sprite,Green_Background,GREEN_BG_WIDTH,GREEN_BG_HEIGHT);
-
+    uCanvas_Init_PushButton(48);
     
+    uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,320,240);
+    bg->properties.fill = FILL;
+    uCanvas_Set_Color(bg,10,4,0);
+    
+    uCanvas_universal_obj_t* title = New_uCanvas_2DTextbox("DEMO",100,24);
+    title->font_properties.font_type = FONT_24G;
+    uCanvas_Set_Color(title,180,0,0);
 
-    for (int i = 0; i <= 240/green_bg_sprite.width; i++)
-    {
-        New_uCanvas_2DSprite(&green_bg_sprite,i*green_bg_sprite.width,0);
-    }
-    for (int i = 0; i <= 240/green_bg_sprite.width; i++)
-    {
-        New_uCanvas_2DSprite(&green_bg_sprite,i*green_bg_sprite.width,64);
-    }
-    for (int i = 0; i <= 240/green_bg_sprite.width; i++)
-    {
-        New_uCanvas_2DSprite(&green_bg_sprite,i*green_bg_sprite.width,2*64);
-    }
-    blocks_component[0] = New_uCanvas_2DSprite(&block_1_sprite,290,90);
-    blocks_component[1] = New_uCanvas_2DSprite(&block_1_sprite,80,40);
+    v_slider.is_active = true;
+    v_slider.max_value = 100;
+    v_slider.min_value = 0;
+    v_slider.slider_step = 2;
+    v_slider.position_x = 30;
+    v_slider.position_y = 30+40;
+    v_slider.relative_label_pos_x = 0;
+    v_slider.relative_label_pos_y = -10;
+    v_slider.show_label = true;
+    v_slider.slider_length = 80;
+    v_slider.slider_notch_radius = 10;
+    v_slider.slider_thickness = 20;
+    v_slider.update_delay = 1;
+    v_slider.slider_gpio_1 = 45;
+    v_slider.slider_gpio_2 = 47;
+    v_slider.slider_gpio_3 = 48;
+    uCanvas_Create_Slider(&v_slider);
+    uCanvas_Set_Slider_Value(&v_slider,0);
 
-    // build_game_map(); 
-    int prev_x = 0;
-    for (int i = 0; i < 32; i++)
+    p_slider.is_active = true;
+    p_slider.max_value = 200;
+    p_slider.min_value = 0;
+    p_slider.slider_step = 3;
+    p_slider.position_x = 30;
+    p_slider.position_y = 100 + 40;
+    p_slider.relative_label_pos_x = 0;
+    p_slider.relative_label_pos_y = -10;
+    p_slider.show_label = true;
+    p_slider.slider_length = 80;
+    p_slider.slider_notch_radius = 10;
+    p_slider.slider_thickness = 20;
+    p_slider.update_delay = 1;
+    p_slider.slider_gpio_1 = 45;
+    p_slider.slider_gpio_2 = 47;
+    p_slider.slider_gpio_3 = 48;
+    uCanvas_Create_Slider(&p_slider);
+    uCanvas_Set_Slider_Value(&p_slider,0);
+    uCanvas_Set_Slider_Bar_Color(&p_slider,40,0,0);
+    uCanvas_Set_Slider_Notch_Color(&p_slider,255,0,0,140,0,0);
+
+    uCanvas_universal_obj_t* cursor =  New_uCanvas_2DCircle(10,70+p_slider.slider_thickness/2,4);
+    cursor->properties.fill = FILL;
+    uCanvas_Set_Color(cursor,255,0,0);
+    int cursor_pos = 0;
+    int last_pos = 0;
+    while (1)
     {  
-        int xpos = i*(TERRAIN_3_WIDTH);
-        int ypos = 170;
-        // printf("pos(%d,%d) - %d\r\n",xpos,ypos, (xpos- prev_x));
-        floor_component[i] = New_uCanvas_2DSprite(&terrain_3_sprite,xpos,ypos);
-        prev_x = xpos;
-    } 
+        if(!uCanvas_Get_PushbuttonState_WTR(48)){
+            cursor_pos = !cursor_pos;
+        }
+
+        if(last_pos != cursor_pos){
+            switch (cursor_pos)
+            {
+                case 0:
+                    p_slider.is_active = false;
+                    v_slider.is_active = false;
+                    while (cursor->properties.position.y != 70 + p_slider.slider_thickness/2)
+                    {
+                        if(last_pos == 1){
+                            cursor->properties.position.y--;
+                        }
+                        else cursor->properties.position.y++;
+                        ets_delay_us(5000);
+                    }
+                    p_slider.is_active = false;
+                    v_slider.is_active = true;
+                    // printf("s0 selected\r\n");
+                    break;
+                case 1:
+                    p_slider.is_active = false;
+                    v_slider.is_active = false;
+                    while (cursor->properties.position.y != 140 + p_slider.slider_thickness/2)
+                    {
+                        cursor->properties.position.y++;
+                        ets_delay_us(5000);
+                    }
+                    // printf("s1 selected\r\n");
+                    p_slider.is_active = true;
+                    v_slider.is_active = false;
+                    break;
+                default:
+                    break;
+                }
+            last_pos = cursor_pos;
+        }
+        uCanvas_Delay(1);
+    }
+    
+    // rect = New_uCanvas_2DRectangle(10,10,40,40);
+    // rect->properties.fill = FILL;
+    // uCanvas_Set_Color(rect,255,150,00);
 }
 
-extern int64_t elapsed_time;
-extern int64_t time_to_draw_element;
-extern int64_t time_to_draw_frame_buf;
-extern int64_t on_screen_draw_time;
-   
 void uCanvas_App_Main(void) {
-    // printf("--------------------------------\r\n");
-    // printf("FPS: %lld \r\n", 1000000/elapsed_time );
-    // printf("Frame Time: %.2f ms \r\n", (float)elapsed_time/1000.0 );
-    // printf("On Screen Draw Time: %.2f ms \r\n", (float)on_screen_draw_time/1000.0 );
-    // printf("OSDPS : %.2f\r\n", (float)1000000.0/on_screen_draw_time );
-    // printf("Element Draw time: %.2f ms\r\n", (float)time_to_draw_element/1000.0 );
-    // printf("Frame Buf Prepare: %f ms\r\n", (float)time_to_draw_frame_buf/1000.0 );
-    // printf("FBPS: %f \r\n", (float)1000000.0/time_to_draw_frame_buf);
-    // printf("--------------------------------\r\n\r\n");
-    if(!uCanvas_Get_PushbuttonState(45)){
-        pan(0);
-    }
-    if(!uCanvas_Get_PushbuttonState(47)){
-        pan(1);
-    }
-    // esp_rom_delay_us(100000);
+    // if(rect->properties.position.x < 240){
+    //     rect->properties.position.x++;
+    // }else {
+    //     uCanvas_Set_Color(rect,get_random_number(100,200),get_random_number(100,200),0);
+    //     rect->properties.position.x=0;
+    // }
     uCanvas_Delay(1);
 }
