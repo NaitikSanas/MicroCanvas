@@ -52,7 +52,7 @@ void uCanvas_Setup() {
     uCanvas_Create_Slider(&v_slider);
     uCanvas_Set_Slider_Value(&v_slider,0);
 
-    p_slider.is_active = true;
+    p_slider.is_active = false;
     p_slider.max_value = 200;
     p_slider.min_value = 0;
     p_slider.slider_step = 3;
