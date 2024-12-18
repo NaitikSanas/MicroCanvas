@@ -7,6 +7,14 @@ uCanvas_universal_obj_t* rect;
 slider_t v_slider;
 slider_t p_slider;
 
+void v_slider_callback(void){
+    printf("Slider1 : %f\r\n",v_slider.slider_value);
+}
+
+void p_slider_callback(void){
+    printf("Slider2 : %f\r\n",p_slider.slider_value);
+}
+
 void uCanvas_Setup() {
     start_uCanvas_engine();
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
@@ -40,6 +48,7 @@ void uCanvas_Setup() {
     v_slider.slider_gpio_1 = 45;
     v_slider.slider_gpio_2 = 47;
     v_slider.slider_gpio_3 = 48;
+    v_slider.slider_event_handler = v_slider_callback;
     uCanvas_Create_Slider(&v_slider);
     uCanvas_Set_Slider_Value(&v_slider,0);
 
@@ -59,6 +68,7 @@ void uCanvas_Setup() {
     p_slider.slider_gpio_1 = 45;
     p_slider.slider_gpio_2 = 47;
     p_slider.slider_gpio_3 = 48;
+    p_slider.slider_event_handler = p_slider_callback;
     uCanvas_Create_Slider(&p_slider);
     uCanvas_Set_Slider_Value(&p_slider,0);
     uCanvas_Set_Slider_Bar_Color(&p_slider,40,0,0);
