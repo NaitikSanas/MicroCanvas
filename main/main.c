@@ -4,11 +4,13 @@
 #include "design_game_map.h"
 #include "uCanvas_Physix.h"
 #include "fonts_demo.h"
-#define RUN_APP_C 1
+#include "slider_example.h"
+
+// #define RUN_APP_C 1
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
 // #define RUN_FONTS_TESTING 1
-
+#define RUN_SLIDER_EXAMPLE_TESTING 1
 
 void app_main(){
 
@@ -41,6 +43,10 @@ void app_main(){
     
     #elif RUN_FONTS_TESTING
         uCanvas_Run_Fonts_demo();
+    
+    #elif RUN_SLIDER_EXAMPLE_TESTING
+        uCanvas_slider_demo_Setup();
+        uCanvas_slider_demo_Main();
     #endif
     
 
