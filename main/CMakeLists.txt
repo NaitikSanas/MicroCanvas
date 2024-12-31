@@ -4,10 +4,14 @@ idf_component_register(SRCS "main.c"
                             "../examples/design_game_map/design_game_map.c"
                             "../examples/fonts_support_testing/fonts_demo.c"
                             "../examples/slider_example/slider_example.c"
+                            "../examples/GUI_Demo/GUI_Demo.c"
+                            "../examples/GUI_Demo/GUI_Demo_Components.c"
+                            "../examples/GUI_Demo/vector_graphics_app.c"
 
 INCLUDE_DIRS "."    
             "app"   
             "../examples/simple_menu_demo" 
             "../examples/design_game_map" 
             "../examples/fonts_support_testing"  
-            "../examples/slider_example" )
+            "../examples/slider_example"
+            "../examples/GUI_Demo" )

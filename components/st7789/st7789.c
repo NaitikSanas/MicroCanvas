@@ -381,37 +381,94 @@ void lcdDrawMultiPixels(TFT_t * dev, uint16_t x, uint16_t y, uint16_t size, uint
 // x2:End X coordinate
 // y2:End Y coordinate
 // color:color
-void lcdDrawFillRect(TFT_t * dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
-	if (x1 >= dev->_width) return;
-	if (x2 >= dev->_width) x2=dev->_width-1;
-	if (y1 >= dev->_height) return;
-	if (y2 >= dev->_height) y2=dev->_height-1;
+// void lcdDrawFillRect(TFT_t * dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
+// 	if (x1 >= dev->_width) return;
+// 	if (x2 >= dev->_width) x2=dev->_width-1;
+// 	if (y1 >= dev->_height) return;
+// 	if (y2 >= dev->_height) y2=dev->_height-1;
 
-	ESP_LOGD(TAG,"offset(x)=%d offset(y)=%d",dev->_offsetx,dev->_offsety);
+// 	ESP_LOGD(TAG,"offset(x)=%d offset(y)=%d",dev->_offsetx,dev->_offsety);
 
-	if (dev->_use_frame_buffer) {
-		for (int16_t j = y1; j <= y2; j++){
-			for(int16_t i = x1; i <= x2; i++){
-				dev->_frame_buffer[j*dev->_width+i] = color;
-			}
-		}
-	} else {
-		uint16_t _x1 = x1 + dev->_offsetx;
-		uint16_t _x2 = x2 + dev->_offsetx;
-		uint16_t _y1 = y1 + dev->_offsety;
-		uint16_t _y2 = y2 + dev->_offsety;
+// 	if (dev->_use_frame_buffer) {
+// 		for (int16_t j = y1; j <= y2; j++){
+// 			for(int16_t i = x1; i <= x2; i++){
+// 				dev->_frame_buffer[j*dev->_width+i] = color;
+// 			}
+// 		}
+// 	} else {
+// 		uint16_t _x1 = x1 + dev->_offsetx;
+// 		uint16_t _x2 = x2 + dev->_offsetx;
+// 		uint16_t _y1 = y1 + dev->_offsety;
+// 		uint16_t _y2 = y2 + dev->_offsety;
 
-		spi_master_write_command(dev, 0x2A);	// set column(x) address
-		spi_master_write_addr(dev, _x1, _x2);
-		spi_master_write_command(dev, 0x2B);	// set Page(y) address
-		spi_master_write_addr(dev, _y1, _y2);
-		spi_master_write_command(dev, 0x2C);	// Memory Write
-		for(int i=_x1;i<=_x2;i++){
-			uint16_t size = _y2-_y1+1;
-			spi_master_write_color(dev, color, size);
-		}
-	}
+// 		spi_master_write_command(dev, 0x2A);	// set column(x) address
+// 		spi_master_write_addr(dev, _x1, _x2);
+// 		spi_master_write_command(dev, 0x2B);	// set Page(y) address
+// 		spi_master_write_addr(dev, _y1, _y2);
+// 		spi_master_write_command(dev, 0x2C);	// Memory Write
+// 		for(int i=_x1;i<=_x2;i++){
+// 			uint16_t size = _y2-_y1+1;
+// 			spi_master_write_color(dev, color, size);
+// 		}
+// 	}
+// }
+
+#include <stdint.h>
+#include <esp_log.h>
+
+void lcdDrawFillRect(TFT_t *dev, int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t color) {
+  // Ensure x1 is less than or equal to x2
+    if (x1 > x2) {
+        int16_t temp = x1;
+        x1 = x2;
+        x2 = temp;
+    }
+
+    // Ensure y1 is less than or equal to y2
+    if (y1 > y2) {
+        int16_t temp = y1;
+        y1 = y2;
+        y2 = temp;
+    }
+
+    // Clip coordinates to the display boundaries
+    if (x1 >= dev->_width || y1 >= dev->_height || x2 < 0 || y2 < 0) {
+        // The rectangle is completely out of bounds
+        return;
+    }
+
+    if (x1 < 0) x1 = 0;
+    if (y1 < 0) y1 = 0;
+    if (x2 >= dev->_width) x2 = dev->_width - 1;
+    if (y2 >= dev->_height) y2 = dev->_height - 1;
+
+    ESP_LOGD(TAG, "offset(x)=%d offset(y)=%d", dev->_offsetx, dev->_offsety);
+
+    if (dev->_use_frame_buffer) {
+        for (int16_t j = y1; j <= y2; j++) {
+            for (int16_t i = x1; i <= x2; i++) {
+                dev->_frame_buffer[j * dev->_width + i] = color;
+            }
+        }
+    } else {
+        uint16_t _x1 = x1 + dev->_offsetx;
+        uint16_t _x2 = x2 + dev->_offsetx;
+        uint16_t _y1 = y1 + dev->_offsety;
+        uint16_t _y2 = y2 + dev->_offsety;
+
+        spi_master_write_command(dev, 0x2A); // Set column (x) address
+        spi_master_write_addr(dev, _x1, _x2);
+        spi_master_write_command(dev, 0x2B); // Set page (y) address
+        spi_master_write_addr(dev, _y1, _y2);
+        spi_master_write_command(dev, 0x2C); // Memory Write
+
+        for (int16_t i = _x1; i <= _x2; i++) {
+            uint16_t size = _y2 - _y1 + 1;
+            spi_master_write_color(dev, color, size);
+        }
+    }
 }
+
 
 // Display OFF
 void lcdDisplayOff(TFT_t * dev) {
@@ -904,11 +961,9 @@ int lcdDrawChar(TFT_t * dev, FontxFile *fxs, uint16_t x, uint16_t y, uint8_t asc
 	return next;
 }
 
-int lcdDrawString(TFT_t * dev, FontxFile *fx, uint16_t x, uint16_t y, uint8_t * ascii, uint16_t color) {
+int lcdDrawString(TFT_t * dev, FontxFile *fx, int16_t x, int16_t y, uint8_t * ascii, uint16_t color) {
 	int length = strlen((char *)ascii);
-	if(_DEBUG_)printf("lcdDrawString length=%d\n",length);
 	for(int i=0;i<length;i++) {
-		if(_DEBUG_)printf("ascii[%d]=%x x=%d y=%d\n",i,ascii[i],x,y);
 		if (dev->_font_direction == 0)
 			x = lcdDrawChar(dev, fx, x, y, ascii[i], color);
 		if (dev->_font_direction == 1)

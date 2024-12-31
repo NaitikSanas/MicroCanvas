@@ -34,13 +34,13 @@ void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
 void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
     // 
     if(active_scene != NULL){
-        if(LOCK_ACTIVE_SCENEB_BUF){
+        // if(LOCK_ACTIVE_SCENEB_BUF){
             obj->index = active_scene->_2D_Object_Ptr;
             active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
             active_scene->_2D_Object_Ptr++;
             
             UNLOCK_ACTIVE_SCENEB_BUF;
-        }
+        // }
     }
 }
 

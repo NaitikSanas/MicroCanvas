@@ -5,12 +5,13 @@
 #include "uCanvas_Physix.h"
 #include "fonts_demo.h"
 #include "slider_example.h"
-
+#include "GUI_Demo.h"
 // #define RUN_APP_C 1
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
 // #define RUN_FONTS_TESTING 1
-#define RUN_SLIDER_EXAMPLE_TESTING 1
+// #define RUN_SLIDER_EXAMPLE_TESTING 1
+#define RUN_GUI_DEMO_TESTING 1
 
 void app_main(){
 
@@ -47,6 +48,9 @@ void app_main(){
     #elif RUN_SLIDER_EXAMPLE_TESTING
         uCanvas_slider_demo_Setup();
         uCanvas_slider_demo_Main();
+    #elif RUN_GUI_DEMO_TESTING
+        uCanvas_GUI_Demo_Setup();
+        uCanvas_GUI_Demo_Main();
     #endif
     
 
