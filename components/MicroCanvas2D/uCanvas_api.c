@@ -253,7 +253,7 @@ void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16
 
 uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void *arg, int core_id){
     TaskHandle_t task_handle = NULL;
-    xTaskCreatePinnedToCore(animation_loop,"Task2",UCANVAS_TASK_STACK_SIZE,arg,0,&task_handle,1);
+    xTaskCreatePinnedToCore(animation_loop,"Task2",UCANVAS_TASK_STACK_SIZE,arg,0,&task_handle,core_id);
     return task_handle;
 }
 

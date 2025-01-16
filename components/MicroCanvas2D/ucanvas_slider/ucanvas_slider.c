@@ -58,7 +58,7 @@ void set_slider_visiblity(slider_t* slider_obj,visibility_ctrl_t v){
 
 void slider_task(slider_t* slider)
 {
-    char buf[32] = {0};
+    char buf[64] = {0};
     float total_range = slider->max_value - slider->min_value; 
     float step_size_pixels = slider->slider_length / (total_range / slider->slider_step); 
     printf("slider_task_started\r\n");
@@ -86,7 +86,7 @@ void slider_task(slider_t* slider)
                         
                 }
                 // Update label text
-                sprintf(buf, "Value %.2f", slider->slider_value);
+                sprintf(buf, "%s %.2f", slider->slider_name, slider->slider_value);
                 uCanvas_Set_Text(slider->obj[5], buf);
 
                 // Call the slider's event handler if defined
@@ -115,7 +115,7 @@ void slider_task(slider_t* slider)
                         
                 }
                 // Update label text
-                sprintf(buf, "Value %.2f", slider->slider_value);
+                sprintf(buf, "%s %.2f", slider->slider_name, slider->slider_value);
                 uCanvas_Set_Text(slider->obj[5], buf);
 
                 // Call the slider's event handler if defined
@@ -154,8 +154,8 @@ void uCanvas_Set_Slider_Value(slider_t* slider, float value)
     slider->obj[3]->properties.position.x = pos;       
     slider->obj[4]->properties.position.x = pos;
     // Update the label text
-    char buf[32] = {0};
-    sprintf(buf, "Value %.2f", slider->slider_value);
+    char buf[64] = {0};
+    sprintf(buf, "%s %.2f", slider->slider_name, slider->slider_value);
     uCanvas_Set_Text(slider->obj[5], buf);
 
     // Optionally call the slider event handler

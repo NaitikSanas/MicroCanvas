@@ -76,6 +76,15 @@ void uCanvas_Game_Design_Demo_Setup(){
 
     uCanvas_Sprite_Adjust_Contrast(&grass_sprite_obj3,500);
     uCanvas_Sprite_Adjust_Contrast(&grass_sprite_obj,500);
+    uCanvas_Sprite_Adjust_Contrast(&tree_sprite_obj,500);
+    uCanvas_Sprite_Adjust_Contrast(&character_run_sprite_obj1,500);
+    uCanvas_Sprite_Adjust_Contrast(&character_run_sprite_obj2,500);
+    uCanvas_Sprite_Adjust_Contrast(&character_run_sprite_obj3,500);
+
+    uCanvas_Sprite_Adjust_Contrast(&character_sprite_obj1,500);
+    uCanvas_Sprite_Adjust_Contrast(&character_sprite_obj2,500);
+    uCanvas_Sprite_Adjust_Contrast(&character_sprite_obj3,500);
+    uCanvas_Sprite_Adjust_Contrast(&character_sprite_obj4,500);
 
     build_rpg_map();
     character = New_uCanvas_2DSprite(&character_sprite_obj2,50,150);

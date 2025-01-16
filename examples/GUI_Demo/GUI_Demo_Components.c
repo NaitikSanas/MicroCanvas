@@ -25,7 +25,7 @@ void create_tile_menu(tile_menu_t* tile_menu){
         
         for (int col = 0; col < tile_menu->tile_num_x; col++)
         {  
-            printf("rc[%d][%d]\r\n",row,col);
+            // printf("rc[%d][%d]\r\n",row,col);
             int tile_pos_x = tile_menu->tile_menu_pos_x + (tile_menu->tile_gap_x + tile_menu->tile_width)*col;
             int tile_pos_y = tile_menu->tile_menu_pos_y + (tile_menu->tile_gap_y + tile_menu->tile_width)*row;
             tile_menu->tiles[row][col] = New_uCanvas_2DRectangle(tile_pos_x,tile_pos_y,tile_menu->tile_height,tile_menu->tile_width);      

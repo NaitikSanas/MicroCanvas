@@ -26,6 +26,7 @@ typedef struct slider
     FunctionPointer slider_pb_event_handler;
     uint8_t update_delay;
     uint8_t is_active;
+    char slider_name[32];
 } slider_t;
 
 void uCanvas_Create_Slider(slider_t* slider_obj);
