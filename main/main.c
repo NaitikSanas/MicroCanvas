@@ -6,12 +6,12 @@
 #include "fonts_demo.h"
 #include "slider_example.h"
 #include "GUI_Demo.h"
-// #define RUN_APP_C 1
+#define RUN_APP_C 1
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
-// #define RUN_SIMPLE_MENU_DEMO 1
+// #define RUN_SIMPLE_ MENU_DEMO 1
 // #define RUN_FONTS_TESTING 1
 // #define RUN_SLIDER_EXAMPLE_TESTING 1
-#define RUN_GUI_DEMO_TESTING 1
+// #define RUN_GUI_DEMO_TESTING 1
 
 void app_main(){
 

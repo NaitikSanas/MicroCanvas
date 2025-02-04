@@ -71,6 +71,7 @@
         uint8_t collision_detection;
         uint8_t flip_x;
         uint8_t flip_y;
+        uint8_t use_rgba_to_rgb_conv;
     }uCanvas_base_t;
 
 

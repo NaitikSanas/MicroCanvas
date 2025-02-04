@@ -25,7 +25,9 @@
     */
     uCanvas_Animation_task_handle_t uCanvas_Add_Task(uCanvas_Animation_task_t animation_loop, void* arg, int core_id);
     
-    /* Pauses uCanvas Custom User tasks */
+    /**
+     * Pauses uCanvas Custom User tasks 
+    */
     void uCanvas_Pause_Task(uCanvas_Animation_task_handle_t task_handle);
     void uCanvas_Resume_Task(uCanvas_Animation_task_handle_t task_handle);
     /* Adds Delay in MS */

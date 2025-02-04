@@ -7,26 +7,36 @@ typedef struct menu_obj
     uint16_t enable_index_disp;
     uint16_t is_active;
     int cursor_index;
+    
     uint32_t up_btn;
     uint32_t down_btn;
     uint32_t select_btn;
-    uint8_t select_btn_wait_to_release;
+    uint8_t  select_btn_wait_to_release;
     uint16_t active_elements;
+
     uint16_t title_position_x;
     uint16_t title_position_y;
+
     uint16_t menu_position_x;
     uint16_t menu_position_y;
-    uint16_t span_x;
-    uint16_t span_y;
+
+    uint16_t gap_x;
+    uint16_t gap_y;
+    uint16_t menu_window_size_x;
+    uint16_t menu_window_size_y;
     uint16_t text_offset_x;
+    FontType_t menu_content_font;
     FunctionPointer click_handler;
     FunctionPointer scroll_up_handler;
     FunctionPointer scroll_down_handler;
+
     uint16_t user_data[32];
     uCanvas_universal_obj_t* content[32];
     uCanvas_universal_obj_t* cursor;
     uCanvas_universal_obj_t* index_disp;
     uCanvas_universal_obj_t* title;
+    
+    
 }selection_menu_obj_t;
 
 typedef struct prompt

@@ -20,8 +20,8 @@ static uint16_t selector_icon[9*9] = {   \
 #define MENU_POSITION_X 5
 #define MENU_POSITION_Y 18
 #define TEXT_OFFSET_X 2
-#define SPAN_X 5
-#define SPAN_Y 10
+#define GAP_X 5
+#define GAP_Y  15
 
 static selection_menu_obj_t menu_1;
 static selection_menu_obj_t menu_2;
@@ -43,16 +43,17 @@ void create_menu_1_instace(void){
     
     menu_1.menu_position_x = MENU_POSITION_X;
     menu_1.menu_position_y = MENU_POSITION_Y;
-    menu_1.span_x = SPAN_X;
-    menu_1.span_y = SPAN_Y;
+    menu_1.gap_x = GAP_X;
+    menu_1.gap_y = GAP_Y;
     menu_1.text_offset_x = 20;
 
     menu_1.click_handler        = onItemClicked_Menu_1; //This function will be called when select button is pressed
     menu_1.scroll_up_handler    = onScrollUp_Menu_1;
     menu_1.scroll_down_handler  = onScrollDown_Menu_1;
     menu_1.select_btn_wait_to_release = true;
+    menu_1.menu_content_font = FONT_16M;
 
-    menu_set_active_elements(&menu_1,32); //Set Active Members of menu object
+    menu_set_active_elements(&menu_1,8); //Set Active Members of menu object
     menu_set_enable_cursor_index_text(&menu_1,true);//shows cursor position in corner
     menu_add_gpio_control(&menu_1,47,48,45); //Add GPIO to control UP/DOWN/SELECT navigation
     
@@ -95,8 +96,8 @@ void create_menu_2_instace(void){
     uCanvas_set_active_scene(scene2);
     menu_2.menu_position_x = MENU_POSITION_X;
     menu_2.menu_position_y = MENU_POSITION_Y;
-    menu_2.span_x = SPAN_X;
-    menu_2.span_y = SPAN_Y;
+    menu_2.gap_x = GAP_X;
+    menu_2.gap_y = GAP_Y;
     menu_2.text_offset_x = 20;
     menu_2.click_handler = onContentClicked_Menu_2;
     menu_2.select_btn_wait_to_release = false;

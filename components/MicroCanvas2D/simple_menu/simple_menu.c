@@ -13,21 +13,26 @@
 #include "ssd1306.h"
 #include "esp_system.h "
 void menu_task(selection_menu_obj_t* menu_obj);
+
 void create_menu(selection_menu_obj_t* menu_obj,uCanvas_universal_obj_t* cursor_object){
     char buf[32]={0};
+    
     for (int i = 0; i < menu_obj->active_elements; i++)
     {
         sprintf(buf,"item %d",i);
-        printf("added %d at x %d y %d\r\n",i,menu_obj->menu_position_x+menu_obj->text_offset_x,menu_obj->menu_position_y+(i*menu_obj->span_y));
-        menu_obj->content[i] = New_uCanvas_2DTextbox(buf,menu_obj->menu_position_x+menu_obj->text_offset_x,menu_obj->menu_position_y+(i*menu_obj->span_y));
+        printf("added %d at x %d y %d\r\n",i,menu_obj->menu_position_x+menu_obj->text_offset_x,menu_obj->menu_position_y+(i*menu_obj->gap_y));
+        menu_obj->content[i] = New_uCanvas_2DTextbox(buf,menu_obj->menu_position_x+menu_obj->text_offset_x,menu_obj->menu_position_y+(i*menu_obj->gap_y));
+        menu_obj->content[i]->font_properties.font_type = menu_obj->menu_content_font;
     }
     menu_obj->cursor = cursor_object;  
+    
     if(menu_obj->enable_index_disp){
         printf("enable_index_disp true\r\n");
         menu_obj->index_disp = New_uCanvas_2DTextbox("--",0,0);
     }
-    // New_uCanvas_2DRectangle(menu_obj->title_position_x,menu_obj->title_position_y,menu_obj->span_y,50);
+    
     menu_obj->title = New_uCanvas_2DTextbox("",menu_obj->title_position_x,menu_obj->title_position_y);
+                                    
     uCanvas_Add_Task((uCanvas_Animation_task_t)menu_task,menu_obj,1);
 }
 
@@ -41,7 +46,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
             
             if(menu_obj->cursor_index < active){
                 menu_obj->cursor_index++;
-                for (int i = 0; i < menu_obj->span_y; i++)
+                for (int i = 0; i < menu_obj->gap_y; i++)
                 {
                     for (int j = 0; j < menu_obj->active_elements; j++)
                     {
@@ -67,7 +72,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
                 }
                 for (int k = 0; k < active; k++)
                 {
-                    for (int i = 0; i < menu_obj->span_y; i++)
+                    for (int i = 0; i < menu_obj->gap_y; i++)
                     {
                         for (int j = 0; j < menu_obj->active_elements; j++)
                         {
@@ -85,7 +90,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
         if(!uCanvas_Get_PushbuttonState_WTR(menu_obj->down_btn)){           
             if(menu_obj->cursor_index >0){
                 menu_obj->cursor_index--;
-                for (int i = 0; i < menu_obj->span_y; i++)
+                for (int i = 0; i < menu_obj->gap_y; i++)
                 {
                     for (int j = 0; j < menu_obj->active_elements; j++)
                     {
@@ -110,7 +115,7 @@ void menu_task(selection_menu_obj_t* menu_obj){
                 }
                 for (int k = 0; k < active; k++)
                 {
-                    for (int i = 0; i < menu_obj->span_y; i++)
+                    for (int i = 0; i < menu_obj->gap_y; i++)
                     {
                         for (int j = 0; j < menu_obj->active_elements; j++)
                         {

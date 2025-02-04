@@ -247,9 +247,14 @@ void st7789_draw_sprite_batch( uCanvas_universal_obj_t *obj) {
         // Iterate over visible columns
         for (int col = start_col; col < end_col; col++) {
             int pos_x = col + offset_x;
-            if ((src_row[col] & 0x01)) {  // Skip transparent or empty pixels
-                dest_row[pos_x] = rgba565_to_rgb565(src_row[col]);
-            }
+			if(obj->properties.use_rgba_to_rgb_conv == 0){
+				if ((src_row[col] & 0x01)) {  // Skip transparent or empty pixels
+                	dest_row[pos_x] = rgba565_to_rgb565(src_row[col]);	
+            	}
+			}
+			else{
+					dest_row[pos_x] = src_row[col];
+				}
         }
     }
 }

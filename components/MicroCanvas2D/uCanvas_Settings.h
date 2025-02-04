@@ -4,5 +4,5 @@
 #define UCANVAS_RENDER_TASK_PRIORITY            (1)
 
 #define UCANVAS_DEFAULT_RED                     (0)
-#define UCANVAS_DEFAULT_GREEN                   (0)
+#define UCANVAS_DEFAULT_GREEN                   (255)
 #define UCANVAS_DEFAULT_BLUE                    (0)
