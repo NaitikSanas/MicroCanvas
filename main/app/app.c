@@ -2,9 +2,8 @@
 #include "uCanvas_api.h"
 #include "ucanvas_slider.h"
 #include "uCanvas_User_IO.h"
-#include "uCanvas_Draw.h"
+#include "uCanvas_Viewport.h"
 #include "uCanvas_display_port.h"
-uint16_t window_object_buf[100*80]={0x00FF00};
 uint16_t window_object_buf[100*80]={0x00FF00};
 
 void uCanvas_Setup() {
@@ -40,8 +39,7 @@ void uCanvas_Setup() {
     uCanvas_universal_obj_t* window_obj_handle2 = uCanvas_Create_Viewport(&window_1,window_object_buf,100,80);
     window_obj_handle2->properties.use_rgba_to_rgb_conv = 1;
     window_obj_handle2->properties.position.x = 20;
-    window_obj_handle2->properties.position.y = 200;
-    
+    window_obj_handle2->properties.position.y = 200; 
 }
 
 void uCanvas_App_Main(void) {
