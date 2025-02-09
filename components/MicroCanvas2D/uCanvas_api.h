@@ -140,4 +140,6 @@ void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint1
     
     void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj);
     void uCanvas_Delete_Scene(uCanvas_Scene_t* scene_obj);
+
+    void uCanvas_Sprite_Animation(sprite2D_t* sprinte2D);
 #endif
