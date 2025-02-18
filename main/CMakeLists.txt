@@ -7,6 +7,7 @@ idf_component_register(SRCS "main.c"
                             "../examples/GUI_Demo/GUI_Demo.c"
                             "../examples/GUI_Demo/GUI_Demo_Components.c"
                             "../examples/GUI_Demo/vector_graphics_app.c"
+                            "../examples/Game_of_life/game_of_life.c"
 
 INCLUDE_DIRS "."    
             "app"   
@@ -14,4 +15,6 @@ INCLUDE_DIRS "."
             "../examples/design_game_map" 
             "../examples/fonts_support_testing"  
             "../examples/slider_example"
-            "../examples/GUI_Demo" )
+            "../examples/GUI_Demo"
+            "../examples/Game_of_life"
+             )

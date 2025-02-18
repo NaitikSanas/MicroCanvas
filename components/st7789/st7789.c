@@ -204,7 +204,7 @@ static inline uint8_t clamp(int value, int min, int max) {
     return value;
 }
 
-static IRAM_ATTR uint16_t adjust_pixel_contrast(uint16_t color, int contrast) {
+uint16_t adjust_pixel_contrast(uint16_t color, int contrast) {
     // Extract RGB565 components
     uint8_t red = (color >> 11) & 0x1F;   // 5 bits for red
     uint8_t green = (color >> 5) & 0x3F;  // 6 bits for green
@@ -303,7 +303,7 @@ void lcdInit(TFT_t * dev, int width, int height, int offsetx, int offsety)
 
 	dev->_use_frame_buffer = false;
 #if CONFIG_FRAME_BUFFER
-	dev->_frame_buffer = heap_caps_malloc(sizeof(uint16_t)*width*height, MALLOC_CAP_DMA);
+	dev->_frame_buffer = heap_caps_malloc(sizeof(uint16_t)*width*height, MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
 	if (dev->_frame_buffer == NULL) {
 		ESP_LOGE(TAG, "heap_caps_malloc fail");
 	} else {
@@ -1154,12 +1154,75 @@ void lcdWrapArround(TFT_t * dev, SCROLL_TYPE_t scroll, int start, int end) {
 		}
 	}
 }
+#define WIDTH  240
+#define HEIGHT 320
 
+
+void apply_crt_effect(uint16_t *frame_Buffer) {
+    for (int y = 0; y < HEIGHT; y += 2) {  // Process in 2x2 pixel blocks
+        for (int x = 0; x < WIDTH; x += 2) {
+            int index = y * WIDTH + x;
+            if (index >= WIDTH * HEIGHT) continue;
+
+            uint16_t pixel = frame_Buffer[index];
+
+            // Extract RGB565 components
+            uint8_t r = (pixel >> 11) & 0x1F;
+            uint8_t g = (pixel >> 5)  & 0x3F;
+            uint8_t b = (pixel >> 0)  & 0x1F;
+
+            // // Apply slight color shift for a CRT effect
+            if (x % 3 == 0) r = (r * 8) / 6; // Slight red shift
+            if (x % 3 == 1) g = (g * 8) / 6; // Slight green shift
+            if (x % 3 == 2) b = (b * 8) / 6; // Slight blue shift
+
+            // Apply pixelation (make nearby pixels similar)
+            uint16_t newPixel = (r << 11) | (g << 5) | (b << 0);
+            frame_Buffer[index] = newPixel;
+        }
+    }
+}
+void apply_fast_antialiasing(uint16_t *frame_Buffer) {
+    for (int y = 1; y < HEIGHT - 1; y++) {  // Skip edges for efficiency
+        for (int x = 1; x < WIDTH - 1; x++) {
+            int index = y * WIDTH + x;
+
+            // Get 3x3 surrounding pixels
+            uint16_t p1 = frame_Buffer[index - WIDTH - 1]; // Top-left
+            uint16_t p2 = frame_Buffer[index - WIDTH];     // Top-center
+            uint16_t p3 = frame_Buffer[index - WIDTH + 1]; // Top-right
+            uint16_t p4 = frame_Buffer[index - 1];         // Left
+            uint16_t p5 = frame_Buffer[index];             // Center
+            uint16_t p6 = frame_Buffer[index + 1];         // Right
+            uint16_t p7 = frame_Buffer[index + WIDTH - 1]; // Bottom-left
+            uint16_t p8 = frame_Buffer[index + WIDTH];     // Bottom-center
+            uint16_t p9 = frame_Buffer[index + WIDTH + 1]; // Bottom-right
+
+            // Extract RGB565 components and sum them up
+            uint32_t r = 0, g = 0, b = 0;
+            uint16_t pixels[] = {p1, p2, p3, p4, p5, p6, p7, p8, p9};
+
+            for (int i = 0; i < 9; i++) {
+                r += (pixels[i] >> 11) & 0x1F; // Red (5 bits)
+                g += (pixels[i] >> 5) & 0x3F;  // Green (6 bits)
+                b += (pixels[i] >> 0) & 0x1F;  // Blue (5 bits)
+            }
+
+            // Compute the average (integer division for efficiency)
+            r /= 9;
+            g /= 9;
+            b /= 9;
+
+            // Store the smoothed pixel back
+            frame_Buffer[index] = (r << 11) | (g << 5) | (b << 0);
+        }
+    }
+}
 // Draw Frame Buffer
 void IRAM_ATTR lcdDrawFinish(TFT_t *dev)
 {
 	if (dev->_use_frame_buffer == false) return;
-
+	// apply_crt_effect(dev->_frame_buffer);
 	spi_master_write_command(dev, 0x2A); // set column(x) address
 	spi_master_write_addr(dev, dev->_offsetx, dev->_offsetx+dev->_width-1);
 	spi_master_write_command(dev, 0x2B); // set Page(y) address

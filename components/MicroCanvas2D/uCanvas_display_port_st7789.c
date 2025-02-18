@@ -217,18 +217,18 @@ void flip_sprite_buffer(uint16_t *sprite_buf, uint16_t width, uint16_t height, b
     }
 }
 
-static uint16_t sprite_buf[128*128];
+static uint16_t sprite_buf[64*64];
 void st7789_draw_sprite_batch( uCanvas_universal_obj_t *obj) { 
     int offset_x = obj->properties.position.x;
     int offset_y = obj->properties.position.y;
-    uint16_t sprite_width = obj-> sprite_resolution.x;
-    uint16_t sprite_height = obj->sprite_resolution.y;
+    uint16_t sprite_width =  obj->width ;
+    uint16_t sprite_height = obj->height;
     if (obj->properties.visiblity == INVISIBLE) {	
         return;
     }
 	// printf("h,w = (%d,%d)\r\n",sprite_height,sprite_width);
-	if(sprite_height > 128 || sprite_width > 128){
-		printf("[ERROR]SPRITE_BUF OUT OF BOUNDS!!\r\n");
+	if(sprite_height > 64 || sprite_width > 64){
+		//printf("[ERROR]SPRITE_BUF OUT OF BOUNDS!!\r\n");
 		return;
 	}
 	memcpy(sprite_buf, obj->sprite_buffer,sizeof(uint16_t)*sprite_height*sprite_width);

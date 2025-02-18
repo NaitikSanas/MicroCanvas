@@ -59,8 +59,8 @@ void set_slider_visiblity(slider_t* slider_obj,visibility_ctrl_t v){
 void slider_task(slider_t* slider)
 {
     char buf[64] = {0};
-    float total_range = slider->max_value - slider->min_value; 
-    float step_size_pixels = slider->slider_length / (total_range / slider->slider_step); 
+    //float total_range = slider->max_value - slider->min_value; 
+    //float step_size_pixels = slider->slider_length / (total_range / slider->slider_step); 
     printf("slider_task_started\r\n");
     while (1)
     {

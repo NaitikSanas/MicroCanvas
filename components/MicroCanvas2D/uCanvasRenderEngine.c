@@ -10,8 +10,8 @@ extern uCanvas_Scene_t* active_scene;
 void ssd1306_sprite_draw(uCanvas_universal_obj_t* obj){
     uint16_t offset_x       = obj->properties.position.x;
     uint16_t offset_y       = obj->properties.position.y;
-    uint16_t sprite_width   = obj->sprite_resolution.x;
-    uint16_t sprite_height  = obj->sprite_resolution.y;
+    uint16_t sprite_width   = obj->width ;
+    uint16_t sprite_height  = obj->height;
     uint16_t x_ptr          = 0;
     uint16_t y_ptr          = 0;
     color_t c;

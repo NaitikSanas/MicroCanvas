@@ -48,9 +48,9 @@
     } fill_t;
 
     typedef struct color_value {
-        uint32_t red; 
-        uint32_t green;
-        uint32_t blue;
+        uint8_t red; 
+        uint8_t green;
+        uint8_t blue;
         uint8_t monochrome_pixel;
     } color_t;
 
@@ -114,14 +114,15 @@
         Coordinate2D_t point2; 
         Coordinate2D_t point3;
         Coordinate2D_t point4;
+
         uint8_t invert_sprite_pixels;
         uint8_t state;
-        char text[256];
+        char* text;
         uCanvas_font_properties_t font_properties;
         
         
         uint16_t* sprite_buffer;
-        Coordinate2D_t sprite_resolution;
+        // Coordinate2D_t sprite_resolution;
         
         // sprite2D_t sprite_obj;
         // sprite2D_t* sprite2D_obj;
@@ -170,5 +171,46 @@
         FunctionPointer user_callback_post_jump;
         FunctionPointer user_callback_pre_jump;
     }controller_properties_t;
+
+/**
+ *  [delay(keyframe_time[0])] [sprite_source(FRAME_1)]
+ *  [delay(keyframe_time[1])] [sprite_source(FRAME_2)]
+ *  [delay(keyframe_time[2])] [sprite_source(FRAME_3)]
+ *  [delay(keyframe_time[3])] [sprite_source(FRAME_4)]
+ *  [delay(keyframe_time[..])] [sprite_source(FRAME_...)]
+ *  [delay(keyframe_time[n])] [sprite_source(FRAME_n)]
+ */
+#define MAX_KEY_FRAMES 32
+
+typedef enum {
+    SMOOTH_LINEAR_POS_TRANSFORM = 0,
+    HARD_LINEAR_POS_TRANSFORM
+}pos_tranforsm_type_t;
+
+typedef struct uCanvas_Loop_Points
+{
+    int8_t loop_start_frame;
+    int8_t loop_end_frame;
+    uint8_t loop_for;
+}uCanvas_Loop_Points_t;
+
+typedef struct uCanvas_KeyFrame_Parameters
+{
+    int32_t                 keyframe_time       [MAX_KEY_FRAMES]; 
     
+    int                     sprite_postion_x    [MAX_KEY_FRAMES];
+    int                     sprite_postion_y    [MAX_KEY_FRAMES];
+
+    int16_t                 sprite_flip_x       [MAX_KEY_FRAMES];
+    int16_t                 sprite_flip_y       [MAX_KEY_FRAMES];
+    
+    uint8_t                 active_keyframes; 
+    uint32_t                 frame_time; 
+}uCanvas_KeyFrame_Parameters_t;
+
+typedef struct uCanvas_Sprite_KeyFrames  {
+   uCanvas_universal_obj_t*  main_sprite;
+   uCanvas_KeyFrame_Parameters_t KeyFrame_Parameters;
+}uCanvas_Sprite_KeyFrames_t;
+
 #endif

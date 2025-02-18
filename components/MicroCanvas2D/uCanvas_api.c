@@ -107,6 +107,10 @@ void uCanvas_set_active_scene(uCanvas_Scene_t* scene){
 
 uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, uint16_t h, uint16_t w){
     uCanvas_universal_obj_t* rect = uCanvas_Universal_Object;
+    if(rect == NULL){
+        printf("[uCanvas]:ERROR : Failed to Allocate Memory!\r\n");
+        return NULL;
+    }
     uCanvas_Set_Visiblity(rect,VISIBLE);
     uCanvas_Set_Obj_Type(rect, RECTANGLE);
     uCanvas_Set_Color(rect,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
@@ -140,7 +144,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
 
 uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
-    // textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE*sizeof(uint8_t));
+    textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE*sizeof(uint8_t));
     memset(textbox->text,0,256);
     sprintf(textbox->text,"%s",text);
     textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
@@ -187,15 +191,19 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t 
     uCanvas_universal_obj_t* uCanvas_Sprite = uCanvas_Universal_Object;
     uCanvas_Set_Visiblity(uCanvas_Sprite,VISIBLE);
     uCanvas_Sprite->invert_sprite_pixels = false;
-    // uCanvas_Set_Obj_Type(uCanvas_Sprite, SPRITE2D);
     uCanvas_Sprite->properties.type = SPRITE2D;
     uCanvas_Set_Monochrome_Color(uCanvas_Sprite,1);
     uCanvas_Sprite->sprite_buffer = sprite2D_obj->sprite_buf;
-    // memcpy(uCanvas_Sprite->sprite_buffer,sprite_buffer,(size.x*size.y));
-    uCanvas_Sprite->sprite_resolution.x = sprite2D_obj->width;
-    uCanvas_Sprite->sprite_resolution.y = sprite2D_obj->height;
+    uCanvas_Sprite->width  = sprite2D_obj->width;
+    uCanvas_Sprite->height = sprite2D_obj->height;
+
+    // uCanvas_Sprite->sprite_resolution.x = sprite2D_obj->width;
+    // uCanvas_Sprite->sprite_resolution.y = sprite2D_obj->height;
+
     uCanvas_Sprite->properties.position.x = pos_x;
     uCanvas_Sprite->properties.position.y = pos_y;
+    uCanvas_Sprite->properties.flip_x = 0;
+    uCanvas_Sprite->properties.flip_y = 0;
     uCanvas_push_object_to_activescene(uCanvas_Sprite);
     // printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
     return uCanvas_Sprite;
@@ -292,7 +300,7 @@ void uCanvas_ScaleUp_SpriteBuf(uint16_t* src, uint16_t* dest, int src_width, int
 
 
 
-void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint8_t* reference,uint8_t* buffer, int h, int w, int scale_factor){
+void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint16_t* reference,uint16_t* buffer, int h, int w, int scale_factor){
     int new_h = h*scale_factor;
     int new_w = w*scale_factor;
     memset(buffer,0,(new_h * new_w));
@@ -306,8 +314,8 @@ void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t* spri
         if(LOCK_ACTIVE_SCENEB_BUF){
             // obj->sprite_obj = sprite_obj;
             obj->sprite_buffer       = sprite_obj->sprite_buf;
-            obj->sprite_resolution.x = sprite_obj->width;
-            obj->sprite_resolution.y = sprite_obj->height;
+            obj->width = sprite_obj->width;
+            obj->height = sprite_obj->height;
             UNLOCK_ACTIVE_SCENEB_BUF;
         }
 }
@@ -362,4 +370,25 @@ void uCanvas_Delete_Scene(uCanvas_Scene_t* scene_obj){
     }
     
     free(scene_obj);  
+}
+
+void uCanvas_Play_Sprite_Animation(uCanvas_Sprite_KeyFrames_t* obj, sprite2D_t* sprite_set){
+    if(obj){
+        for (int i = 0; i < obj->KeyFrame_Parameters.active_keyframes; i++)
+        {
+            //Pre-Delay
+            if(obj->KeyFrame_Parameters.keyframe_time[i]){
+                ets_delay_us(obj->KeyFrame_Parameters.keyframe_time[i]);
+            }
+            //Draw New Frame
+            uCanvas_Change_Sprite_Source(obj->main_sprite,&sprite_set[i]);
+            obj->main_sprite->properties.position.x += obj->KeyFrame_Parameters.sprite_postion_x[i];
+            obj->main_sprite->properties.position.y += obj->KeyFrame_Parameters.sprite_postion_y[i];
+            obj->main_sprite->properties.flip_x  = obj->KeyFrame_Parameters.sprite_flip_x[i];
+            
+            //Delay by defined Frame time to transition to next frame
+            ets_delay_us(obj->KeyFrame_Parameters.frame_time);
+            // printf("frame update done\r\n\r\n");
+        }    
+    } 
 }

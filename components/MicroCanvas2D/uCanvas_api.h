@@ -72,7 +72,7 @@
      * @param scale_factor  : Scale factor to scale up the sprite
      */
     void uCanvas_ScaleUp_SpriteBuf(uint16_t* src, uint16_t* dest, int src_width, int src_height, int scale_factor);
-    void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint8_t* reference,uint8_t* buffer, int h, int w, int scale_factor);
+    void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint16_t* reference,uint16_t* buffer, int h, int w, int scale_factor);
     void uCanvas_Sprite_Adjust_Contrast(sprite2D_t *sprite, int contrast);
     /**
      * @brief This API dynamically changes the 2D sprite Object source to render on scene.
@@ -138,4 +138,5 @@ void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint1
     
     void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj);
     void uCanvas_Delete_Scene(uCanvas_Scene_t* scene_obj);
+    void uCanvas_Play_Sprite_Animation(uCanvas_Sprite_KeyFrames_t* obj, sprite2D_t* sprite_set);
 #endif

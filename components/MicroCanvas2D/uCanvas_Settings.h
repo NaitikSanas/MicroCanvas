@@ -1,4 +1,4 @@
-#define MAX_ELEMENTS_NUM                        (512)
+#define MAX_ELEMENTS_NUM                        (1024)
 #define UCANVAS_TASK_STACK_SIZE                 (4046)
 #define UCANVAS_RENDER_TASK_STACK_SIZE          (4096)
 #define UCANVAS_RENDER_TASK_PRIORITY            (1)
