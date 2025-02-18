@@ -8,7 +8,10 @@
 #define OFFSET_Y 90
 
 static uCanvas_universal_obj_t* grid[GRID_SIZE_Y][GRID_SIZE_X]={{0},{0}};
+static uCanvas_universal_obj_t* game_stats[5];
 static fill_t next_state[GRID_SIZE_Y][GRID_SIZE_X] = {NOFILL};
+static fill_t prev_state[GRID_SIZE_Y][GRID_SIZE_X] = {NOFILL};
+
 
 void randomize_grid() {
     for (int i = 0; i < GRID_SIZE_Y; i++) {
@@ -39,8 +42,6 @@ int count_live_neighbors(int x, int y) {
     return count;
 }
 
-static fill_t prev_state[GRID_SIZE_Y][GRID_SIZE_X] = {NOFILL};
-uCanvas_universal_obj_t* game_stats[5];
 void update_grid() {
     int alive_cells = 0, dead_cells = 0, stable_cells = 0, oscillating_cells = 0;
 
@@ -118,14 +119,7 @@ void initialize_patterns() {
     set_cell(14, 6, FILL);
 }
 
-void setup(){
-    start_uCanvas_engine();
-    uCanvas_Scene_t* scene = New_uCanvas_Scene();
-    uCanvas_set_active_scene(scene);
-
-    printf("size of grid %d\r\n",sizeof(grid));
-    
-    
+void create_grid(){
     for (int i = 0; i < GRID_SIZE_Y; i++)
     {
         for (int j = 0; j < GRID_SIZE_X; j++)
@@ -141,6 +135,14 @@ void setup(){
             }
         } 
     }
+}
+
+void setup(){
+    start_uCanvas_engine();
+    uCanvas_Scene_t* scene = New_uCanvas_Scene();
+    uCanvas_set_active_scene(scene);
+
+    create_grid();
     randomize_grid(); // Initialize with random state
     initialize_patterns();
 
