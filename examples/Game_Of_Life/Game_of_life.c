@@ -161,6 +161,7 @@ void start_game_of_life_demo(){
     setup();
     // Game Loop
     int iteration = 0;
+    printf("Current free heap size: %d bytes\n", esp_get_free_heap_size());
     while (1) {
         update_grid();
         vTaskDelay(pdMS_TO_TICKS(60)); // 200ms delay
@@ -170,10 +171,5 @@ void start_game_of_life_demo(){
             iteration = 0;
         }
     }
-    printf("Current free heap size: %d bytes\n", esp_get_free_heap_size());
-    while (1)
-    {
-        /* code */
-        uCanvas_Delay(1);
-    }
+
 }
