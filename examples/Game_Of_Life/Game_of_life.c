@@ -1,10 +1,10 @@
 #include "Game_of_life.h"
 #include "uCanvas_api.h"
 
-#define GRID_SIZE_X  20
-#define GRID_SIZE_Y  16
-#define CELL_SIZE   10
-#define OFFSET_X 0
+#define GRID_SIZE_X  28
+#define GRID_SIZE_Y  28
+#define CELL_SIZE   8
+#define OFFSET_X 4
 #define OFFSET_Y 90
 
 static uCanvas_universal_obj_t* grid[GRID_SIZE_Y][GRID_SIZE_X]={{0},{0}};
@@ -40,9 +40,10 @@ int count_live_neighbors(int x, int y) {
     }
     return count;
 }
+int alive_cells = 0, dead_cells = 0, stable_cells = 0, oscillating_cells = 0;
 
 void update_grid() {
-    int alive_cells = 0, dead_cells = 0, stable_cells = 0, oscillating_cells = 0;
+    alive_cells = 0, dead_cells = 0, stable_cells = 0, oscillating_cells = 0;
     for (int i = 0; i < GRID_SIZE_Y; i++) {
         for (int j = 0; j < GRID_SIZE_X; j++) {
             int live_neighbors = count_live_neighbors(j, i);
@@ -116,8 +117,10 @@ void initialize_patterns() {
 void create_grid(){
     for (int i = 0; i < GRID_SIZE_Y; i++){
         for (int j = 0; j < GRID_SIZE_X; j++){               
-            grid[i][j] = New_uCanvas_2DRectangle(j*(CELL_SIZE+2)+OFFSET_X,i*(CELL_SIZE+2)+OFFSET_Y,CELL_SIZE,CELL_SIZE);
+            grid[i][j] = New_uCanvas_2DRectangle(j*(CELL_SIZE+1)+OFFSET_X,i*(CELL_SIZE+1)+OFFSET_Y,CELL_SIZE,CELL_SIZE);
             if(grid[i][j]){
+                grid[i][j]->properties.type = CIRCLE;
+                grid[i][j]->r1 = 4;
                 uCanvas_Set_Color(grid[i][j],255,255,0);
                 grid[i][j]->properties.fill = NOFILL;
             }
@@ -153,15 +156,19 @@ void setup(){
 void start_game_of_life_demo(){   
     setup();
     // Game Loop
-    int iteration = 0;
+    uCanvas_universal_obj_t* prompt = New_uCanvas_2DTextbox("Randomizing Grid...",20,320/2);
+    uCanvas_Set_Color(prompt,255,255,0);
+    prompt->properties.visiblity = INVISIBLE;
+    prompt->font_properties.font_type = FONT_24G;
     printf("Current free heap size: %d bytes\n", esp_get_free_heap_size());
     while (1) {
         update_grid();
-        vTaskDelay(pdMS_TO_TICKS(60)); // 200ms delay
-        iteration++;
-        if(iteration > 150){
+        vTaskDelay(pdMS_TO_TICKS(60)); 
+        if(oscillating_cells == 0){
+            prompt->properties.visiblity = VISIBLE;
+            vTaskDelay(pdMS_TO_TICKS(2000)); 
             randomize_grid();
-            iteration = 0;
+            prompt->properties.visiblity = INVISIBLE;
         }
     }
 }
