@@ -685,27 +685,28 @@ void lcdDrawCircle(TFT_t * dev, uint16_t x0, uint16_t y0, uint16_t r, uint16_t c
 // y0:Central Y coordinate
 // r:radius
 // color:color
-void lcdDrawFillCircle(TFT_t * dev, uint16_t x0, uint16_t y0, uint16_t r, uint16_t color) {
-	int x;
-	int y;
-	int err;
-	int old_err;
-	int ChangeX;
 
-	x=0;
-	y=-r;
-	err=2-2*r;
-	ChangeX=1;
-	do{
-		if(ChangeX) {
-			lcdDrawLine(dev, x0-x, y0-y, x0-x, y0+y, color);
-			lcdDrawLine(dev, x0+x, y0-y, x0+x, y0+y, color);
-		} // endif
-		ChangeX=(old_err=err)<=x;
-		if (ChangeX)			err+=++x*2+1;
-		if (old_err>y || err>x) err+=++y*2+1;
-	} while(y<=0);
-} 
+#include "math.h"
+void lcdDrawFillCircle(TFT_t *dev, int16_t x0, int16_t y0, int16_t r, uint16_t color) {
+    int x = 0;
+    int y = -r;
+    int err = 2 - 2 * r;
+    int old_err;
+    int changeX = 1;
+
+    do {
+        if (changeX) {
+            // Clip to screen bounds before drawing
+            if (y0 - y >= 0 && y0 - y < dev->_height) 
+                lcdDrawLine(dev, fmax(0, x0 - x), y0 - y, fmin(dev->_width - 1, x0 + x), y0 - y, color);
+            if (y0 + y >= 0 && y0 + y < dev->_height) 
+                lcdDrawLine(dev, fmax(0, x0 - x), y0 + y, fmin(dev->_width- 1, x0 + x), y0 + y, color);
+        }
+        changeX = (old_err = err) <= x;
+        if (changeX) err += ++x * 2 + 1;
+        if (old_err > y || err > x) err += ++y * 2 + 1;
+    } while (y <= 0);
+}
 
 // Draw rectangle with round corner
 // x1:Start X coordinate

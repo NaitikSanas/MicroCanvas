@@ -45,43 +45,61 @@ void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
 }
 
 void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
-    memset(obj->text,0,256);
-    sprintf(obj->text,"%s",text);
+    if(obj){
+        memset(obj->text,0,256);
+        sprintf(obj->text,"%s",text);
+    }
 }
 
 void uCanvas_Set_Obj_Type(uCanvas_universal_obj_t*obj,uCanvas_element_type_t type){
-    obj->properties.type = type;
+    if(obj){
+        obj->properties.type = type;
+    }
 }
 
 void uCanvas_Set_Color(uCanvas_universal_obj_t* obj, uint16_t r,uint16_t g, uint16_t b ){
-    obj->properties.color.red = r;
-    obj->properties.color.green = g;
-    obj->properties.color.blue = b;
+    if(obj){
+        obj->properties.color.red = r;
+        obj->properties.color.green = g;
+        obj->properties.color.blue = b;
+    }
 }
 void uCanvas_Set_Radius(uCanvas_universal_obj_t* obj, uint16_t radius){
-    obj->r1 = radius;
+    if(obj){
+        obj->r1 = radius;
+    }
 }
 void uCanvas_Set_Monochrome_Color(uCanvas_universal_obj_t* obj, uint16_t color ){
-    obj->properties.color.monochrome_pixel = color;
+    if(obj){
+        obj->properties.color.monochrome_pixel = color;
+    }
 }
 
 void uCanvas_Set_Position(uCanvas_universal_obj_t* obj, uint16_t xpos,uint16_t ypos ){
-    obj->properties.position.x = xpos;
-    obj->properties.position.y = ypos;
+    if(obj){
+        obj->properties.position.x = xpos;
+        obj->properties.position.y = ypos;
+    }
 }
 
 void uCanvas_Set_Width_Height(uCanvas_universal_obj_t* obj, uint16_t width,uint16_t height ){
-    obj->width = width;
-    obj->height = height;
+    if(obj){
+        obj->width = width;
+        obj->height = height;
+    }
 }
 
 void uCanvas_Set_Fill(uCanvas_universal_obj_t* obj, fill_t fill){
-    obj->properties.fill = fill;
+    if(obj){
+        obj->properties.fill = fill;
+    }
 }
 
 
 void uCanvas_Set_Visiblity(uCanvas_universal_obj_t* obj, visibility_ctrl_t vctrl){
-    obj->properties.visiblity = vctrl;
+    if(obj){
+        obj->properties.visiblity = vctrl;
+    }
 }
 
 uCanvas_Scene_t* New_uCanvas_Scene(void){
@@ -162,6 +180,10 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
 
 uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint16_t radius){
     uCanvas_universal_obj_t* circle = uCanvas_Universal_Object;
+    if(circle==NULL){
+        printf("failed to alloc mem\r\n");
+        return NULL;
+    }
     uCanvas_Set_Visiblity(circle,VISIBLE);
     uCanvas_Set_Obj_Type(circle, CIRCLE);
     uCanvas_Set_Radius(circle,radius);
@@ -348,18 +370,18 @@ void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint1
  *    1 = 6 <- 7 = i <- i+1
  *                 
  */
-void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj){
+void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj) {
+    if (!obj) return;
     uint16_t obj_idx = obj->index;
+    
+    free(obj->text);  // Free allocated text memory
     free(obj);
-    active_scene->_2D_Objects[obj_idx] = NULL;
-    if(obj_idx < active_scene->_2D_Object_Ptr){
-        int objects_to_reorder = active_scene->_2D_Object_Ptr - obj_idx;
-        for (int i = 3; i < objects_to_reorder-1; i++)
-        {
-            active_scene[i] = active_scene[i+1];
-            printf("[uCanvas-Delete-Obj] Moving %d to %d\r\n",i+1, i);
-        }  
+    
+    for (int i = obj_idx; i < active_scene->_2D_Object_Ptr - 1; i++) {
+        active_scene->_2D_Objects[i] = active_scene->_2D_Objects[i + 1];
+        active_scene->_2D_Objects[i]->index = i;
     }
+    active_scene->_2D_Object_Ptr--;  // Reduce object count
 }
 
 void uCanvas_Delete_Scene(uCanvas_Scene_t* scene_obj){

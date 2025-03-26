@@ -10,11 +10,12 @@ void controller_task(controller_properties_t* player_obj){
     
     float floor_height = player_obj->floor_level;
     float position = floor_height;
-  
+    printf("controller_task\r\n");
     while (1)
     {
         if(!isJumping){
             if(!uCanvas_Get_PushbuttonState(player_obj->control_gpio)){
+                printf("is jumping\r\n");
                 isJumping = true;
                 player_obj->control_object->state = true;
                 velocity = player_obj->jump_height; 
@@ -34,13 +35,13 @@ void controller_task(controller_properties_t* player_obj){
             player_obj->control_object->properties.position.y = position;
         }
 
-        uCanvas_Delay(1);
+        uCanvas_Delay(10);
     }
 }
 
 uCanvas_Animation_task_handle_t uCanvas_attach_type1_controller_script(uCanvas_universal_obj_t*obj,controller_properties_t* player_obj){
     player_obj->control_object = obj;
-    return uCanvas_Add_Task((uCanvas_Animation_task_t)controller_task,player_obj,0);
+    return uCanvas_Add_Task((uCanvas_Animation_task_t)controller_task,player_obj,1);
 }
 
 void detach_type1_controller_script(uCanvas_Animation_task_handle_t taskhandle){

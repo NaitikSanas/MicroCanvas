@@ -5,14 +5,15 @@
 #define GRID_SIZE_Y  28
 #define CELL_SIZE   8
 #define OFFSET_X 4
-#define OFFSET_Y 90
+#define OFFSET_Y 4
 
 static uCanvas_universal_obj_t* grid[GRID_SIZE_Y][GRID_SIZE_X]={{0},{0}};
 static uCanvas_universal_obj_t* game_stats[5];
 static fill_t next_state[GRID_SIZE_Y][GRID_SIZE_X] = {NOFILL};
 static fill_t prev_state[GRID_SIZE_Y][GRID_SIZE_X] = {NOFILL};
-
+static uCanvas_universal_obj_t* prompt;
 void randomize_grid() {
+    srand(xTaskGetTickCount());
     for (int i = 0; i < GRID_SIZE_Y; i++) {
         for (int j = 0; j < GRID_SIZE_X; j++) {
             if (rand() % 2 == 0) {
@@ -87,6 +88,7 @@ void update_grid() {
 void set_cell(int x, int y, fill_t state) {
     if (x >= 0 && x < GRID_SIZE_X && y >= 0 && y < GRID_SIZE_Y) {
         grid[y][x]->properties.fill = state;
+        uCanvas_Set_Color(grid[y][x],255, 120, 79);      
     }
 }
 
@@ -121,7 +123,7 @@ void create_grid(){
             if(grid[i][j]){
                 grid[i][j]->properties.type = CIRCLE;
                 grid[i][j]->r1 = 4;
-                uCanvas_Set_Color(grid[i][j],255,255,0);
+                uCanvas_Set_Color(grid[i][j],50,50,0);
                 grid[i][j]->properties.fill = NOFILL;
             }
             else {
@@ -132,11 +134,11 @@ void create_grid(){
 }
 
 void create_game_stat_text_area(){
-    game_stats[4] = New_uCanvas_2DRectangle(0,0,20*4,240);
+    game_stats[4] = New_uCanvas_2DRectangle(0,320-(20*4),20*4,240);
     game_stats[4]->properties.fill = FILL;
     uCanvas_Set_Color(game_stats[4],50,50,0);
     for (int i = 0; i < 4; i++){
-        game_stats[i] = New_uCanvas_2DTextbox("-",20,20+(i*20));
+        game_stats[i] = New_uCanvas_2DTextbox("-",20,320 -  (i*20));
         game_stats[i]->font_properties.font_type = FONT_16G;
         uCanvas_Set_Color(game_stats[i],255,255,0);
     }
@@ -146,24 +148,85 @@ void setup(){
     start_uCanvas_engine();
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
     uCanvas_set_active_scene(scene);
-
-    create_grid();
-    randomize_grid(); // Initialize with random state
-    initialize_patterns();
+    srand(xTaskGetTickCount());
+    create_grid(); 
     create_game_stat_text_area(); 
+}
+
+void demo_laws_of_life() {
+    // Ensure prompt is visible during the demo
+    prompt->font_properties.font_type = FONT_10M;
+    uCanvas_Set_Text(prompt, "Clearing grid...");
+    prompt->properties.visiblity = VISIBLE;
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    // Step 1: Underpopulation (Cell with <2 neighbors dies)
+    uCanvas_Set_Text(prompt, "Cells die with <2 neighbors");
+    for (int i = 0; i < GRID_SIZE_Y; i++)
+        for (int j = 0; j < GRID_SIZE_X; j++)
+            grid[i][j]->properties.fill = NOFILL;
+    set_cell(10, 10, FILL); // A lonely cell
+    set_cell(12, 12, FILL); // Another lonely cell
+    vTaskDelay(pdMS_TO_TICKS(6000));
+    update_grid();
+    vTaskDelay(pdMS_TO_TICKS(6000));
+
+    // Step 2: Survival (Cells with 2-3 neighbors survive)
+    uCanvas_Set_Text(prompt, "Cells survive with 2-3 neighbors");
+    set_cell(15, 15, FILL);
+    set_cell(15, 16, FILL);
+    set_cell(16, 15, FILL);
+    set_cell(16, 16, FILL);
+    vTaskDelay(pdMS_TO_TICKS(6000));
+    update_grid();
+    vTaskDelay(pdMS_TO_TICKS(6000));
+
+    // Step 3: Overpopulation (Cell with >3 neighbors dies)
+    uCanvas_Set_Text(prompt, "Cells die with >3 neighbors");
+    set_cell(20, 20, FILL);
+    set_cell(20, 21, FILL);
+    set_cell(21, 20, FILL);
+    set_cell(21, 21, FILL);
+    set_cell(21, 22, FILL);
+    vTaskDelay(pdMS_TO_TICKS(6000));
+    update_grid();
+    vTaskDelay(pdMS_TO_TICKS(6000));
+
+    // Step 4: Reproduction (A dead cell with 3 neighbors comes to life)
+    uCanvas_Set_Text(prompt, "A dead cell with 3 neighbors comes alive");
+    set_cell(25-10, 25-10, FILL);
+    set_cell(26-10, 26-10, FILL);
+    set_cell(27-10, 25-10, FILL);
+    vTaskDelay(pdMS_TO_TICKS(6000));
+    update_grid();
+    vTaskDelay(pdMS_TO_TICKS(6000));
+
+    // End of demo
+    uCanvas_Set_Text(prompt, "Resuming normal simulation...");
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    randomize_grid();
+    prompt->properties.visiblity = INVISIBLE;
 }
 
 void start_game_of_life_demo(){   
     setup();
+    
     // Game Loop
-    uCanvas_universal_obj_t* prompt = New_uCanvas_2DTextbox("Randomizing Grid...",20,320/2);
+    prompt = New_uCanvas_2DTextbox("Randomizing Grid...",20,320/2);
     uCanvas_Set_Color(prompt,255,255,0);
     prompt->properties.visiblity = INVISIBLE;
     prompt->font_properties.font_type = FONT_24G;
     printf("Current free heap size: %d bytes\n", esp_get_free_heap_size());
+    // demo_laws_of_life();
+    prompt->font_properties.font_type = FONT_24G;
     while (1) {
+        set_cell(get_random_number(0,20),get_random_number(0,20),FILL);
+        set_cell(get_random_number(0,20),get_random_number(0,20),FILL);
+        set_cell(get_random_number(0,20),get_random_number(0,20),FILL);
+        set_cell(get_random_number(0,20),get_random_number(0,20),FILL);
+        set_cell(get_random_number(0,20),get_random_number(0,20),FILL);
         update_grid();
-        vTaskDelay(pdMS_TO_TICKS(60)); 
+        vTaskDelay(pdMS_TO_TICKS(10)); 
         if(oscillating_cells == 0){
             prompt->properties.visiblity = VISIBLE;
             vTaskDelay(pdMS_TO_TICKS(2000)); 
