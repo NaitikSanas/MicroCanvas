@@ -64,9 +64,15 @@ void uCanvas_Set_Color(uCanvas_universal_obj_t* obj, uint16_t r,uint16_t g, uint
         obj->properties.color.blue = b;
     }
 }
-void uCanvas_Set_Radius(uCanvas_universal_obj_t* obj, uint16_t radius){
+void uCanvas_Set_Radius1(uCanvas_universal_obj_t* obj, uint16_t radius){
     if(obj){
         obj->r1 = radius;
+    }
+}
+
+void uCanvas_Set_Radius2(uCanvas_universal_obj_t* obj, uint16_t radius){
+    if(obj){
+        obj->r2 = radius;
     }
 }
 void uCanvas_Set_Monochrome_Color(uCanvas_universal_obj_t* obj, uint16_t color ){
@@ -141,15 +147,20 @@ uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, u
 }
 
 void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
-    line->point1.x = x1;
-    line->point1.y = y1;
-    line->point2.x = x2;
-    line->point2.y = y2;
+    if(line){
+        line->point1.x = x1;
+        line->point1.y = y1;
+        line->point2.x = x2;
+        line->point2.y = y2;
+    }
 }
 
 uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
     uCanvas_universal_obj_t* line = uCanvas_Universal_Object;
-    
+    if(line==NULL){
+        printf("[uCanvas]:ERROR : Failed to Allocate Memory!\r\n");
+        return NULL;
+    }
     uCanvas_Set_Line_Coordinates(line,x1,y1, x2,y2);
     uCanvas_Set_Visiblity(line,VISIBLE);
     uCanvas_Set_Obj_Type(line, LINE);
@@ -186,7 +197,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint1
     }
     uCanvas_Set_Visiblity(circle,VISIBLE);
     uCanvas_Set_Obj_Type(circle, CIRCLE);
-    uCanvas_Set_Radius(circle,radius);
+    uCanvas_Set_Radius1(circle,radius);
     uCanvas_Set_Color(circle,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
     uCanvas_Set_Monochrome_Color(circle,1);
     uCanvas_Set_Position(circle,xpos,ypos);
@@ -194,6 +205,26 @@ uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint1
     uCanvas_push_object_to_activescene(circle);
   return circle;
 }
+
+uCanvas_universal_obj_t* New_uCanvas_2DEllipse(uint16_t xpos, uint16_t ypos,uint16_t radius_x, uint16_t radius_y){
+    uCanvas_universal_obj_t* ellipse = uCanvas_Universal_Object;
+    if(ellipse==NULL){
+        printf("failed to alloc mem\r\n");
+        return NULL;
+    }
+    uCanvas_Set_Visiblity(ellipse,VISIBLE);
+    uCanvas_Set_Obj_Type(ellipse, ELLIPSE);
+    uCanvas_Set_Radius1(ellipse,radius_x);
+    uCanvas_Set_Radius2(ellipse,radius_y);
+    uCanvas_Set_Color(ellipse,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
+    uCanvas_Set_Monochrome_Color(ellipse,1);
+    uCanvas_Set_Position(ellipse,xpos,ypos);
+    uCanvas_Set_Fill(ellipse,NOFILL);
+    uCanvas_push_object_to_activescene(ellipse);
+  return ellipse;
+}
+
+
 
 uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinate2D_t Point2, Coordinate2D_t Point3){
     uCanvas_universal_obj_t* triangle = uCanvas_Universal_Object;

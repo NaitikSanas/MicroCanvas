@@ -120,10 +120,18 @@ void uCanvas_Draw_Circle(int x, int y, int r, color_t color, fill_t fill){
 	else lcdDrawFillCircle(&dev,x,y,r,color565);
 }
 
+void uCanvas_Draw_Ellipse(int x, int y, int r1, int r2, color_t color, fill_t fill){
+	// printf("r = %d,%d\r\n",r1,r2);
+	uint16_t color565 = convertToRGB565(color);
+	if(fill==NOFILL) lcdDrawEllipse(&dev,x,y,r1,r2,color565);
+	 else lcdDrawEllipseFilled(&dev,x,y,r1,r2,color565);
+}
+
 void uCanvas_Draw_Line (Coordinate2D_t point1, Coordinate2D_t point2, color_t color){
 	uint16_t color565 = convertToRGB565(color);
 	lcdDrawLine(&dev,point1.x, point1.y,point2.x, point2.y,color565);
 }
+
 void uCanvas_Draw_Text (char* text, int x, int y, color_t color,uCanvas_font_properties_t font_properties){
 	// printf("RENDERING : %s %d \r\n",text,strlen(text));
 	FontxFile* activefont = NULL;
@@ -168,7 +176,12 @@ void uCanvas_DrawPixel565 (Coordinate2D_t pos,uint16_t color){
 void uCanvas_DrawPixel5652 (uint16_t x, uint16_t y,uint16_t color){
 	lcdDrawPixel(&dev,x,y, color);
 }
+
 void uCanvas_Draw_Triangle(Coordinate2D_t point1, Coordinate2D_t point2, Coordinate2D_t point3, color_t color, fill_t fill){
+	if(fill == FILL)
+		lcdDrawTriangleFilled(&dev,point1.x,point1.y, point2.x, point2.y, point3.x,point3.y,convertToRGB565(color));
+	else
+		lcdDrawTriangle(&dev,point1.x,point1.y, point2.x, point2.y, point3.x,point3.y,convertToRGB565(color));
 
 }
 

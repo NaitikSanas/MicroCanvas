@@ -600,30 +600,30 @@ void lcdDrawRectAngle(TFT_t * dev, uint16_t xc, uint16_t yc, uint16_t w, uint16_
 //When the origin is (0, 0), the point (x1, y1) after rotating the point (x, y) by the angle is obtained by the following calculation.
 // x1 = x * cos(angle) - y * sin(angle)
 // y1 = x * sin(angle) + y * cos(angle)
-void lcdDrawTriangle(TFT_t * dev, uint16_t xc, uint16_t yc, uint16_t w, uint16_t h, uint16_t angle, uint16_t color) {
-	double xd,yd,rd;
-	int x1,y1;
-	int x2,y2;
-	int x3,y3;
-	rd = -angle * M_PI / 180.0;
-	xd = 0.0;
-	yd = h/2;
-	x1 = (int)(xd * cos(rd) - yd * sin(rd) + xc);
-	y1 = (int)(xd * sin(rd) + yd * cos(rd) + yc);
+// void lcdDrawTriangle(TFT_t * dev, uint16_t xc, uint16_t yc, uint16_t w, uint16_t h, uint16_t angle, uint16_t color) {
+// 	double xd,yd,rd;
+// 	int x1,y1;
+// 	int x2,y2;
+// 	int x3,y3;
+// 	rd = -angle * M_PI / 180.0;
+// 	xd = 0.0;
+// 	yd = h/2;
+// 	x1 = (int)(xd * cos(rd) - yd * sin(rd) + xc);
+// 	y1 = (int)(xd * sin(rd) + yd * cos(rd) + yc);
 
-	xd = w/2;
-	yd = 0.0 - yd;
-	x2 = (int)(xd * cos(rd) - yd * sin(rd) + xc);
-	y2 = (int)(xd * sin(rd) + yd * cos(rd) + yc);
+// 	xd = w/2;
+// 	yd = 0.0 - yd;
+// 	x2 = (int)(xd * cos(rd) - yd * sin(rd) + xc);
+// 	y2 = (int)(xd * sin(rd) + yd * cos(rd) + yc);
 
-	xd = 0.0 - w/2;
-	x3 = (int)(xd * cos(rd) - yd * sin(rd) + xc);
-	y3 = (int)(xd * sin(rd) + yd * cos(rd) + yc);
+// 	xd = 0.0 - w/2;
+// 	x3 = (int)(xd * cos(rd) - yd * sin(rd) + xc);
+// 	y3 = (int)(xd * sin(rd) + yd * cos(rd) + yc);
 
-	lcdDrawLine(dev, x1, y1, x2, y2, color);
-	lcdDrawLine(dev, x1, y1, x3, y3, color);
-	lcdDrawLine(dev, x2, y2, x3, y3, color);
-}
+// 	lcdDrawLine(dev, x1, y1, x2, y2, color);
+// 	lcdDrawLine(dev, x1, y1, x3, y3, color);
+// 	lcdDrawLine(dev, x2, y2, x3, y3, color);
+// }
 
 // Draw regular polygon
 // xc:Center X coordinate
@@ -708,6 +708,95 @@ void lcdDrawFillCircle(TFT_t *dev, int16_t x0, int16_t y0, int16_t r, uint16_t c
     } while (y <= 0);
 }
 
+void lcdDrawEllipse(TFT_t *dev, int16_t x0, int16_t y0, int16_t a, int16_t b, uint16_t color) {
+    int x = 0, y = b;
+    long a2 = (long)a * a, b2 = (long)b * b;
+    long err = b2 - (2 * b - 1) * a2;
+    long dx = 0, dy = 2 * a2 * y;
+
+    // Region 1: X stepping
+    while (dx < dy) {
+        if (x0 + x < dev->_width  && y0 + y < dev->_height  && x0 + x >= 0 && y0 + y >= 0) lcdDrawPixel(dev, x0 + x, y0 + y, color);
+        if (x0 - x < dev->_width  && y0 + y < dev->_height  && x0 - x >= 0 && y0 + y >= 0) lcdDrawPixel(dev, x0 - x, y0 + y, color);
+        if (x0 + x < dev->_width  && y0 - y < dev->_height  && x0 + x >= 0 && y0 - y >= 0) lcdDrawPixel(dev, x0 + x, y0 - y, color);
+        if (x0 - x < dev->_width  && y0 - y < dev->_height  && x0 - x >= 0 && y0 - y >= 0) lcdDrawPixel(dev, x0 - x, y0 - y, color);
+
+        x++;
+        dx += 2 * b2;
+        if (err >= 0) {
+            y--;
+            dy -= 2 * a2;
+            err -= dy;
+        }
+        err += dx + b2;
+    }
+
+    // Region 2: Y stepping
+    err = (y * b2) + (b2 / 2) + (a2 * (1 - 2 * y));
+    dx = 2 * b2 * x;
+    dy = 2 * a2 * y;
+
+    while (y >= 0) {
+        if (x0 + x < dev->_width  && y0 + y < dev->_height  && x0 + x >= 0 && y0 + y >= 0) lcdDrawPixel(dev, x0 + x, y0 + y, color);
+        if (x0 - x < dev->_width  && y0 + y < dev->_height  && x0 - x >= 0 && y0 + y >= 0) lcdDrawPixel(dev, x0 - x, y0 + y, color);
+        if (x0 + x < dev->_width  && y0 - y < dev->_height  && x0 + x >= 0 && y0 - y >= 0) lcdDrawPixel(dev, x0 + x, y0 - y, color);
+        if (x0 - x < dev->_width  && y0 - y < dev->_height  && x0 - x >= 0 && y0 - y >= 0) lcdDrawPixel(dev, x0 - x, y0 - y, color);
+
+        y--;
+        dy -= 2 * a2;
+        if (err <= 0) {
+            x++;
+            dx += 2 * b2;
+            err += dx;
+        }
+        err -= dy + a2;
+    }
+}
+
+void lcdDrawEllipseFilled(TFT_t *dev, int16_t x0, int16_t y0, int16_t a, int16_t b, uint16_t color) {
+    int x = 0, y = b;
+    long a2 = (long)a * a, b2 = (long)b * b;
+    long err = b2 - (2 * b - 1) * a2;
+    long dx = 0, dy = 2 * a2 * y;
+
+    // Region 1: X stepping
+    while (dx < dy) {
+        if (y0 - y >= 0 && y0 - y < dev->_height)
+            lcdDrawLine(dev, fmax(0, x0 - x), y0 - y, fmin(dev->_width - 1, x0 + x), y0 - y, color);
+        if (y0 + y >= 0 && y0 + y < dev->_height)
+            lcdDrawLine(dev, fmax(0, x0 - x), y0 + y, fmin(dev->_width - 1, x0 + x), y0 + y, color);
+
+        x++;
+        dx += 2 * b2;
+        if (err >= 0) {
+            y--;
+            dy -= 2 * a2;
+            err -= dy;
+        }
+        err += dx + b2;
+    }
+
+    // Region 2: Y stepping
+    err = (y * b2) + (b2 / 2) + (a2 * (1 - 2 * y));
+    dx = 2 * b2 * x;
+    dy = 2 * a2 * y;
+
+    while (y >= 0) {
+        if (y0 - y >= 0 && y0 - y < dev->_height)
+            lcdDrawLine(dev, fmax(0, x0 - x), y0 - y, fmin(dev->_width - 1, x0 + x), y0 - y, color);
+        if (y0 + y >= 0 && y0 + y < dev->_height)
+            lcdDrawLine(dev, fmax(0, x0 - x), y0 + y, fmin(dev->_width - 1, x0 + x), y0 + y, color);
+
+        y--;
+        dy -= 2 * a2;
+        if (err <= 0) {
+            x++;
+            dx += 2 * b2;
+            err += dx;
+        }
+        err -= dy + a2;
+    }
+}
 // Draw rectangle with round corner
 // x1:Start X coordinate
 // y1:Start Y coordinate
@@ -826,7 +915,42 @@ void lcdDrawFillArrow(TFT_t * dev, uint16_t x0,uint16_t y0,uint16_t x1,uint16_t 
 		lcdDrawLine(dev, x1, y1, R[0], R[1], color);
 	}
 }
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+void lcdDrawTriangle(TFT_t *dev, int x0, int y0, int x1, int y1, int x2, int y2, uint16_t color) {
+    lcdDrawLine(dev, x0, y0, x1, y1, color);
+    lcdDrawLine(dev, x1, y1, x2, y2, color);
+    lcdDrawLine(dev, x2, y2, x0, y0, color);
+}
 
+void lcdDrawTriangleFilled(TFT_t *dev, int x0, int y0, int x1, int y1, int x2, int y2, uint16_t color) {
+    // Sort points by y-coordinate (Bubble Sort)
+    if (y0 > y1) { swap(&x0, &x1); swap(&y0, &y1); }
+    if (y0 > y2) { swap(&x0, &x2); swap(&y0, &y2); }
+    if (y1 > y2) { swap(&x1, &x2); swap(&y1, &y2); }
+
+    int totalHeight = y2 - y0;
+    
+    for (int y = y0; y <= y2; y++) {
+        if (y < 0 || y >= dev->_height) continue;  // Skip out-of-bounds rows
+        
+        bool secondHalf = (y > y1) || (y1 == y0);
+        int segmentHeight = secondHalf ? (y2 - y1) : (y1 - y0);
+
+        float alpha = (float)(y - y0) / totalHeight;
+        float beta  = (float)(y - (secondHalf ? y1 : y0)) / segmentHeight;
+
+        int ax = x0 + (x2 - x0) * alpha;
+        int bx = secondHalf ? x1 + (x2 - x1) * beta : x0 + (x1 - x0) * beta;
+
+        if (ax > bx) swap(&ax, &bx);
+        
+        lcdDrawLine(dev, fmax(0, ax), y, fmin(dev->_width - 1, bx), y, color);
+    }
+}
 
 // Draw ASCII character
 // x:X coordinate

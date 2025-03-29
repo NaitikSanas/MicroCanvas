@@ -51,6 +51,7 @@
     uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint16_t radius);
     uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinate2D_t Point2, Coordinate2D_t Point3);
+    uCanvas_universal_obj_t* New_uCanvas_2DEllipse(uint16_t xpos, uint16_t ypos,uint16_t radius_x, uint16_t radius_y);
     /**
      * @brief api creates Sprite Element on currently active scene and forwards to the render engine.
      *  sprite_element(properties) - 
@@ -123,7 +124,8 @@ void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint1
     void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line,uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     
     /* Sets radius value of elliptical type of 2D Object */
-    void uCanvas_Set_Radius(uCanvas_universal_obj_t* obj, uint16_t radius);
+    void uCanvas_Set_Radius1(uCanvas_universal_obj_t* obj, uint16_t radius);
+    void uCanvas_Set_Radius2(uCanvas_universal_obj_t* obj, uint16_t radius);
     
     /* Sets Height and Width of rectangular 2D Object */
     void uCanvas_Set_Width_Height(uCanvas_universal_obj_t* obj, uint16_t width,uint16_t height);

@@ -42,6 +42,7 @@ typedef struct {
 	uint16_t *_frame_buffer;
 } TFT_t;
 #include "uCanvas_api.h"
+
 void spi_clock_speed(int speed);
 void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t GPIO_CS, int16_t GPIO_DC, int16_t GPIO_RESET, int16_t GPIO_BL);
 bool spi_master_write_byte(spi_device_handle_t SPIHandle, const uint8_t* Data, size_t DataLength);
@@ -63,16 +64,21 @@ void lcdFillScreen(TFT_t * dev, uint16_t color);
 void lcdDrawLine(TFT_t * dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 void lcdDrawRect(TFT_t * dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 void lcdDrawRectAngle(TFT_t * dev, uint16_t xc, uint16_t yc, uint16_t w, uint16_t h, uint16_t angle, uint16_t color);
-void lcdDrawTriangle(TFT_t * dev, uint16_t xc, uint16_t yc, uint16_t w, uint16_t h, uint16_t angle, uint16_t color);
+// void lcdDrawTriangle(TFT_t * dev, uint16_t xc, uint16_t yc, uint16_t w, uint16_t h, uint16_t angle, uint16_t color);
 void lcdDrawRegularPolygon(TFT_t *dev, uint16_t xc, uint16_t yc, uint16_t n, uint16_t r, uint16_t angle, uint16_t color);
 void lcdDrawCircle(TFT_t * dev, uint16_t x0, uint16_t y0, uint16_t r, uint16_t color);
 void lcdDrawFillCircle(TFT_t *dev, int16_t x0, int16_t y0, int16_t r, uint16_t color); 
+void lcdDrawEllipse(TFT_t *dev, int16_t x0, int16_t y0, int16_t a, int16_t b, uint16_t color);
+void lcdDrawEllipseFilled(TFT_t *dev, int16_t x0, int16_t y0, int16_t a, int16_t b, uint16_t color);
 void lcdDrawRoundRect(TFT_t * dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t r, uint16_t color);
 void lcdDrawArrow(TFT_t * dev, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t w, uint16_t color);
 void lcdDrawFillArrow(TFT_t * dev, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t w, uint16_t color);
 int lcdDrawChar(TFT_t * dev, FontxFile *fx, uint16_t x, uint16_t y, uint8_t ascii, uint16_t color);
 int lcdDrawString(TFT_t *dev, FontxFile *fx, int16_t x, int16_t y, uint8_t *ascii, uint16_t color);
 int lcdDrawCode(TFT_t * dev, FontxFile *fx, uint16_t x,uint16_t y,uint8_t code,uint16_t color);
+
+void lcdDrawTriangle(TFT_t *dev, int x0, int y0, int x1, int y1, int x2, int y2, uint16_t color);
+void lcdDrawTriangleFilled(TFT_t *dev, int x0, int y0, int x1, int y1, int x2, int y2, uint16_t color);
 //int lcdDrawUTF8Char(TFT_t * dev, FontxFile *fx, uint16_t x, uint16_t y, uint8_t *utf8, uint16_t color);
 //int lcdDrawUTF8String(TFT_t * dev, FontxFile *fx, uint16_t x, uint16_t y, unsigned char *utfs, uint16_t color);
 void lcdSetFontDirection(TFT_t * dev, uint16_t);

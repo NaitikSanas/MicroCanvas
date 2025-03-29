@@ -77,6 +77,10 @@ void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj){
         #endif
         break;
     }
+
+    case ELLIPSE : {
+        uCanvas_Draw_Ellipse(obj->properties.position.x, obj->properties.position.y, obj->r1, obj->r2,obj->properties.color,obj->properties.fill);
+    }
     default:
       break;
     }
