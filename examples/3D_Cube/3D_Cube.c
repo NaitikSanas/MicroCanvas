@@ -14,12 +14,13 @@ int DEPTH = 30;  // Adjust for perspective effect
 
 uCanvas_universal_obj_t* line2D[12];
 
-#define USE_PRIMITIVE_TRIANGLE2D
-// #define USE_PRIMITIVE_LINE2D
+// #define USE_PRIMITIVE_TRIANGLE2D 1
+#define USE_PRIMITIVE_LINE2D 1
 void Render_3D_Cube( float angle);
 
 void Run_3D_Cube_Demo() {
     //start ucanvas engine and setup scene
+    printf("3D-Cube Demo\r\n");
     uCanvas_Scene_t* scene;
     start_uCanvas_engine();
     scene = New_uCanvas_Scene();
@@ -27,7 +28,7 @@ void Run_3D_Cube_Demo() {
 
     //Background 
     uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,320,240);
-    uCanvas_Set_Color(bg,255,255,255);
+    uCanvas_Set_Color(bg,0,0,0);
     bg->properties.fill = FILL;
     
     //Instantiate 2D Primitive to hold verticies
@@ -80,9 +81,9 @@ void Render_3D_Cube( float angle) {
         // printf("angle, depth %f, %d\r\n",angle,DEPTH);
         for (int i = 0; i < 8; i++) {
             // Rotate around Y-axis
-            float y = vertices[i][0] * cos(angle) - vertices[i][2] * sin(angle)+ DEPTH; 
-            float x = vertices[i][0] * sin(angle) + vertices[i][2] * cos(angle) ;
-            float z = vertices[i][1];
+            float x = vertices[i][0] * cos(angle) - vertices[i][2] * sin(angle); 
+            float z = vertices[i][0] * sin(angle) + vertices[i][2] * cos(angle) + DEPTH;
+            float y = vertices[i][1];
             
             // Perspective projection
             projected[i][0] = SCREEN_CENTER_X + (int)(x * 40 / z);

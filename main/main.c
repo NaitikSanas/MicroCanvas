@@ -10,7 +10,7 @@
 #include "Sprite_Animation_With_Keyframe.h"
 #include "L_System_Demo.h"
 #include "3D_Cube.h"
-#define RUN_APP_C 1
+// #define RUN_APP_C 1
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
 // #define RUN_FONTS_TESTING 1
