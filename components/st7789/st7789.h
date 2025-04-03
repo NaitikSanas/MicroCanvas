@@ -61,7 +61,7 @@ void lcdDrawFillRect(TFT_t *dev, int16_t x1, int16_t y1, int16_t x2, int16_t y2,
 void lcdDisplayOff(TFT_t * dev);
 void lcdDisplayOn(TFT_t * dev);
 void lcdFillScreen(TFT_t * dev, uint16_t color);
-void lcdDrawLine(TFT_t * dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
+void lcdDrawLine(TFT_t * dev, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
 void lcdDrawRect(TFT_t * dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 void lcdDrawRectAngle(TFT_t * dev, uint16_t xc, uint16_t yc, uint16_t w, uint16_t h, uint16_t angle, uint16_t color);
 // void lcdDrawTriangle(TFT_t * dev, uint16_t xc, uint16_t yc, uint16_t w, uint16_t h, uint16_t angle, uint16_t color);

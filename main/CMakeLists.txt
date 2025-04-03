@@ -10,6 +10,7 @@ idf_component_register(SRCS "main.c"
                             "../examples/Game_of_life/game_of_life.c"
                             "../examples/Sprite_Animation_With_Keyframe/Sprite_Animation_With_Keyframe.c"
                             "../examples/L_System_Demo/L_System_Demo.c"
+                            "../examples/3D_Cube/3D_Cube.c"
 
 INCLUDE_DIRS "."    
             "app"   
@@ -21,4 +22,5 @@ INCLUDE_DIRS "."
             "../examples/Game_of_life"
             "../examples/Sprite_Animation_With_Keyframe"
             "../examples/L_System_Demo"
+            "../examples/3D_Cube/"
              )

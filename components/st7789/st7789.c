@@ -492,7 +492,7 @@ void lcdFillScreen(TFT_t * dev, uint16_t color) {
 // x2:End	X coordinate
 // y2:End	Y coordinate
 // color:color 
-void lcdDrawLine(TFT_t * dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
+void lcdDrawLine(TFT_t * dev, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color) {
 	int i;
 	int dx,dy;
 	int sx,sy;

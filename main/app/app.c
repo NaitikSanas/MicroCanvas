@@ -3,10 +3,8 @@
 #include "ucanvas_slider.h"
 #include "uCanvas_User_IO.h"
 #include "sprite_collection.h"
-#include "websocket_server.h"
 
 void uCanvas_Setup() {
-    
 
 }
 

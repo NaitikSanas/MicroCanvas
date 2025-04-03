@@ -9,7 +9,8 @@
 #include "Game_of_life.h"
 #include "Sprite_Animation_With_Keyframe.h"
 #include "L_System_Demo.h"
-// #define RUN_APP_C 1
+#include "3D_Cube.h"
+#define RUN_APP_C 1
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
 // #define RUN_FONTS_TESTING 1
@@ -18,7 +19,8 @@
 // #define RUN_GAME_OF_LIFE_DEMO 1
 
 // #define RUN_SPRITE_ANIMATION_WITH_KEYFRAME 1
-#define RUN_L_SYSTEM_DEMO 1
+// #define RUN_L_SYSTEM_DEMO 1
+#define RUN_3D_CUBE_DEMO 1
 
 
 void app_main(){
@@ -64,6 +66,9 @@ void app_main(){
 
     #elif RUN_L_SYSTEM_DEMO
         L_System_Demo_Main();
+
+    #elif RUN_3D_CUBE_DEMO
+        Run_3D_Cube_Demo();
     #endif
 }
 
