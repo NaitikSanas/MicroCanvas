@@ -14,6 +14,47 @@ int DEPTH = 30;  // Adjust for perspective effect
 
 uCanvas_universal_obj_t* line2D[12];
 
+#define USE_PRIMITIVE_TRIANGLE2D
+// #define USE_PRIMITIVE_LINE2D
+void Render_3D_Cube( float angle);
+
+void Run_3D_Cube_Demo() {
+    //start ucanvas engine and setup scene
+    uCanvas_Scene_t* scene;
+    start_uCanvas_engine();
+    scene = New_uCanvas_Scene();
+    uCanvas_set_active_scene(scene);
+
+    //Background 
+    uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,320,240);
+    uCanvas_Set_Color(bg,255,255,255);
+    bg->properties.fill = FILL;
+    
+    //Instantiate 2D Primitive to hold verticies
+    for (int i = 0; i < 12; i++)
+    {
+        Coordinate2D_t c = {0,0};
+        #ifdef USE_PRIMITIVE_TRIANGLE2D
+            line2D[i] = New_uCanvas_2DTriangle( c,c,c);
+            line2D[i]->properties.fill = NOFILL;
+        #elif USE_PRIMITIVE_LINE2D
+            line2D[i] = New_uCanvas_2DLine(0,0,0,0);
+        #endif        
+        uCanvas_Set_Color(line2D[i],255,255,0);
+    }
+
+    uCanvas_Set_Color(line2D[0],255,0,0);
+    uCanvas_Set_Color(line2D[1],0,255,0);
+    uCanvas_Set_Color(line2D[2],0,0,255);
+    uCanvas_Set_Color(line2D[3],255,255,0);
+    uCanvas_Set_Color(line2D[4],255,0,255);
+    uCanvas_Set_Color(line2D[6],255,255,255);
+    //render cube
+    Render_3D_Cube(0.5);
+}
+
+
+
 void Render_3D_Cube( float angle) {
     float vertices[8][3] = {
         {-CUBE_SIZE, -CUBE_SIZE, -CUBE_SIZE},
@@ -64,51 +105,23 @@ void Render_3D_Cube( float angle) {
             {4, 5, 1}, {1, 0, 4}   // Bottom face
         };
 
-        // for (int i = 0; i < 12; i++) {
-        //     line2D[i]->point1.x =  projected[triangle_faces[i][0]][0];
-        //     line2D[i]->point1.y =  projected[triangle_faces[i][0]][1];
-        //     line2D[i]->point2.x =  projected[triangle_faces[i][1]][0]; 
-        //     line2D[i]->point2.y =  projected[triangle_faces[i][1]][1];
-        //     line2D[i]->point3.x =  projected[triangle_faces[i][2]][0]; 
-        //     line2D[i]->point3.y =  projected[triangle_faces[i][2]][1];
-        // }
-
+        #ifdef USE_PRIMITIVE_TRIANGLE2D
+        for (int i = 0; i < 12; i++) {
+            line2D[i]->point1.x =  projected[triangle_faces[i][0]][0];
+            line2D[i]->point1.y =  projected[triangle_faces[i][0]][1];
+            line2D[i]->point2.x =  projected[triangle_faces[i][1]][0]; 
+            line2D[i]->point2.y =  projected[triangle_faces[i][1]][1];
+            line2D[i]->point3.x =  projected[triangle_faces[i][2]][0]; 
+            line2D[i]->point3.y =  projected[triangle_faces[i][2]][1];
+        }
+        #elif USE_PRIMITIVE_LINE2D
         for (int i = 0; i < 12; i++) {
             uCanvas_Set_Line_Coordinates(line2D[i], projected[edges[i][0]][0], projected[edges[i][0]][1],
                                         projected[edges[i][1]][0], projected[edges[i][1]][1]);
         }
+        #endif
 
         uCanvas_Delay(4);
     }
 }
 
-void Run_3D_Cube_Demo() {
-    
-    uCanvas_Scene_t* scene;
-    start_uCanvas_engine();
-    scene = New_uCanvas_Scene();
-    uCanvas_set_active_scene(scene);
-    // uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,320,240);
-    // uCanvas_Set_Color(bg,255,255,255);
-    // bg->properties.fill = FILL;
-    for (int i = 0; i < 12; i++)
-    {
-        Coordinate2D_t c = {0,0};
-        // line2D[i] = New_uCanvas_2DTriangle( c,c,c);
-        line2D[i] = New_uCanvas_2DLine(0,0,0,0);
-        uCanvas_Set_Color(line2D[i],255,255,0);
-        line2D[i]->properties.fill = NOFILL;
-        
-    }
-
-    uCanvas_Set_Color(line2D[0],255,0,0);
-    uCanvas_Set_Color(line2D[1],0,255,0);
-    uCanvas_Set_Color(line2D[2],0,0,255);
-    uCanvas_Set_Color(line2D[3],255,255,0);
-    uCanvas_Set_Color(line2D[4],255,0,255);
-    uCanvas_Set_Color(line2D[6],255,255,255);
-
-
-    
-    Render_3D_Cube(0.5);
-}
