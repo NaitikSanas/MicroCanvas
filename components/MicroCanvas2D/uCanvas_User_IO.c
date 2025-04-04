@@ -26,3 +26,48 @@ uint8_t uCanvas_Get_PushbuttonState_WTR(gpio_num_t gpio_num){
     }
     else return uCanvas_Get_PushbuttonState(gpio_num);
 }
+
+void uCanvas_rotary_encoder_init(rotary_encoder_t* obj,gpio_num_t pinA, gpio_num_t pinB, gpio_num_t pinSW){
+    if(pinA != -1){
+        obj->pin_A = pinA;
+        uCanvas_Init_PushButton(pinA);
+    }
+
+    if(pinB != -1){
+        obj->pin_B = pinB;
+        uCanvas_Init_PushButton(pinB);
+    }
+
+    if(pinSW != -1){
+        obj->pin_SW = pinSW;
+        uCanvas_Init_PushButton(pinSW);
+    }
+    obj->state = 0;
+}
+
+void uCanvas_rotary_encoder_read(rotary_encoder_t* obj){
+    static uint8_t encoder_state = 0;
+    static uint8_t last_state = 0;
+    uint8_t A = uCanvas_Get_PushbuttonState(obj->pin_A);
+    uint8_t B = uCanvas_Get_PushbuttonState(obj->pin_B);
+    encoder_state = (A << 1) | B;    
+    int direction = 0;
+    // Check valid rotary encoder transitions (Gray code sequence)
+    if (last_state == 0b00 && encoder_state == 0b01) direction = ENCODER_CW;  // CW
+    if (last_state == 0b01 && encoder_state == 0b11) direction = ENCODER_CW;  
+    if (last_state == 0b11 && encoder_state == 0b10) direction = ENCODER_CW;  
+    if (last_state == 0b10 && encoder_state == 0b00) direction = ENCODER_CW;  
+    
+    if (last_state == 0b00 && encoder_state == 0b10) direction = ENCODER_CCW; // CCW
+    if (last_state == 0b10 && encoder_state == 0b11) direction = ENCODER_CCW; 
+    if (last_state == 0b11 && encoder_state == 0b01) direction = ENCODER_CCW; 
+    if (last_state == 0b01 && encoder_state == 0b00) direction = ENCODER_CCW; 
+    // Update last state
+    last_state = encoder_state;
+    obj->state = direction; // +1 for CW, -1 for CCW, 0 for no change
+    obj->sw_state = uCanvas_Get_PushbuttonState_WTR(obj->pin_SW);
+}
+
+encoder_state_t uCanvas_rotary_encoder_get_state(rotary_encoder_t* obj){
+    return obj->state;
+}

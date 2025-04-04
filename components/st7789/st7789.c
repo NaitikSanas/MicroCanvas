@@ -1366,3 +1366,44 @@ void IRAM_ATTR lcdDrawFinish(TFT_t *dev)
 	}
 	return;
 }
+void ST7789_Reset(){
+	gpio_set_level( CONFIG_RESET_GPIO, 0 );
+	delayMS(100);
+	gpio_set_level( CONFIG_RESET_GPIO, 1 );
+	delayMS(100);
+}
+
+void ST7789_Set_Orientation(TFT_t *dev, uint8_t orientation) {
+    uint8_t madctl = 0;
+
+    switch (orientation) {
+        case 0: // Portrait
+            madctl = 0x00;
+            break;
+        case 1: // Landscape
+            madctl = 0x60;
+            break;
+        case 2: // Portrait Inverted
+            madctl = 0xC0;
+            break;
+        case 3: // Landscape Inverted
+            madctl = 0xA0;
+            break;
+        case 4: // Swap X/Y (Transpose Mode)
+            madctl = 0x80;
+            break;
+        case 5: // Flip X
+            madctl = 0x20;
+            break;
+        case 6: // Flip Y
+            madctl = 0x40;
+            break;
+        case 7: // Flip X and Y (Mirror both axes)
+            madctl = 0x60;
+            break;
+    }
+
+    // Send command to modify MADCTL register
+    spi_master_write_command(dev, 0x36);        // Memory Access Control
+    spi_master_write_data_byte(dev, madctl);   // Set the new orientation
+}

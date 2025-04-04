@@ -213,4 +213,14 @@ typedef struct uCanvas_Sprite_KeyFrames  {
    uCanvas_KeyFrame_Parameters_t KeyFrame_Parameters;
 }uCanvas_Sprite_KeyFrames_t;
 
+typedef enum {ENCODER_IDLE=0, ENCODER_CW, ENCODER_CCW} encoder_state_t;
+
+typedef struct rotary_encoder_obj
+{
+    uint32_t pin_A;
+    uint32_t pin_B;
+    uint32_t pin_SW;
+    encoder_state_t state;
+    uint8_t sw_state;
+}rotary_encoder_t;
 #endif

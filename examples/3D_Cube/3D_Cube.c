@@ -17,14 +17,18 @@ uCanvas_universal_obj_t* line2D[12];
 // #define USE_PRIMITIVE_TRIANGLE2D 1
 #define USE_PRIMITIVE_LINE2D 1
 void Render_3D_Cube( float angle);
-
+#include "uCanvas_display_port.h"
 void Run_3D_Cube_Demo() {
     //start ucanvas engine and setup scene
     printf("3D-Cube Demo\r\n");
     uCanvas_Scene_t* scene;
     start_uCanvas_engine();
+    ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
+    uCanvas_Set_Display_Properties(320,240,1);
+
     scene = New_uCanvas_Scene();
     uCanvas_set_active_scene(scene);
+    ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
 
     //Background 
     uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,320,240);
@@ -54,7 +58,13 @@ void Run_3D_Cube_Demo() {
     Render_3D_Cube(0.5);
 }
 
+#define ENC_A   39 
+#define ENC_B   40 
+#define ENC_SW  37
 
+
+
+rotary_encoder_t rotary_encoder_1;
 
 void Render_3D_Cube( float angle) {
     float vertices[8][3] = {
@@ -67,18 +77,43 @@ void Render_3D_Cube( float angle) {
         { CUBE_SIZE,  CUBE_SIZE,  CUBE_SIZE},
         {-CUBE_SIZE,  CUBE_SIZE,  CUBE_SIZE}
     };
-    uCanvas_Init_PushButton(0);
+    uCanvas_rotary_encoder_init(&rotary_encoder_1,ENC_A,ENC_B,ENC_SW);
+
     int projected[8][2];
-    int state = 0;
+    uCanvas_universal_obj_t* textbox = New_uCanvas_2DTextbox("",10,10);
+    uCanvas_Set_Color(textbox,255,0,0);
+    uint8_t mode = 0;
     while(1){
         // if(angle < 1)
         // else angle = 0;
-        if(!uCanvas_Get_PushbuttonState_WTR(0)){
-            DEPTH+=5;
+        uCanvas_rotary_encoder_read(&rotary_encoder_1);
+        
+        if(!rotary_encoder_1.sw_state){
+            mode = !mode;
         }
- 
-        angle += 0.009;
-        // printf("angle, depth %f, %d\r\n",angle,DEPTH);
+
+        switch (rotary_encoder_1.state)
+        {
+        case ENCODER_CW:
+            if(mode)
+                angle += 0.009;
+            else
+                DEPTH+=1;
+            break;
+        case ENCODER_CCW:
+            if(mode)
+                angle -= 0.009;
+            else
+                DEPTH -=1;
+            break;
+        default:
+            break;
+        }
+
+        char buf[32];
+        sprintf(buf,"depth:%d,angle:%f",DEPTH,angle);
+        uCanvas_Set_Text(textbox,buf);
+        //angle += 0.009;
         for (int i = 0; i < 8; i++) {
             // Rotate around Y-axis
             float x = vertices[i][0] * cos(angle) - vertices[i][2] * sin(angle); 

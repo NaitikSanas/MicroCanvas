@@ -22,9 +22,7 @@
 // #define RUN_L_SYSTEM_DEMO 1
 #define RUN_3D_CUBE_DEMO 1
 
-
 void app_main(){
-    
     #if RUN_APP_C
     uCanvas_Setup();
     while (1)

@@ -136,3 +136,10 @@ void start_uCanvas_engine(void){
 
     xTaskCreatePinnedToCore(&uCanvas_bg_render_engine_task,"Task",UCANVAS_RENDER_TASK_STACK_SIZE,NULL,UCANVAS_RENDER_TASK_PRIORITY,&uCanvas_taskhandle,1);
 }
+
+void pause_uCanvas_engine(void){
+    vTaskSuspend(uCanvas_taskhandle);
+}
+void resume_uCanvas_engine(void){
+    vTaskResume(uCanvas_taskhandle);
+}

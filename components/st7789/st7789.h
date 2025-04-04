@@ -92,5 +92,7 @@ void lcdInversionOff(TFT_t * dev);
 void lcdInversionOn(TFT_t * dev);
 void lcdWrapArround(TFT_t * dev, SCROLL_TYPE_t scroll, int start, int end);
 void lcdDrawFinish(TFT_t *dev);
+void ST7789_Reset();
+void ST7789_Set_Orientation(TFT_t *dev, uint8_t orientation);
 #endif /* MAIN_ST7789_H_ */
 

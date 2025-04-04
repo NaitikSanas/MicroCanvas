@@ -6,3 +6,4 @@
 #define UCANVAS_DEFAULT_RED                     (0)
 #define UCANVAS_DEFAULT_GREEN                   (0)
 #define UCANVAS_DEFAULT_BLUE                    (0)
+#define UCANVAS_DISPLAY_ORIENTATION             1

@@ -11,6 +11,7 @@ idf_component_register(SRCS "main.c"
                             "../examples/Sprite_Animation_With_Keyframe/Sprite_Animation_With_Keyframe.c"
                             "../examples/L_System_Demo/L_System_Demo.c"
                             "../examples/3D_Cube/3D_Cube.c"
+                            EMBED_TXTFILES   "isrgrootx1.pem"       
 
 INCLUDE_DIRS "."    
             "app"   

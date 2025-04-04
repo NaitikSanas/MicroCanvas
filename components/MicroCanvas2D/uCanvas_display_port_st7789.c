@@ -88,6 +88,18 @@ void uCanvas_Display_init(void){
 	// spi_clock_speed(60 000 000); // 60MHz
 	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);   
 	lcdInit(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, 0, 0);
+	ST7789_Set_Orientation(&dev,UCANVAS_DISPLAY_ORIENTATION);
+}
+
+void uCanvas_Set_Display_Properties(uint16_t width, uint16_t height, uint8_t orientation){
+	// ST7789_Reset();
+	// if(dev._frame_buffer){
+	// 	free(dev._frame_buffer);
+	// }
+	// lcdInit(&dev, width, height, 0, 0);
+	dev._height = height;
+	dev._width = width;
+	ST7789_Set_Orientation(&dev,orientation);
 }
 
 
@@ -266,5 +278,7 @@ void st7789_draw_sprite_batch( uCanvas_universal_obj_t *obj) {
         }
     }
 }
+
+
 
 #endif

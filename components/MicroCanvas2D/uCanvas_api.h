@@ -14,6 +14,8 @@
 
     /*Starts Rendering Engine and Initializes Display*/
     void start_uCanvas_engine(void);
+    void pause_uCanvas_engine(void);
+    void resume_uCanvas_engine(void);
     
     /**
      * APIs to creating uCanvas related Tasks to work with Scene objects, 

@@ -42,3 +42,4 @@ void IRAM_ATTR uCanvas_DrawPixel565                  (Coordinate2D_t pos,uint16_
 void uCanvas_DrawPixel5652 (uint16_t x, uint16_t y,uint16_t color);
 void st7789_draw_sprite_batch(uCanvas_universal_obj_t *obj);
 uint16_t convertToRGB565(color_t color) ;
+void uCanvas_Set_Display_Properties(uint16_t width, uint16_t height, uint8_t orientation);
