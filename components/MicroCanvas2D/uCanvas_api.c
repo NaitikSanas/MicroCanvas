@@ -49,6 +49,9 @@ void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
         memset(obj->text,0,256);
         sprintf(obj->text,"%s",text);
     }
+    else{
+        printf("err:uCanvas_Set_Text\r\n");
+    }
 }
 
 void uCanvas_Set_Obj_Type(uCanvas_universal_obj_t*obj,uCanvas_element_type_t type){

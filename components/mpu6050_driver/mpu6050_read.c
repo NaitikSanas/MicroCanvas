@@ -171,10 +171,10 @@ tilt_dir_t detect_2d_tilt(float pitch_deg, float roll_deg) {
                 current_state = TILT_LEFT;
             else if (roll_deg > TILT_TRIGGER)
                 current_state = TILT_RIGHT;
-            else if (pitch_deg < -TILT_TRIGGER)
-                current_state = TILT_UP;
-            else if (pitch_deg > TILT_TRIGGER)
-                current_state = TILT_DOWN;
+            // else if (pitch_deg < -TILT_TRIGGER)
+            //     current_state = TILT_UP;
+            // else if (pitch_deg > TILT_TRIGGER)
+            //     current_state = TILT_DOWN;
             break;
 
         case TILT_LEFT:

@@ -66,7 +66,7 @@ void uCanvas_rotary_encoder_read(rotary_encoder_t* obj){
     // Update last state
     last_state = encoder_state;
     obj->state = direction; // +1 for CW, -1 for CCW, 0 for no change
-    obj->sw_state = uCanvas_Get_PushbuttonState_WTR(obj->pin_SW);
+    obj->sw_state = uCanvas_Get_PushbuttonState(obj->pin_SW);
 }
 
 encoder_state_t uCanvas_rotary_encoder_get_state(rotary_encoder_t* obj){
