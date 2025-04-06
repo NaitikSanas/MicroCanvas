@@ -10,6 +10,7 @@
 #include "Sprite_Animation_With_Keyframe.h"
 #include "L_System_Demo.h"
 #include "3D_Cube.h"
+#include "uCanvas_IO_Usage_Demo.h"
 // #define RUN_APP_C 1
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
@@ -20,8 +21,8 @@
 
 // #define RUN_SPRITE_ANIMATION_WITH_KEYFRAME 1
 // #define RUN_L_SYSTEM_DEMO 1
-#define RUN_3D_CUBE_DEMO 1
-
+// #define RUN_3D_CUBE_DEMO 1
+#define RUN_IO_USAGE_DEMO 1
 void app_main(){
     #if RUN_APP_C
     uCanvas_Setup();
@@ -67,6 +68,9 @@ void app_main(){
 
     #elif RUN_3D_CUBE_DEMO
         Run_3D_Cube_Demo();
+
+    #elif RUN_IO_USAGE_DEMO
+        Run_uCanvas_IO_Usage_Demo();
     #endif
 }
 

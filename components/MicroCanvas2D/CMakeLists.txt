@@ -12,4 +12,4 @@ set(COMPONENT_SRCS  "uCanvasRenderEngine.c"
 
 idf_component_register(SRCS "uCanvas_display_port_st7789.c" "uCanvas_display_port_ssd1306.c" "uCanvas_Frame_buffer.c" "uCanvas_Physix.c" "${COMPONENT_SRCS}"
                         INCLUDE_DIRS "." "simple_menu" "ucanvas_button" "ucanvas_slider"
-                       PRIV_REQUIRES driver SSD1306_Driver st7789  spiffs)
+                       PRIV_REQUIRES driver SSD1306_Driver st7789  spiffs mpu6050_driver)

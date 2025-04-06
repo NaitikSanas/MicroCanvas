@@ -63,7 +63,19 @@ void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj){
     }
 
     case TRIANGLE : {
-      uCanvas_Draw_Triangle(obj->point1,obj->point2,obj->point3,obj->properties.color,obj->properties.fill);
+        Coordinate2D_t p1,p2,p3;
+        p1.x = obj->point1.x + obj->properties.position.x;
+        p1.y = obj->point1.y + obj->properties.position.y;
+        p2.x = obj->point2.x + obj->properties.position.x;
+        p2.y = obj->point2.y + obj->properties.position.y;
+        p3.x = obj->point3.x + obj->properties.position.x;
+        p3.y = obj->point3.y + obj->properties.position.y;
+
+        uCanvas_Draw_Triangle(p1,
+                              p2,
+                              p3,
+                                obj->properties.color,
+                                obj->properties.fill);
       break;
     }
 

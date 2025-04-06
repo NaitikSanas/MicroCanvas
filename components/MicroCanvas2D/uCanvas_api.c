@@ -236,6 +236,8 @@ uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinat
     triangle->point1 = Point1;
     triangle->point2 = Point2;
     triangle->point3 = Point3;
+    triangle->properties.position.x = 0;
+    triangle->properties.position.y = 0;
     uCanvas_push_object_to_activescene(triangle);
     return triangle;
 }

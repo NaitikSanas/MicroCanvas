@@ -689,23 +689,28 @@ void lcdDrawCircle(TFT_t * dev, uint16_t x0, uint16_t y0, uint16_t r, uint16_t c
 #include "math.h"
 void lcdDrawFillCircle(TFT_t *dev, int16_t x0, int16_t y0, int16_t r, uint16_t color) {
     int x = 0;
-    int y = -r;
-    int err = 2 - 2 * r;
-    int old_err;
-    int changeX = 1;
+    int y = r;
+    int d = 1 - r;
 
-    do {
-        if (changeX) {
-            // Clip to screen bounds before drawing
-            if (y0 - y >= 0 && y0 - y < dev->_height) 
-                lcdDrawLine(dev, fmax(0, x0 - x), y0 - y, fmin(dev->_width - 1, x0 + x), y0 - y, color);
-            if (y0 + y >= 0 && y0 + y < dev->_height) 
-                lcdDrawLine(dev, fmax(0, x0 - x), y0 + y, fmin(dev->_width- 1, x0 + x), y0 + y, color);
+    while (y >= x) {
+        // Draw horizontal lines across the 8 octants
+        if (y0 - y >= 0 && y0 - y < dev->_height) 
+            lcdDrawLine(dev, fmax(0, x0 - x), y0 - y, fmin(dev->_width - 1, x0 + x), y0 - y, color);
+        if (y0 - x >= 0 && y0 - x < dev->_height) 
+            lcdDrawLine(dev, fmax(0, x0 - y), y0 - x, fmin(dev->_width - 1, x0 + y), y0 - x, color);
+        if (y0 + x >= 0 && y0 + x < dev->_height) 
+            lcdDrawLine(dev, fmax(0, x0 - y), y0 + x, fmin(dev->_width - 1, x0 + y), y0 + x, color);
+        if (y0 + y >= 0 && y0 + y < dev->_height) 
+            lcdDrawLine(dev, fmax(0, x0 - x), y0 + y, fmin(dev->_width - 1, x0 + x), y0 + y, color);
+
+        x++;
+        if (d < 0) {
+            d += 2 * x + 1;
+        } else {
+            y--;
+            d += 2 * (x - y) + 1;
         }
-        changeX = (old_err = err) <= x;
-        if (changeX) err += ++x * 2 + 1;
-        if (old_err > y || err > x) err += ++y * 2 + 1;
-    } while (y <= 0);
+    }
 }
 
 void lcdDrawEllipse(TFT_t *dev, int16_t x0, int16_t y0, int16_t a, int16_t b, uint16_t color) {

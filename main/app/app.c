@@ -5,10 +5,8 @@
 #include "sprite_collection.h"
 
 void uCanvas_Setup() {
-
+    
 }
-
-
 
 void uCanvas_App_Main(void) {
     uCanvas_Delay(1);
