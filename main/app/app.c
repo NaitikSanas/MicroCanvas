@@ -63,7 +63,10 @@ void live_indicatior_set(int val){
     switch (val)
     {
     case 0:
-        //thanks to u/dmitrygr for pointing out this stupid little bug XD. 
+        /**
+         * thanks to u/dmitrygr for pointing out this stupid little 
+         * bug where all indecies were set to zero XD. 
+        */
         uCanvas_Set_Color(lives[0],120,0,0);
         uCanvas_Set_Color(lives[1],120,0,0);
         uCanvas_Set_Color(lives[2],120,0,0);
