@@ -31,15 +31,18 @@ typedef struct bullets
     uint8_t emit_bullets_per_trigger;
     uint8_t active;
 }bullets_t;
+
 uCanvas_universal_obj_t* popup;
 uCanvas_universal_obj_t* lives[4];
 uCanvas_universal_obj_t* textbox1;
 uCanvas_universal_obj_t* textbox2;
 uCanvas_universal_obj_t* title_tb_3;
+
 int current_score = 0;
 int last_score = 0;
 int cur_lives = 4;
 float distance_travelled = 0;
+
 spaceship_t enemy_spaceships [MAX_ENEMIES];
 uCanvas_universal_obj_t* stars[MAX_STARS];
 spaceship_t player_spaceship;
@@ -60,10 +63,11 @@ void live_indicatior_set(int val){
     switch (val)
     {
     case 0:
+        //thanks to u/dmitrygr for pointing out this stupid little bug XD. 
         uCanvas_Set_Color(lives[0],120,0,0);
-        uCanvas_Set_Color(lives[0],120,0,0);
-        uCanvas_Set_Color(lives[0],120,0,0);
-        uCanvas_Set_Color(lives[0],120,0,0);
+        uCanvas_Set_Color(lives[1],120,0,0);
+        uCanvas_Set_Color(lives[2],120,0,0);
+        uCanvas_Set_Color(lives[3],120,0,0);
         break;
     case 1:
         uCanvas_Set_Color(lives[0],255,0,0);
@@ -101,7 +105,7 @@ void randomize_all_enemiens(void){
         enemy_spaceships[i].obj->properties.visiblity = INVISIBLE;
     }
 }
-void collision_detection(void){
+void detect_spaceship_collision_with_enemyship(void){
     bool collision_detected = false;
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
@@ -162,7 +166,7 @@ void collision_detection(void){
         randomize_all_enemiens();
     }     
 }
-void starts_array_init(){
+void stars_array_init(){
     for (int i = 0; i < MAX_STARS; i++)
     {
         stars[i] = New_uCanvas_2DCircle(get_random_number(0,CANVAS_WIDTH),get_random_number(0,CANVAS_HEIGHT),get_random_number(0,1));
@@ -220,7 +224,7 @@ void animate_enemy_spaceships(void){
                 enemy_spaceships[i].obj->properties.visiblity = INVISIBLE;
             }
         }
-        collision_detection();
+        detect_spaceship_collision_with_enemyship();
         uCanvas_Delay(9);  
     }
 }
@@ -252,8 +256,6 @@ void trigger_weapon(spaceship_t* spaceship,bullets_t* bullets){
 }
 
 void bullets_animation(bullets_t* bullets){
-    
-
     while (1)
     {
         for (int i = 0; i <bullets->emit_bullets_per_trigger; i++)
@@ -325,6 +327,7 @@ void bullets_animation(bullets_t* bullets){
         uCanvas_Delay(1);
     }
 }
+
 void create_spaceship(spaceship_t* obj){
     sprite2D_t spaceship_sprite_obj;
     uCanvas_Compose_2DSprite_Obj(&spaceship_sprite_obj,ship,40,40);
@@ -390,27 +393,7 @@ void controller_task(void){
     }
 }
 
-
-
-void uCanvas_Setup() {
-    start_uCanvas_engine();   
-    uCanvas_Scene_t* scene = New_uCanvas_Scene();
-    uCanvas_Initialize_IMU_Device(42,41);
-    uCanvas_IMU_Set_Tilt_Detection_Parameters(7,2);
-    uCanvas_Init_PushButton(PB1);
-    uCanvas_Init_PushButton(PB2);
-    
-    uCanvas_rotary_encoder_init(&rotary_encoder_1,ENC_A,ENC_B,ENC_SW);
-
-    uCanvas_set_active_scene(scene);
-    starts_array_init();
-    bullets_init(&player_bulletes_instance,5);
-    
-    create_spaceship(&player_spaceship);  
-    
-    uCanvas_Add_Task(animate_stars,NULL,0);
-    
-
+void show_start_screen(){
     uCanvas_universal_obj_t* title_tb_1 = New_uCanvas_2DTextbox("Space",50,-40);
     uCanvas_universal_obj_t* title_tb_2 = New_uCanvas_2DTextbox("Explorer",150,-40);
     title_tb_3 = New_uCanvas_2DTextbox("Press ENC_SW to Play",50,-10);
@@ -443,14 +426,8 @@ void uCanvas_Setup() {
         }
         uCanvas_Delay(1);
     }
-    
-    
-
-    spawn_enemines();
-    uCanvas_Add_Task(animate_enemy_spaceships,NULL,0);
-    uCanvas_Add_Task(bullets_animation,&player_bulletes_instance,0);
-    uCanvas_Add_Task(controller_task,NULL,0);
-    
+}
+void create_hud(){
     uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,22,320);
     uCanvas_Set_Color(bg,0,0,100);
     bg->properties.fill = FILL;
@@ -465,7 +442,33 @@ void uCanvas_Setup() {
     popup = New_uCanvas_2DTextbox("+1",0,0);
     uCanvas_Set_Color(popup,255,255,255);
     popup->font_properties.font_type = FONT_16G;
+}
+
+void uCanvas_Setup() {
+    start_uCanvas_engine();   
+    uCanvas_Scene_t* scene = New_uCanvas_Scene();
+    uCanvas_Initialize_IMU_Device(42,41);
+    uCanvas_IMU_Set_Tilt_Detection_Parameters(7,2);
+    uCanvas_Init_PushButton(PB1);
+    uCanvas_Init_PushButton(PB2);
     
+    uCanvas_rotary_encoder_init(&rotary_encoder_1,ENC_A,ENC_B,ENC_SW);
+
+    uCanvas_set_active_scene(scene);
+    stars_array_init();
+    bullets_init(&player_bulletes_instance,5);
+    create_spaceship(&player_spaceship);  
+    uCanvas_Add_Task(animate_stars,NULL,0);
+
+    show_start_screen();
+    spawn_enemines();
+
+    uCanvas_Add_Task(animate_enemy_spaceships,NULL,0);
+    uCanvas_Add_Task(bullets_animation,&player_bulletes_instance,0);
+    uCanvas_Add_Task(controller_task,NULL,0);
+    
+    
+    create_hud();
     create_lives_indicator();
     live_indicatior_set(4);
 }
@@ -475,10 +478,7 @@ void uCanvas_App_Main(void) {
     while (1)
     {
 
-        //Control Circle through IMU.
-        
-
-        collision_detection();
+        //Control Circle through IMU
         tilt_dir_t a = uCanvas_Get_IMU_2D_Tilt();
         switch (a)
         {
