@@ -6,7 +6,7 @@
 #define CANVAS_WIDTH        320
 #define MAX_STARS           100 
 #define STARS_SCROLLING_RATE 35  
-#define MAX_ENEMIES         8
+#define MAX_ENEMIES         15
 #define COLLISION_THRESHOLD 20  // adjust based on object size
 
 #define ENC_A   39 
@@ -43,6 +43,7 @@ float distance_travelled = 0;
 
 spaceship_t enemy_spaceships [MAX_ENEMIES];
 uCanvas_universal_obj_t* stars[MAX_STARS];
+uCanvas_universal_obj_t* stars_layer_2[MAX_STARS];
 spaceship_t player_spaceship;
 bullets_t player_bulletes_instance;
 rotary_encoder_t rotary_encoder_1;
@@ -107,65 +108,69 @@ void randomize_all_enemiens(void){
     }
 }
 void detect_spaceship_collision_with_enemyship(void){
-    bool collision_detected = false;
-    for (int i = 0; i < MAX_ENEMIES; i++)
+    while (1)
     {
-        int enemy_x = (enemy_spaceships[i].obj->point1.x + enemy_spaceships[i].obj->point2.x + enemy_spaceships[i].obj->point3.x + 3 * enemy_spaceships[i].obj->properties.position.x) / 3;
-        int enemy_y = (enemy_spaceships[i].obj->point1.y + enemy_spaceships[i].obj->point2.y + enemy_spaceships[i].obj->point3.y + 3 * enemy_spaceships[i].obj->properties.position.y) / 3;
+        bool collision_detected = false;
+        for (int i = 0; i < MAX_ENEMIES; i++)
+        {
+            int enemy_x = (enemy_spaceships[i].obj->point1.x + enemy_spaceships[i].obj->point2.x + enemy_spaceships[i].obj->point3.x + 3 * enemy_spaceships[i].obj->properties.position.x) / 3;
+            int enemy_y = (enemy_spaceships[i].obj->point1.y + enemy_spaceships[i].obj->point2.y + enemy_spaceships[i].obj->point3.y + 3 * enemy_spaceships[i].obj->properties.position.y) / 3;
 
-        int player_x = (player_spaceship.obj->point1.x + player_spaceship.obj->point2.x + player_spaceship.obj->point3.x + 3 * player_spaceship.obj->properties.position.x) / 3;
-        int player_y = (player_spaceship.obj->point1.y + player_spaceship.obj->point2.y + player_spaceship.obj->point3.y + 3 * player_spaceship.obj->properties.position.y) / 3;
+            int player_x = (player_spaceship.obj->point1.x + player_spaceship.obj->point2.x + player_spaceship.obj->point3.x + 3 * player_spaceship.obj->properties.position.x) / 3;
+            int player_y = (player_spaceship.obj->point1.y + player_spaceship.obj->point2.y + player_spaceship.obj->point3.y + 3 * player_spaceship.obj->properties.position.y) / 3;
 
-        int dx = enemy_x - player_x;
-        int dy = enemy_y - player_y;
-        // 
-        if (abs(dx) < COLLISION_THRESHOLD && abs(dy) < COLLISION_THRESHOLD) {
-            // Collision!
-            collision_detected = true;
-            break;
-        }
-    } 
-    if(collision_detected){
-        if(cur_lives > 0){
-            cur_lives--;
-            live_indicatior_set(cur_lives);
-            // printf("live : %d\r\n",cur_lives);
-        }
-        else {
-            distance_travelled = 0.0;
-            last_score = current_score; 
-            current_score = 0;
-            cur_lives = 4;
-            live_indicatior_set(cur_lives);
-            title_tb_3->properties.visiblity = VISIBLE;
-            title_tb_3->font_properties.font_type = FONT_16G;
-            uCanvas_Set_Text(title_tb_3,"Game Over");
-            uCanvas_Delay(2500);
-            while (1)
-            {
-                randomize_all_enemiens();
-                uCanvas_Set_Text(title_tb_3,"Press ENC_SW for New game");
-                uCanvas_rotary_encoder_read(&rotary_encoder_1);
+            int dx = enemy_x - player_x;
+            int dy = enemy_y - player_y;
+            // 
+            if (abs(dx) < COLLISION_THRESHOLD && abs(dy) < COLLISION_THRESHOLD) {
+                // Collision!
+                collision_detected = true;
+                break;
+            }
+        } 
+        if(collision_detected){
+            if(cur_lives > 0){
+                cur_lives--;
+                live_indicatior_set(cur_lives);
+                // printf("live : %d\r\n",cur_lives);
+            }
+            else {
                 distance_travelled = 0.0;
-                if(!rotary_encoder_1.sw_state){
-                    title_tb_3->properties.visiblity = INVISIBLE;
-                    break;
+                last_score = current_score; 
+                current_score = 0;
+                cur_lives = 4;
+                live_indicatior_set(cur_lives);
+                title_tb_3->properties.visiblity = VISIBLE;
+                title_tb_3->font_properties.font_type = FONT_16G;
+                uCanvas_Set_Text(title_tb_3,"Game Over");
+                uCanvas_Delay(2500);
+                while (1)
+                {
+                    randomize_all_enemiens();
+                    uCanvas_Set_Text(title_tb_3,"Press ENC_SW for New game");
+                    uCanvas_rotary_encoder_read(&rotary_encoder_1);
+                    distance_travelled = 0.0;
+                    if(!rotary_encoder_1.sw_state){
+                        title_tb_3->properties.visiblity = INVISIBLE;
+                        break;
+                    }
+                    uCanvas_Delay(1);     
                 }
-                uCanvas_Delay(1);     
+                
             }
             
-        }
-        
-        for (int blink = 0; blink < 5; blink++) {
-            player_spaceship.obj->properties.visiblity = INVISIBLE;
-            uCanvas_Set_Color(player_spaceship.obj,255,0,0);
-            uCanvas_Delay(70);
-            player_spaceship.obj->properties.visiblity = VISIBLE;
-            uCanvas_Set_Color(player_spaceship.obj,0,0,255);
-            uCanvas_Delay(70);
-        }
-        randomize_all_enemiens();
-    }     
+            for (int blink = 0; blink < 5; blink++) {
+                player_spaceship.obj->properties.visiblity = INVISIBLE;
+                uCanvas_Set_Color(player_spaceship.obj,255,0,0);
+                uCanvas_Delay(70);
+                player_spaceship.obj->properties.visiblity = VISIBLE;
+                uCanvas_Set_Color(player_spaceship.obj,0,0,255);
+                uCanvas_Delay(70);
+            }
+            randomize_all_enemiens();
+        }  
+        uCanvas_Delay(1);  
+    } 
 }
 void stars_array_init(){
     for (int i = 0; i < MAX_STARS; i++)
@@ -177,11 +182,11 @@ void stars_array_init(){
     }   
 }
 
-void animate_stars(void){
+void animate_stars1(void){
     int blink = 0;
     while (1)
     {    
-        for (int i = 0; i < MAX_STARS; i++)
+        for (int i = 0; i < MAX_STARS/2; i++)
         {
             if(stars[i]->properties.position.y < CANVAS_HEIGHT){
                 stars[i]->properties.position.y += 1;
@@ -209,10 +214,39 @@ void animate_stars(void){
     }
 }
 
-void animate_enemy_spaceships(void){
+void animate_stars2(void){
+    int blink = 0;
     while (1)
     {    
-        for (int i = 0; i < MAX_ENEMIES; i++)
+        for (int i = 49; i < (MAX_STARS/2)+50; i++)
+        {
+            if(stars[i]->properties.position.y < CANVAS_HEIGHT){
+                stars[i]->properties.position.y += 1;
+                blink = get_random_number(0,10);
+                if(blink==5){
+                    stars[i]->properties.visiblity = INVISIBLE;
+                    uCanvas_Delay(1);
+                }
+                stars[i]->properties.visiblity = VISIBLE;
+                
+            }
+            else {
+                int px = get_random_number(0,CANVAS_WIDTH);
+                int py = get_random_number(-CANVAS_HEIGHT,0);
+                uCanvas_Set_Position(stars[i],px,py);
+                uCanvas_Set_Color(stars[i],255,255,get_random_number(0,255));
+                stars[i]->properties.visiblity = INVISIBLE;
+            }
+        }
+        uCanvas_Delay(STARS_SCROLLING_RATE/2);
+        
+    }
+}
+
+void animate_enemy_spaceships_1(void){
+    while (1)
+    {    
+        for (int i = 0; i < MAX_ENEMIES/2; i++)
         {
             if(enemy_spaceships[i].obj->properties.position.y < CANVAS_HEIGHT){
                 enemy_spaceships[i].obj->properties.position.y += 1;
@@ -225,8 +259,29 @@ void animate_enemy_spaceships(void){
                 enemy_spaceships[i].obj->properties.visiblity = INVISIBLE;
             }
         }
-        detect_spaceship_collision_with_enemyship();
         uCanvas_Delay(9);  
+    }
+}
+
+
+void animate_enemy_spaceships_2(void){
+    while (1)
+    {    
+        for (int i = (MAX_ENEMIES/2)-1; i < MAX_ENEMIES/2; i++)
+        {
+            if(enemy_spaceships[i].obj->properties.position.y < CANVAS_HEIGHT){
+                enemy_spaceships[i].obj->properties.position.y += 1;
+                enemy_spaceships[i].obj->properties.visiblity = VISIBLE;
+            }
+            else {
+                int px = get_random_number(0,CANVAS_WIDTH);
+                int py = get_random_number(-CANVAS_HEIGHT,0);
+                uCanvas_Set_Position(enemy_spaceships[i].obj,px,py);
+                enemy_spaceships[i].obj->properties.visiblity = INVISIBLE;
+            }
+        }
+        
+        uCanvas_Delay(20);  
     }
 }
 
@@ -459,14 +514,17 @@ void Run_Space_Explorer_Game() {
     stars_array_init();
     bullets_init(&player_bulletes_instance,5);
     create_spaceship(&player_spaceship);  
-    uCanvas_Add_Task(animate_stars,NULL,0);
+    uCanvas_Add_Task(animate_stars1,NULL,0);
+    uCanvas_Add_Task(animate_stars2,NULL,0);
 
     show_start_screen();
     spawn_enemines();
 
-    uCanvas_Add_Task(animate_enemy_spaceships,NULL,0);
+    uCanvas_Add_Task(animate_enemy_spaceships_1,NULL,0);
+    uCanvas_Add_Task(animate_enemy_spaceships_2,NULL,0);
     uCanvas_Add_Task(bullets_animation,&player_bulletes_instance,0);
     uCanvas_Add_Task(controller_task,NULL,0);
+    uCanvas_Add_Task(detect_spaceship_collision_with_enemyship,NULL,0);
     
     
     create_hud();
