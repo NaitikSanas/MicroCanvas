@@ -43,7 +43,6 @@ float distance_travelled = 0;
 
 spaceship_t enemy_spaceships [MAX_ENEMIES];
 uCanvas_universal_obj_t* stars[MAX_STARS];
-uCanvas_universal_obj_t* stars_layer_2[MAX_STARS];
 spaceship_t player_spaceship;
 bullets_t player_bulletes_instance;
 rotary_encoder_t rotary_encoder_1;
@@ -202,7 +201,7 @@ void animate_stars1(void){
                 int px = get_random_number(0,CANVAS_WIDTH);
                 int py = get_random_number(-CANVAS_HEIGHT,0);
                 uCanvas_Set_Position(stars[i],px,py);
-                uCanvas_Set_Color(stars[i],255,255,get_random_number(0,255));
+                uCanvas_Set_Color(stars[i],255,255,get_random_number(100,255));
                 stars[i]->properties.visiblity = INVISIBLE;
             }
         }
@@ -218,7 +217,7 @@ void animate_stars2(void){
     int blink = 0;
     while (1)
     {    
-        for (int i = 49; i < (MAX_STARS/2)+50; i++)
+        for (int i = (MAX_STARS/2)-1; i < MAX_STARS; i++)
         {
             if(stars[i]->properties.position.y < CANVAS_HEIGHT){
                 stars[i]->properties.position.y += 1;
@@ -234,7 +233,7 @@ void animate_stars2(void){
                 int px = get_random_number(0,CANVAS_WIDTH);
                 int py = get_random_number(-CANVAS_HEIGHT,0);
                 uCanvas_Set_Position(stars[i],px,py);
-                uCanvas_Set_Color(stars[i],255,255,get_random_number(0,255));
+                uCanvas_Set_Color(stars[i],255,255,get_random_number(100,255));
                 stars[i]->properties.visiblity = INVISIBLE;
             }
         }
