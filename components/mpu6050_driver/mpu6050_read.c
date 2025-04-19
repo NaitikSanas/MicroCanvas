@@ -204,6 +204,60 @@ tilt_dir_t detect_2d_tilt(float pitch_deg, float roll_deg) {
 }
 
 
+tilt_dir_t detect_2d_tilt_LR(float refrence_axis) {
+    static tilt_dir_t current_state = NO_TILT;
+
+    switch (current_state) {
+        case NO_TILT:
+            if (refrence_axis < -TILT_TRIGGER)
+                current_state = TILT_LEFT;
+            else if (refrence_axis > TILT_TRIGGER)
+                current_state = TILT_RIGHT;
+            break;
+
+        case TILT_LEFT:
+            if (refrence_axis > -TILT_RETURN_ZONE)
+                current_state = NO_TILT;
+            break;
+
+        case TILT_RIGHT:
+            if (refrence_axis < TILT_RETURN_ZONE)
+                current_state = NO_TILT;
+            break;
+
+        default :
+            break;
+    }
+    return current_state;
+}
+
+tilt_dir_t detect_2d_tilt_UD(float refrence_axis) {
+    static tilt_dir_t current_state = NO_TILT;
+
+    switch (current_state) {
+        case NO_TILT:
+            if (refrence_axis < -TILT_TRIGGER)
+                current_state = TILT_UP;
+            else if (refrence_axis > TILT_TRIGGER)
+                current_state = TILT_DOWN;
+            break;
+
+        case TILT_UP:
+            if (refrence_axis > -TILT_RETURN_ZONE)
+                current_state = NO_TILT;
+            break;
+
+        case TILT_DOWN:
+            if (refrence_axis < TILT_RETURN_ZONE)
+                current_state = NO_TILT;
+            break;
+        default :
+            break;
+    }
+
+    return current_state;
+}
+
 
 tilt_dir_t detect_8way_tilt(float pitch_deg, float roll_deg) {
     static tilt_dir_t current_state = NO_TILT;

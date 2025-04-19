@@ -222,5 +222,7 @@ typedef struct rotary_encoder_obj
     uint32_t pin_SW;
     encoder_state_t state;
     uint8_t sw_state;
+    uint8_t current_state;
+    uint8_t last_state;
 }rotary_encoder_t;
 #endif

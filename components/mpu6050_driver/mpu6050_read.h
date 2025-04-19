@@ -20,6 +20,10 @@ typedef enum {
     TILT_DOWN_RIGHT
 } tilt_dir_t;
 
+typedef enum{
+    USE_PITCH = 0,
+    USE_ROLL
+} reference_axis_t;
 
 void mpu6050_read(float_axes_t* data);
 void mpu6050_calibrate_error(void);
@@ -29,5 +33,6 @@ tilt_angle_t get_tilt_angles_from_accel();
 tilt_angle_t get_tilt_angles_complementary();
 tilt_dir_t detect_2d_tilt(float pitch_deg, float roll_deg);
 tilt_dir_t detect_8way_tilt(float pitch_deg, float roll_deg);
-
+tilt_dir_t detect_2d_tilt_UD(float refrence_axis);
+tilt_dir_t detect_2d_tilt_LR(float refrence_axis);
 #endif

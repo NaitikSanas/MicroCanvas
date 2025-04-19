@@ -23,4 +23,5 @@ void uCanvas_Initialize_IMU_Device(uint32_t sda, uint32_t scl);
 tilt_dir_t uCanvas_Get_IMU_2D_Tilt(void);
 tilt_angle_t uCanvas_IMU_Get_Tilt_Angles(void);
 void uCanvas_IMU_Set_Tilt_Detection_Parameters(float tilt_trigger, float tilt_return_zone);
+tilt_dir_t uCanvas_detect_2D_Tile_With_Reference_Axis(reference_axis_t reference_axis);
 
