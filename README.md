@@ -37,7 +37,10 @@ uCanvas_set_active_scene(scene2); //Sets Scene2 as Active.
     
 ```
 
-### Create Universal Object Instance As A Rectangle
+### Working with Universal Object Instance
+1. `New_uCanvas_2DRectangle` API Initializes universal object as a rectangle.
+2. Once Object initialized you can set Other properties like fill, visiblity, color, position etc throughout your application just like example shown below. 
+3. As you change various properties of universal object, The change is reflected on display instantly without any need to send command to renderer from your application code.  
 
 ```c
 uCanvas_universal_obj_t* box = New_uCanvas_2DRectangle(x_poistion,y_position,height,width);
