@@ -1,4 +1,4 @@
-## MicroCanvas 2D Graphics Library
+## MicroCanvas 2D Graphics Library For MicroController
 ![LOGO](images/ucanvas_logo2.png)
 
 
