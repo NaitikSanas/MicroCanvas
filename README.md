@@ -10,11 +10,11 @@
 
 
 here is example how microcanvas lets user create update universal objects on display, 
-`c
+```c
 uCanvas_universal_obj_t* box = New_uCanvas_2DRectangle(x_poistion,y_position,height,width);
 box->properties.fill = NOFILL;   //Don't fill the
 box->properties.position.x += 10; //move box by 10 units to right.
-`
+```
 
 ![Structure of the MicroCanvas ](images/illustration-1.png)
 
