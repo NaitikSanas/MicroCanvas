@@ -1,5 +1,5 @@
 ## MicroCanvas 2D Graphics Library
-![LOGO](images/ucanvas_logo.png)
+![LOGO](images/ucanvas_logo2.png)
 
 
 ### Overview
