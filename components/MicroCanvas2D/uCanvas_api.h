@@ -99,7 +99,7 @@
      * @param  width : actual width of sprite_buffer content
      * @param  height : actual width of height content
      */
-void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint16_t width, uint16_t height);
+    void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint16_t width, uint16_t height);
     
     /**
      * Properties Control API

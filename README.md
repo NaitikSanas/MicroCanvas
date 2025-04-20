@@ -1,4 +1,6 @@
-## uCanvas 2D Graphics API
+## MicroCanvas 2D Graphics Library
+![LOGO](images/ucanvas_logo.png)
+
 
 ### Overview
 Microcanvas is 2D Retained mode graphics engine that let's you build portable 2D Video Games and GUI Applications. 
