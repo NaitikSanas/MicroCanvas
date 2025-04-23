@@ -123,16 +123,24 @@ void uCanvas_Display_init(void){
 	ST7789_Set_Orientation(&dev,UCANVAS_DISPLAY_ORIENTATION);
 	lcdFillScreen(&dev,BLACK);
 	lcdDrawFinish(&dev);
-	for (int duty = 0; duty <= 8191/2; duty += 128) {
+	//Ramp up brightness of backlight to max smoothly on start up.
+	for (int duty = 0; duty <= 8191; duty += 128) {
 		ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty);
 		ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 		vTaskDelay(pdMS_TO_TICKS(15));
 	}
 }
 
-void uCanvas_Set_Display_Brightness(uint16_t val){
-	ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, val);
-	ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+void uCanvas_Set_Display_Brightness(uint16_t target_val) {
+    uint16_t current_val = ledc_get_duty(LEDC_MODE, LEDC_CHANNEL);
+    int step = (target_val > current_val) ? 1 : -1;
+
+    while (current_val != target_val) {
+        current_val += step;
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, current_val);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        ets_delay_us(50);
+    }
 }
 
 void uCanvas_Set_Display_Properties(uint16_t width, uint16_t height, uint8_t orientation){
