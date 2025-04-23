@@ -150,11 +150,36 @@ void uCanvas_manually_render_scene(void){
         }
     }
 }
+#include "uCanvas_Frame_buffer.h"
+extern TFT_t dev;
+Framebuffer_t uCanvas_FrameBuffer;
+
 
 void start_uCanvas_engine(void){
+    // uCanvas_Display_init();
+    // uCanvas_Display_clear_buffer();
     uCanvas_Display_init();
-    uCanvas_Display_clear_buffer();
-
+    // spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);   
+	// lcdInit(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, 0, 0);
+    uCanvas_Set_Display_Brightness(255);
+    
+    if(uCanvas_framebuffer_init(&uCanvas_FrameBuffer,240,320)){
+        uCanvas_framebuffer_clear(&uCanvas_FrameBuffer,0x00);
+        
+        uCanvas_framebuffer_draw_filled_rectangle(&uCanvas_FrameBuffer,20,20,50,20,convertToRGB565((color_t){255,0,0}));
+        uCanvas_framebuffer_draw_rectangle(&uCanvas_FrameBuffer,20,20,50,20,convertToRGB565((color_t){255,255,0}));
+        
+        uCanvas_framebuffer_draw_circle(&uCanvas_FrameBuffer,20,40,20,convertToRGB565((color_t){255,255,0}));
+        uCanvas_framebuffer_draw_filled_circle(&uCanvas_FrameBuffer,20,90,20,convertToRGB565((color_t){255,255,0}));
+        
+        uCanvas_framebuffer_draw_ellipse(&uCanvas_FrameBuffer,100,90,20,30,convertToRGB565((color_t){255,255,0}));
+        uCanvas_framebuffer_draw_filled_ellipse(&uCanvas_FrameBuffer,100,90,20,30,convertToRGB565((color_t){255,255,0}));
+    }
+        while (1)
+        {
+            int64_t s = esp_timer_get_time();
+            uCanvas_FrameBuf_Dispatch(&uCanvas_FrameBuffer);
+        }
     active_scene_mutex = xSemaphoreCreateBinary();
     UNLOCK_ACTIVE_SCENEB_BUF;
 

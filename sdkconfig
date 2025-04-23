@@ -168,7 +168,7 @@ CONFIG_BL_GPIO=3
 # CONFIG_INVERSION is not set
 CONFIG_SPI2_HOST=y
 # CONFIG_SPI3_HOST is not set
-CONFIG_FRAME_BUFFER=y
+# CONFIG_FRAME_BUFFER is not set
 # end of ST7789 Configuration
 
 #

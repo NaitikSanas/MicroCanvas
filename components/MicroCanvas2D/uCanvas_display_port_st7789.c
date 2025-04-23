@@ -121,8 +121,8 @@ void uCanvas_Display_init(void){
 	
 	lcdInit(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, 0, 0);
 	ST7789_Set_Orientation(&dev,UCANVAS_DISPLAY_ORIENTATION);
-	lcdFillScreen(&dev,BLACK);
-	lcdDrawFinish(&dev);
+	// lcdFillScreen(&dev,BLACK);
+	// lcdDrawFinish(&dev);
 	//Ramp up brightness of backlight to max smoothly on start up.
 	for (int duty = 0; duty <= 8191; duty += 128) {
 		ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty);
@@ -361,5 +361,30 @@ void st7789_draw_bitmap( uCanvas_universal_obj_t *obj) {
 }
 
 
+void uCanvas_FrameBuf_Dispatch(Framebuffer_t* fb)
+{
+	spi_master_write_command(&dev, 0x2A); // set column(x) address
+	spi_master_write_addr(&dev, dev._offsetx, dev._offsetx+dev._width-1);
+	spi_master_write_command(&dev, 0x2B); // set Page(y) address
+	spi_master_write_addr(&dev, dev._offsety, dev._offsety+dev._height-1);
+	spi_master_write_command(&dev, 0x2C); // Memory Write
+
+	//uint16_t size = dev->_width*dev->_height;
+	uint32_t size = fb->width*fb->height;
+	uint16_t *image = fb->buffer;
+	if(image == NULL){
+		printf("FB_NULL!!!!\r\n");
+		return;
+	}
+	while (size > 0) {
+		// 1024 bytes per time.
+		uint16_t bs = (size > 512) ? 512 : size;
+		spi_master_write_colors(&dev, image, bs);
+		size -= bs;
+		image += bs;
+		// printf("remaining %d\r\n", size);
+	}
+	return;
+}
 
 #endif

@@ -1,7 +1,7 @@
 #include "stdio.h"
 #include "uCanvasDataTypes.h"
 #include "st7789.h"
-
+#include "uCanvas_Frame_buffer.h"
 // #define USE_SSD1306
 #define USE_ST7789
 
@@ -39,6 +39,7 @@ void uCanvas_Draw_Text (char* text, int x, int y, color_t color,uCanvas_font_pro
 void uCanvas_Draw_Triangle              (Coordinate2D_t point1, Coordinate2D_t point2, Coordinate2D_t point3, color_t color, fill_t fill);
 void uCanvas_DrawPixel(int x, int y,color_t color);
 
+void uCanvas_FrameBuf_Dispatch(Framebuffer_t* fb);
 
 #ifdef USE_ST7789
     void IRAM_ATTR uCanvas_DrawPixel565                  (Coordinate2D_t pos,uint16_t color);
