@@ -132,6 +132,7 @@ void uCanvas_Display_init(void){
 }
 
 void uCanvas_Set_Display_Brightness(uint16_t target_val) {
+	target_val = (target_val * 8191) / 255; 
     uint16_t current_val = ledc_get_duty(LEDC_MODE, LEDC_CHANNEL);
     int step = (target_val > current_val) ? 1 : -1;
 
