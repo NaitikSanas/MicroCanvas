@@ -38,8 +38,13 @@ void uCanvas_Draw_Line                  (Coordinate2D_t point1, Coordinate2D_t p
 void uCanvas_Draw_Text (char* text, int x, int y, color_t color,uCanvas_font_properties_t font_properties);
 void uCanvas_Draw_Triangle              (Coordinate2D_t point1, Coordinate2D_t point2, Coordinate2D_t point3, color_t color, fill_t fill);
 void uCanvas_DrawPixel(int x, int y,color_t color);
-void IRAM_ATTR uCanvas_DrawPixel565                  (Coordinate2D_t pos,uint16_t color);
-void uCanvas_DrawPixel5652 (uint16_t x, uint16_t y,uint16_t color);
-void st7789_draw_sprite_batch(uCanvas_universal_obj_t *obj);
-uint16_t convertToRGB565(color_t color) ;
-void uCanvas_Set_Display_Properties(uint16_t width, uint16_t height, uint8_t orientation);
+
+
+#ifdef USE_ST7789
+    void IRAM_ATTR uCanvas_DrawPixel565                  (Coordinate2D_t pos,uint16_t color);
+    void uCanvas_DrawPixel5652 (uint16_t x, uint16_t y,uint16_t color);
+    void st7789_draw_sprite_batch(uCanvas_universal_obj_t *obj);
+    uint16_t convertToRGB565(color_t color) ;
+    void uCanvas_Set_Display_Properties(uint16_t width, uint16_t height, uint8_t orientation);
+    void uCanvas_Set_Display_Brightness(uint16_t val);
+#endif

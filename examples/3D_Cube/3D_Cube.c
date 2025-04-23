@@ -24,7 +24,7 @@ void Run_3D_Cube_Demo() {
     uCanvas_Scene_t* scene;
     start_uCanvas_engine();
     ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
-    uCanvas_Set_Display_Properties(320,240,1);
+    // uCanvas_Set_Display_Properties(320,240,1);
 
     scene = New_uCanvas_Scene();
     uCanvas_set_active_scene(scene);

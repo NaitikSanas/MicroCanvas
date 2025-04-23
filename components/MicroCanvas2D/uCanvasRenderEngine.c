@@ -130,13 +130,25 @@ void IRAM_ATTR uCanvas_bg_render_engine_task(void*arg){
 				//printf("time to draw %dms", xTaskGetTickCount()-start);  
 			}
         }
-        // Calculate elapsed time
         elapsed_time = esp_timer_get_time() - start_time;
-
-        
-		// vTaskDelayUntil()
-		
 	}
+}
+
+void uCanvas_manually_render_scene(void){
+    if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
+        if(LOCK_ACTIVE_SCENEB_BUF){ 
+            uCanvas_Display_clear_buffer();
+            for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
+            {
+                uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
+                if(obj->properties.visiblity == VISIBLE){
+                    push_element_to_display(obj);
+                }
+            }
+            uCanvas_Update_Display();
+            UNLOCK_ACTIVE_SCENEB_BUF;
+        }
+    }
 }
 
 void start_uCanvas_engine(void){

@@ -31,6 +31,7 @@ typedef struct bullets
 }bullets_t;
 
 uCanvas_universal_obj_t* popup;
+uCanvas_universal_obj_t* popup_score;
 uCanvas_universal_obj_t* lives[4];
 uCanvas_universal_obj_t* textbox1;
 uCanvas_universal_obj_t* textbox2;
@@ -237,7 +238,7 @@ void animate_stars2(void){
                 stars[i]->properties.visiblity = INVISIBLE;
             }
         }
-        uCanvas_Delay(STARS_SCROLLING_RATE/2);
+        uCanvas_Delay(STARS_SCROLLING_RATE*4);
         
     }
 }
@@ -351,9 +352,17 @@ void bullets_animation(bullets_t* bullets){
 
                             popup->properties.position.x = enemy_spaceships[j].obj->properties.position.x + 15;
                             popup->properties.position.y = enemy_spaceships[j].obj->properties.position.y + 5;
+
+                            popup_score->properties.position.x = enemy_spaceships[j].obj->properties.position.x + 25;
+                            popup_score->properties.position.y = enemy_spaceships[j].obj->properties.position.y + 20;
+
                             enemy_spaceships[j].obj->r1 = 2;
                             enemy_spaceships[j].obj->properties.type = CIRCLE;
+                            char b[4]={0};
+                            sprintf(b,"%d",current_score);
+                            uCanvas_Set_Text(popup_score,b);
                             popup->properties.visiblity = VISIBLE;
+                            popup_score->properties.visiblity = VISIBLE;
                             uCanvas_Set_Color(enemy_spaceships[j].obj,255,125,0);
                             for (int i = 0; i < SHIP_ENEMY_WIDTH/2; i++)
                             {
@@ -371,6 +380,7 @@ void bullets_animation(bullets_t* bullets){
     
                             // Hide bullet
                             popup->properties.visiblity = INVISIBLE;
+                            popup_score->properties.visiblity = INVISIBLE;
                             bullets->obj[i]->properties.visiblity = INVISIBLE;
                             bullets->active--;
                             break; // move to next bullet
@@ -435,15 +445,16 @@ void controller_task(void){
 
         }
 
-        if(uCanvas_Get_PushbuttonState(PB1)){
+        if(uCanvas_Get_PushbuttonState(PB1) || uCanvas_rotary_encoder_get_state(&rotary_encoder_1) == ENCODER_CW){
             if(player_spaceship.obj->properties.position.x < CANVAS_WIDTH) 
                     player_spaceship.obj->properties.position.x += 1;
         }
 
-        if(uCanvas_Get_PushbuttonState(PB2)){
+        if(uCanvas_Get_PushbuttonState(PB2) || uCanvas_rotary_encoder_get_state(&rotary_encoder_1) == ENCODER_CCW){
             if(player_spaceship.obj->properties.position.x > 0) 
                     player_spaceship.obj->properties.position.x -= 1;
         }
+
         uCanvas_Delay(5);
     }
 }
@@ -495,8 +506,11 @@ void create_hud(){
     uCanvas_Set_Color(textbox2,255,255,0);
     textbox2->font_properties.font_type = FONT_16G;
     popup = New_uCanvas_2DTextbox("+1",0,0);
+    popup_score = New_uCanvas_2DTextbox("+1",0,0);
     uCanvas_Set_Color(popup,255,255,255);
+    uCanvas_Set_Color(popup_score,0,255,0);
     popup->font_properties.font_type = FONT_16G;
+    popup_score->font_properties.font_type = FONT_16G;
 }
 
 void Run_Space_Explorer_Game() {
@@ -536,19 +550,20 @@ void IMU_Monitor(void) {
     
     while (1)
     {
-
         //Control Circle through IMU
         tilt_dir_t a = uCanvas_Get_IMU_2D_Tilt();
         switch (a)
         {
             case TILT_LEFT:  
-                if(player_spaceship.obj->properties.position.x < CANVAS_WIDTH) 
-                    player_spaceship.obj->properties.position.x += 1;
+                if(player_spaceship.obj->properties.position.x < CANVAS_WIDTH) {
+                    player_spaceship.obj->properties.position.x  += 1;
+                }
                 break;
 
             case TILT_RIGHT:
-                if(player_spaceship.obj->properties.position.x > 0) 
+                if(player_spaceship.obj->properties.position.x > 0){
                     player_spaceship.obj->properties.position.x -= 1;
+                }
                 break;
 
             case TILT_UP:

@@ -6,6 +6,7 @@
 #include "esp_spiffs.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "driver/ledc.h"
 TFT_t dev;
 FontxFile fx16G[2];
 FontxFile fx24G[2];
@@ -15,6 +16,12 @@ FontxFile fx16M[2];
 FontxFile fx24M[2];
 FontxFile fx10M[2];
 
+#define LEDC_TIMER              LEDC_TIMER_0
+#define LEDC_MODE               LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO          (CONFIG_BL_GPIO) // Choose the GPIO pin connected to your LED
+#define LEDC_CHANNEL            LEDC_CHANNEL_0
+#define LEDC_DUTY_RES           LEDC_TIMER_13_BIT // 13-bit resolution
+#define LEDC_FREQUENCY          (5000) // Frequency in Hz
 
 
 uint16_t IRAM_ATTR convertToRGB565(color_t color) {
@@ -86,9 +93,46 @@ void uCanvas_Display_init(void){
 	
 	// spi_clock_speed(40000000); // 40MHz
 	// spi_clock_speed(60 000 000); // 60MHz
-	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);   
+
+	ledc_timer_config_t ledc_timer = {
+        .speed_mode       = LEDC_MODE,
+        .timer_num        = LEDC_TIMER,
+        .duty_resolution  = LEDC_DUTY_RES,
+        .freq_hz          = LEDC_FREQUENCY,
+        .clk_cfg          = LEDC_AUTO_CLK
+    };
+    ledc_timer_config(&ledc_timer);
+
+    // Configure PWM channel
+    ledc_channel_config_t ledc_channel = {
+        .speed_mode     = LEDC_MODE,
+        .channel        = LEDC_CHANNEL,
+        .timer_sel      = LEDC_TIMER,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .gpio_num       = LEDC_OUTPUT_IO,
+        .duty           = 0, // Start with LED off
+        .hpoint         = 0
+    };
+    ledc_channel_config(&ledc_channel);
+	ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 0);
+	ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
+	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, -1);   
+	
 	lcdInit(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, 0, 0);
 	ST7789_Set_Orientation(&dev,UCANVAS_DISPLAY_ORIENTATION);
+	lcdFillScreen(&dev,BLACK);
+	lcdDrawFinish(&dev);
+	for (int duty = 0; duty <= 8191/2; duty += 128) {
+		ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty);
+		ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+		vTaskDelay(pdMS_TO_TICKS(15));
+	}
+}
+
+void uCanvas_Set_Display_Brightness(uint16_t val){
+	ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, val);
+	ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 }
 
 void uCanvas_Set_Display_Properties(uint16_t width, uint16_t height, uint8_t orientation){
@@ -242,18 +286,19 @@ void flip_sprite_buffer(uint16_t *sprite_buf, uint16_t width, uint16_t height, b
     }
 }
 
-static uint16_t sprite_buf[128*128];
+static uint16_t sprite_buf[130*130];
 void st7789_draw_sprite_batch( uCanvas_universal_obj_t *obj) { 
     int offset_x = obj->properties.position.x;
     int offset_y = obj->properties.position.y;
     uint16_t sprite_width =  obj->width ;
     uint16_t sprite_height = obj->height;
     if (obj->properties.visiblity == INVISIBLE) {	
+
         return;
     }
 	// printf("h,w = (%d,%d)\r\n",sprite_height,sprite_width);
 	if(sprite_height > 128 || sprite_width > 128){
-		//printf("[ERROR]SPRITE_BUF OUT OF BOUNDS!!\r\n");
+		printf("[ERROR]SPRITE_BUF OUT OF BOUNDS!!\r\n");
 		return;
 	}
 	memcpy(sprite_buf, obj->sprite_buffer,sizeof(uint16_t)*sprite_height*sprite_width);
@@ -273,6 +318,33 @@ void st7789_draw_sprite_batch( uCanvas_universal_obj_t *obj) {
         for (int col = start_col; col < end_col; col++) {
             int pos_x = col + offset_x;
             if ((src_row[col] & 0x01)) {  // Skip transparent or empty pixels
+                dest_row[pos_x] = rgba565_to_rgb565(src_row[col]);
+            }
+        }
+    }
+}
+
+void st7789_draw_bitmap( uCanvas_universal_obj_t *obj) { 
+    int offset_x = obj->properties.position.x;
+    int offset_y = obj->properties.position.y;
+    uint16_t sprite_width =  obj->width ;
+    uint16_t sprite_height = obj->height;
+    if (obj->properties.visiblity == INVISIBLE) {	
+        return;
+    }
+    for (int row = 0; row < sprite_height; row++) {
+        int pos_y = row + offset_y;
+        if (pos_y < 0 || pos_y >= dev._height) {
+            continue;
+        }
+        uint16_t *src_row = &obj->sprite_buffer[row * sprite_width];
+        uint16_t *dest_row = &dev._frame_buffer[pos_y * dev._width];
+        int start_col = (offset_x < 0) ? -offset_x : 0;  // First visible column
+        int end_col = (offset_x + sprite_width > dev._width) ? dev._width - offset_x : sprite_width;
+        // Iterate over visible columns
+        for (int col = start_col; col < end_col; col++) {
+            int pos_x = col + offset_x;
+            if ((src_row[col] & 0x01)) { 
                 dest_row[pos_x] = rgba565_to_rgb565(src_row[col]);
             }
         }

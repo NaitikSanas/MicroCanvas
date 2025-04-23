@@ -4,7 +4,7 @@
 uCanvas_Scene_t* active_scene;
 SemaphoreHandle_t active_scene_mutex;
 extern TaskHandle_t uCanvas_taskhandle;
-#define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,portMAX_DELAY)
+#define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,1)
 #define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
 
 void uCanvas_lock_scene(){
@@ -87,6 +87,17 @@ void uCanvas_Set_Monochrome_Color(uCanvas_universal_obj_t* obj, uint16_t color )
 void uCanvas_Set_Position(uCanvas_universal_obj_t* obj, uint16_t xpos,uint16_t ypos ){
     if(obj){
         obj->properties.position.x = xpos;
+        obj->properties.position.y = ypos;
+    }
+}
+
+void uCanvas_Set_Position_X(uCanvas_universal_obj_t* obj, uint16_t xpos){
+    if(obj){
+        obj->properties.position.x = xpos;
+    }
+}
+void uCanvas_Set_Position_Y(uCanvas_universal_obj_t* obj, uint16_t ypos){
+    if(obj){
         obj->properties.position.y = ypos;
     }
 }

@@ -16,7 +16,7 @@
     void start_uCanvas_engine(void);
     void pause_uCanvas_engine(void);
     void resume_uCanvas_engine(void);
-    
+    void uCanvas_manually_render_scene(void);
     /**
      * APIs to creating uCanvas related Tasks to work with Scene objects, 
      * creating Animations, handling User Input etc.
@@ -121,6 +121,8 @@
     
     /* Sets absolute position of Passed 2D Object */
     void uCanvas_Set_Position(uCanvas_universal_obj_t* obj, uint16_t xpos,uint16_t ypos);
+    void uCanvas_Set_Position_X(uCanvas_universal_obj_t* obj, uint16_t xpos);
+    void uCanvas_Set_Position_Y(uCanvas_universal_obj_t* obj, uint16_t ypos);
     
     /* Sets cordinates of 2D Line Object */
     void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line,uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);

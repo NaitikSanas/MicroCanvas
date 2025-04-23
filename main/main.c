@@ -12,7 +12,8 @@
 #include "3D_Cube.h"
 #include "uCanvas_IO_Usage_Demo.h"
 #include "space_explorer_game.h"
-#define RUN_APP_C 0
+    
+// #define RUN_APP_C 1
 
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
@@ -26,8 +27,8 @@
 // #define RUN_3D_CUBE_DEMO 1
 // #define RUN_IO_USAGE_DEMO 1
 #define RUN_SPACE_EXPLORER_DEMO 1
-
 void app_main(){
+
     #if RUN_APP_C
     uCanvas_Setup();
     while (1)
