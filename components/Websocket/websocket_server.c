@@ -8,7 +8,7 @@ void start_http_server_instance(){
     config.stack_size = 10000;
     config.task_priority = 2;
     // Start the HTTP server
-    ESP_LOGI(TAG, "Starting server on port: %d", config.server_port);
+    //ESP_LOGI(TAG, "Starting server on port: %d", config.server_port);
     if (httpd_start(&server, &config) == ESP_OK){
         return 1;
     }
@@ -19,7 +19,7 @@ static esp_err_t handle_ws_req(httpd_req_t *req)
 {
     if (req->method == HTTP_GET)
     {
-        ESP_LOGI(TAG, "Handshake done, the new connection was opened");
+        //ESP_LOGI(TAG, "Handshake done, the new connection was opened");
         return ESP_OK;
     }
     httpd_ws_frame_t ws_pkt;
@@ -52,7 +52,7 @@ static esp_err_t handle_ws_req(httpd_req_t *req)
     }
     if (ws_pkt.type == HTTPD_WS_TYPE_TEXT)
     {
-        ESP_LOGI(TAG, "Got packet with message: %s", ws_pkt.payload);
+        //ESP_LOGI(TAG, "Got packet with message: %s", ws_pkt.payload);
         if(buf != NULL) free(buf);
         return ESP_OK;
     }
@@ -81,13 +81,13 @@ void websocket_send_task(void) {
 		if (ret != ESP_OK) {
 			continue;
 		}
-        ESP_LOGI("(AC):","%d ACTIVE CLIENTS",fds);
+        //ESP_LOGI("(AC):","%d ACTIVE CLIENTS",fds);
         memset(resp_arg.data,0,6500);
 		// Send data to each active WebSocket client
 		for (int i = 0; i < fds; i++) {         
 			int client_info = httpd_ws_get_fd_info(http_server_handle, client_fds[i]);
 			if (client_info == HTTPD_WS_CLIENT_WEBSOCKET) {
-				ESP_LOGI("WS","SENDING TO FD %d", client_fds[i]);
+				//ESP_LOGI("WS","SENDING TO FD %d", client_fds[i]);
 				resp_arg.hd = http_server_handle;
 				resp_arg.fd = client_fds[i];
 				strcpy((char*)resp_arg.data,"meow\0");
@@ -96,7 +96,7 @@ void websocket_send_task(void) {
 				}
 			}
             else {
-                ESP_LOGI("WS","NON WS CLIENT %d\r\n", client_fds[i]);
+                //ESP_LOGI("WS","NON WS CLIENT %d\r\n", client_fds[i]);
             }
 		}
         printf("\r\n");

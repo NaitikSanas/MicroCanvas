@@ -45,7 +45,7 @@ static const int SPI_Data_Mode = 1;
 int clock_speed_hz = SPI_DEFAULT_FREQUENCY;
 
 void spi_clock_speed(int speed) {
-    ESP_LOGI(TAG, "SPI clock speed=%d MHz", speed/1000000);
+    //ESP_LOGI(TAG, "SPI clock speed=%d MHz", speed/1000000);
     clock_speed_hz = speed;
 }
 
@@ -53,7 +53,7 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 {
 	esp_err_t ret;
 
-	ESP_LOGI(TAG, "GPIO_CS=%d",GPIO_CS);
+	//ESP_LOGI(TAG, "GPIO_CS=%d",GPIO_CS);
 	if ( GPIO_CS >= 0 ) {
 		//gpio_pad_select_gpio( GPIO_CS );
 		gpio_reset_pin( GPIO_CS );
@@ -61,13 +61,13 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 		gpio_set_level( GPIO_CS, 0 );
 	}
 
-	ESP_LOGI(TAG, "GPIO_DC=%d",GPIO_DC);
+	//ESP_LOGI(TAG, "GPIO_DC=%d",GPIO_DC);
 	//gpio_pad_select_gpio( GPIO_DC );
 	gpio_reset_pin( GPIO_DC );
 	gpio_set_direction( GPIO_DC, GPIO_MODE_OUTPUT );
 	gpio_set_level( GPIO_DC, 0 );
 
-	ESP_LOGI(TAG, "GPIO_RESET=%d",GPIO_RESET);
+	//ESP_LOGI(TAG, "GPIO_RESET=%d",GPIO_RESET);
 	if ( GPIO_RESET >= 0 ) {
 		//gpio_pad_select_gpio( GPIO_RESET );
 		gpio_reset_pin( GPIO_RESET );
@@ -80,7 +80,7 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 		delayMS(100);
 	}
 
-	ESP_LOGI(TAG, "GPIO_BL=%d",GPIO_BL);
+	//ESP_LOGI(TAG, "GPIO_BL=%d",GPIO_BL);
 	if ( GPIO_BL >= 0 ) {
 		//gpio_pad_select_gpio(GPIO_BL);
 		gpio_reset_pin(GPIO_BL);
@@ -89,8 +89,8 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 	}
 
 
-	ESP_LOGI(TAG, "GPIO_MOSI=%d",GPIO_MOSI);
-	ESP_LOGI(TAG, "GPIO_SCLK=%d",GPIO_SCLK);
+	//ESP_LOGI(TAG, "GPIO_MOSI=%d",GPIO_MOSI);
+	//ESP_LOGI(TAG, "GPIO_SCLK=%d",GPIO_SCLK);
 	spi_bus_config_t buscfg = {
 		.mosi_io_num = GPIO_MOSI,
 		.miso_io_num = -1,
@@ -308,7 +308,7 @@ void lcdInit(TFT_t * dev, int width, int height, int offsetx, int offsety)
 	if (dev->_frame_buffer == NULL) {
 		ESP_LOGE(TAG, "heap_caps_malloc fail");
 	} else {
-		ESP_LOGI(TAG, "heap_caps_malloc success");
+		//ESP_LOGI(TAG, "heap_caps_malloc success");
 		dev->_use_frame_buffer = true;
 	}
 

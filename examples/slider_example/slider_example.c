@@ -103,7 +103,7 @@ void uCanvas_slider_demo_Main(void) {
                             cursor->properties.position.y--;
                         }
                         else cursor->properties.position.y++;
-                        ets_delay_us(5000);
+                        esp_rom_delay_us(5000);
                     }
                     p_slider.is_active = false;
                     v_slider.is_active = true;
@@ -115,7 +115,7 @@ void uCanvas_slider_demo_Main(void) {
                     while (cursor->properties.position.y != 140 + p_slider.slider_thickness/2)
                     {
                         cursor->properties.position.y++;
-                        ets_delay_us(5000);
+                        esp_rom_delay_us(5000);
                     }
                     // printf("s1 selected\r\n");
                     p_slider.is_active = true;

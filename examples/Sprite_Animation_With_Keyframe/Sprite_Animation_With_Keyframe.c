@@ -46,7 +46,7 @@ void wrapped_platform_render(int dir){
 void platform(){
     while(1){
         wrapped_platform_render(-1);
-        ets_delay_us(2400);
+        esp_rom_delay_us(2400);
         // uCanvas_Delay(1);
     }
 }
@@ -101,7 +101,7 @@ void task(){
 
     uCanvas_attach_type1_controller_script(character_run_animation_keyframes.main_sprite,&controller);
 
-    printf("Current free heap size: %d bytes\n", esp_get_free_heap_size());
+    printf("Current free heap size: %ld bytes\n", esp_get_free_heap_size());
     while(1){
         if(animate)
             uCanvas_Play_Sprite_Animation(&character_run_animation_keyframes, character_run_animation_sprite_set);

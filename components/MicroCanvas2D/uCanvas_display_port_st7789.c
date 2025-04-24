@@ -37,7 +37,7 @@ static void SPIFFS_Directory(char * path) {
 	while (true) {
 		struct dirent*pe = readdir(dir);
 		if (!pe) break;
-		ESP_LOGI(__FUNCTION__,"d_name=%s d_ino=%d d_type=%x", pe->d_name,pe->d_ino, pe->d_type);
+		//ESP_LOGI(__FUNCTION__,"d_name=%s d_ino=%d d_type=%x", pe->d_name,pe->d_ino, pe->d_type);
 	}
 	closedir(dir);
 }
@@ -77,7 +77,7 @@ void uCanvas_Display_init(void){
 	if (ret != ESP_OK) {
 		ESP_LOGE(TAG,"Failed to get SPIFFS partition information (%s)",esp_err_to_name(ret));
 	} else {
-		ESP_LOGI(TAG,"Partition size: total: %d, used: %d", total, used);
+		//ESP_LOGI(TAG,"Partition size: total: %d, used: %d", total, used);
 	}
 
 	SPIFFS_Directory("/spiffs/");
@@ -140,7 +140,7 @@ void uCanvas_Set_Display_Brightness(uint16_t target_val) {
         current_val += step;
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, current_val);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        ets_delay_us(50);
+        esp_rom_delay_us(50);
     }
 }
 

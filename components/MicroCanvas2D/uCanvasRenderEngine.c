@@ -38,7 +38,6 @@ void ssd1306_sprite_draw(uCanvas_universal_obj_t* obj){
 }
 int64_t time_to_draw_element = 1;
 void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj){
-    int64_t start_time = esp_timer_get_time();
     switch (obj->properties.type)
     {
     case RECTANGLE:{
@@ -96,41 +95,27 @@ void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj){
     default:
       break;
     }
-    time_to_draw_element = esp_timer_get_time() - start_time;
 }
 int64_t elapsed_time = 1;
 int64_t time_to_draw_frame_buf = 1;
 int64_t on_screen_draw_time = 1;
 void IRAM_ATTR uCanvas_bg_render_engine_task(void*arg){
-
     while(1){ 
-        int64_t start_time = esp_timer_get_time();
 		vTaskDelay(pdMS_TO_TICKS(9));
-        // uCanvas_Delay(1);
 		if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
 			if(LOCK_ACTIVE_SCENEB_BUF){ 
 				uCanvas_Display_clear_buffer();
-                int64_t start_time2 = esp_timer_get_time();
 				for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
 				{
 					uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
 					if(obj->properties.visiblity == VISIBLE){
 						push_element_to_display(obj);
 					}
-					else {
-						// printf("hidden object\r\n");
-					}   
-				}
-                
-                time_to_draw_frame_buf = esp_timer_get_time() - start_time2;
-                int64_t start_time3 = esp_timer_get_time();
+				}    
 				uCanvas_Update_Display();
-                on_screen_draw_time = esp_timer_get_time() - start_time3;
                 UNLOCK_ACTIVE_SCENEB_BUF;
-				//printf("time to draw %dms", xTaskGetTickCount()-start);  
 			}
         }
-        elapsed_time = esp_timer_get_time() - start_time;
 	}
 }
 

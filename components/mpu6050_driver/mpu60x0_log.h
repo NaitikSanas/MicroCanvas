@@ -22,7 +22,7 @@
 
 #define MPU_LOGE(format, ...) ESP_LOGE(TAG, format, ##__VA_ARGS__);
 #define MPU_LOGW(format, ...) ESP_LOGW(TAG, format, ##__VA_ARGS__); 
-#define MPU_LOGI(format, ...) ESP_LOGI(TAG, format, ##__VA_ARGS__); 
+#define MPU_LOGI(format, ...) //ESP_LOGI(TAG, format, ##__VA_ARGS__); 
 #define MPU_LOGD(format, ...) ESP_LOGD(TAG, format, ##__VA_ARGS__); 
 
 #define MPU_LOGEMSG(msg, format, ...) MPU_LOGE("%s()-> %s" format, __FUNCTION__, msg, ##__VA_ARGS__)

@@ -1,6 +1,6 @@
 #include "mpu6050_read.h"
 #include "esp_log.h"
-#include "esp_timer.h"
+// #include "esp_timer.h"
 mpu_handle_t mpu;
 float TILT_TRIGGER     = 20; // deg to trigger gesture
 float TILT_RETURN_ZONE = 10;  // deg to reset gesture 
@@ -55,10 +55,10 @@ int mpu_6050_init(uint32_t sda, uint32_t scl)
     init : err = mpu_initialize_peripheral(&mpu);
     printf("Returned with %x", (int)err);
     if(err != ESP_OK)goto init;
-    ESP_LOGI("TAG", "MPU connection successful!");
+    //ESP_LOGI("TAG", "MPU connection successful!");
 
     err = mpu_initialize_chip(&mpu);
-    ESP_LOGI("TAG", "i2c_slave_init");
+    //ESP_LOGI("TAG", "i2c_slave_init");
     mpu_calibrate(100);
     return 0;
 }
@@ -97,49 +97,49 @@ tilt_angle_t get_tilt_angles_from_accel()
     return angle;
 }
 
-tilt_angle_t get_tilt_angles_complementary()
-{
-    static float angle_pitch = 0.0f;
-    static float angle_roll = 0.0f;
-    static int64_t last_time_us = 0;
+// tilt_angle_t get_tilt_angles_complementary()
+// {
+//     static float angle_pitch = 0.0f;
+//     static float angle_roll = 0.0f;
+//     static int64_t last_time_us = 0;
 
-    raw_axes_t accel_raw, gyro_raw;
-    float_axes_t accel_g, gyro_dps;
-    tilt_angle_t angle;
+//     raw_axes_t accel_raw, gyro_raw;
+//     float_axes_t accel_g, gyro_dps;
+//     tilt_angle_t angle;
 
-    // Time delta
-    int64_t now_us = esp_timer_get_time();  // microseconds
-    float dt = (last_time_us == 0) ? 0.01f : (now_us - last_time_us) / 1000000.0f;
-    last_time_us = now_us;
+//     // Time delta
+//     int64_t now_us = esp_timer_get_time();  // microseconds
+//     float dt = (last_time_us == 0) ? 0.01f : (now_us - last_time_us) / 1000000.0f;
+//     last_time_us = now_us;
 
-    // Read sensor
-    mpu_motion(&mpu, &accel_raw, &gyro_raw);
+//     // Read sensor
+//     mpu_motion(&mpu, &accel_raw, &gyro_raw);
 
-    // Convert
-    accel_g = mpu_math_accel_gravity(&accel_raw, ACCEL_FS_4G);
-    gyro_dps = mpu_math_gyro_deg_per_sec(&gyro_raw, GYRO_FS_500DPS);
+//     // Convert
+//     accel_g = mpu_math_accel_gravity(&accel_raw, ACCEL_FS_4G);
+//     gyro_dps = mpu_math_gyro_deg_per_sec(&gyro_raw, GYRO_FS_500DPS);
 
-    accel_raw.x -= offset.ax;
-    accel_raw.y -= offset.ay;
-    accel_raw.z -= offset.az;
-    gyro_raw.x  -= offset.gx;
-    gyro_raw.y  -= offset.gy;
-    gyro_raw.z  -= offset.gz;
+//     accel_raw.x -= offset.ax;
+//     accel_raw.y -= offset.ay;
+//     accel_raw.z -= offset.az;
+//     gyro_raw.x  -= offset.gx;
+//     gyro_raw.y  -= offset.gy;
+//     gyro_raw.z  -= offset.gz;
 
-    // Calculate accel-based angles
-    float pitch_acc = atan2f(accel_g.x, sqrtf(accel_g.y * accel_g.y + accel_g.z * accel_g.z)) * rad_to_deg;
-    float roll_acc  = atan2f(accel_g.y, sqrtf(accel_g.x * accel_g.x + accel_g.z * accel_g.z)) * rad_to_deg;
+//     // Calculate accel-based angles
+//     float pitch_acc = atan2f(accel_g.x, sqrtf(accel_g.y * accel_g.y + accel_g.z * accel_g.z)) * rad_to_deg;
+//     float roll_acc  = atan2f(accel_g.y, sqrtf(accel_g.x * accel_g.x + accel_g.z * accel_g.z)) * rad_to_deg;
 
-    // Integrate gyro rate to angle
-    angle_pitch = alpha * (angle_pitch + gyro_dps.y * dt) + (1.0f - alpha) * pitch_acc;
-    angle_roll  = alpha * (angle_roll  + gyro_dps.x * dt) + (1.0f - alpha) * roll_acc;
+//     // Integrate gyro rate to angle
+//     angle_pitch = alpha * (angle_pitch + gyro_dps.y * dt) + (1.0f - alpha) * pitch_acc;
+//     angle_roll  = alpha * (angle_roll  + gyro_dps.x * dt) + (1.0f - alpha) * roll_acc;
 
-    // Store result
-    angle.pitch = angle_pitch;
-    angle.roll = angle_roll;
+//     // Store result
+//     angle.pitch = angle_pitch;
+//     angle.roll = angle_roll;
 
-    return angle;
-}
+//     return angle;
+// }
 
 void mpu6050_read(float_axes_t* data){
     raw_axes_t gyro_raw;   

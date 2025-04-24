@@ -182,7 +182,7 @@ void stars_array_init(){
     }   
 }
 
-void animate_stars1(void){
+void animate_stars1(void* arg){
     int blink = 0;
     while (1)
     {    
@@ -214,7 +214,7 @@ void animate_stars1(void){
     }
 }
 
-void animate_stars2(void){
+void animate_stars2(void* arg){
     int blink = 0;
     while (1)
     {    
@@ -243,7 +243,7 @@ void animate_stars2(void){
     }
 }
 
-void animate_enemy_spaceships_1(void){
+void animate_enemy_spaceships_1(void* arg){
     while (1)
     {    
         for (int i = 0; i < MAX_ENEMIES/2; i++)
@@ -264,7 +264,7 @@ void animate_enemy_spaceships_1(void){
 }
 
 
-void animate_enemy_spaceships_2(void){
+void animate_enemy_spaceships_2(void* arg){
     while (1)
     {    
         for (int i = (MAX_ENEMIES/2)-1; i < MAX_ENEMIES/2; i++)
@@ -535,9 +535,9 @@ void Run_Space_Explorer_Game() {
 
     uCanvas_Add_Task(animate_enemy_spaceships_1,NULL,0);
     uCanvas_Add_Task(animate_enemy_spaceships_2,NULL,0);
-    uCanvas_Add_Task(bullets_animation,&player_bulletes_instance,0);
-    uCanvas_Add_Task(controller_task,NULL,0);
-    uCanvas_Add_Task(detect_spaceship_collision_with_enemyship,NULL,0);
+    uCanvas_Add_Task((void (*))bullets_animation,&player_bulletes_instance,0);
+    uCanvas_Add_Task((void (*))controller_task,NULL,0);
+    uCanvas_Add_Task((void (*))detect_spaceship_collision_with_enemyship,NULL,0);
     
     
     create_hud();

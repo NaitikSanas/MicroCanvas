@@ -82,7 +82,7 @@ void expand_clock(){
     while (status_bar.timestamp->properties.position.y != 100)
     {
         status_bar.timestamp->properties.position.y++;
-        ets_delay_us(1000);
+        esp_rom_delay_us(1000);
     }
     title->properties.visiblity = VISIBLE;
     color_wipe(title,title->properties.color,(color_t){.red = 255,0,0},1000,50);
@@ -101,7 +101,7 @@ void minimize_clock(){
     while (status_bar.timestamp->properties.position.y != 25)
     {
         status_bar.timestamp->properties.position.y--;
-        ets_delay_us(1000);
+        esp_rom_delay_us(1000);
     }
 
     color_wipe(status_bar.timestamp,status_bar.timestamp->properties.color,(color_t){.red = 200, 0, 0},600,100);  
