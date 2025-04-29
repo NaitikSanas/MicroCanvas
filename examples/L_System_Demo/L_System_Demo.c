@@ -40,7 +40,7 @@ void uCanvas_ColorWipe(uCanvas_universal_obj_t* obj, color_t from_color, color_t
         current_color.green = from_color.green + (green_diff * step) / steps;
         current_color.blue = from_color.blue + (blue_diff * step) / steps;
         uCanvas_Set_Color(obj, current_color.red, current_color.green, current_color.blue);
-        ets_delay_us(delay_us);
+        esp_rom_delay_us(delay_us);
     }
     uCanvas_Set_Color(obj, to_color.red, to_color.green, to_color.blue);
 }
@@ -124,12 +124,12 @@ void render_lsystem(const char *lsystem, float startX, float startY) {
                     y = newY;
                     sprintf(text_buf, "total obj: %d", total_objects);
                     uCanvas_Set_Text(textbox2, text_buf);
-                    sprintf(text_buf, "free mem: %d", esp_get_free_heap_size());
+                    // sprintf(text_buf, "free mem: %d", esp_get_free_heap_size());
                     uCanvas_Set_Text(textbox1, text_buf);
                     total_objects++;
                 }
                 else {
-                    sprintf(text_buf, "free mem: %d [OOM]", esp_get_free_heap_size());
+                    // sprintf(text_buf, "free mem: %ld [OOM]", esp_get_free_heap_size());
                     uCanvas_Set_Text(textbox1, text_buf);
                 }
             }

@@ -85,7 +85,7 @@ void pan_through_wall_map(
             }
         }
         // Add delay between steps
-        ets_delay_us(delay_us);
+        esp_rom_delay_us(delay_us);
     }
 }
 void uCanvas_Setup(void) {

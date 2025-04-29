@@ -37,7 +37,7 @@ static void SPIFFS_Directory(char * path) {
 	while (true) {
 		struct dirent*pe = readdir(dir);
 		if (!pe) break;
-		ESP_LOGI(__FUNCTION__,"d_name=%s d_ino=%d d_type=%x", pe->d_name,pe->d_ino, pe->d_type);
+		//ESP_LOGI(__FUNCTION__,"d_name=%s d_ino=%d d_type=%x", pe->d_name,pe->d_ino, pe->d_type);
 	}
 	closedir(dir);
 }
@@ -67,7 +67,7 @@ void uCanvas_Display_init(void){
 		} else if (ret == ESP_ERR_NOT_FOUND) {
 			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
 		} else {
-			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)",esp_err_to_name(ret));
+				ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)",esp_err_to_name(ret));
 		}
 		return;
 	}
@@ -90,7 +90,7 @@ void uCanvas_Display_init(void){
 	InitFontx(fx16M,"/spiffs/ILMH16XB.FNT",""); // 8x16Dot Mincyo
 	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
 	InitFontx(fx10M,"/spiffs/FONT10X20.FNT",""); // 16x32Dot Mincyo
-	
+	printf("FONT INIT DONE\r\n");
 	// spi_clock_speed(40000000); // 40MHz
 	// spi_clock_speed(60 000 000); // 60MHz
 
@@ -140,7 +140,7 @@ void uCanvas_Set_Display_Brightness(uint16_t target_val) {
         current_val += step;
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, current_val);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        ets_delay_us(50);
+        esp_rom_delay_us(50);
     }
 }
 
@@ -251,7 +251,7 @@ void uCanvas_Draw_Triangle(Coordinate2D_t point1, Coordinate2D_t point2, Coordin
 }
 
 
-static inline uint16_t rgba565_to_rgb565(uint16_t rgba565) {
+ inline uint16_t rgba565_to_rgb565(uint16_t rgba565) {
     // Mask to extract RGB components
     uint16_t r = (rgba565 & 0xF800); // Red (5 bits)
     uint16_t g = (rgba565 & 0x07E0); // Green (6 bits)
@@ -368,17 +368,17 @@ void uCanvas_FrameBuf_Dispatch(Framebuffer_t* fb)
 	spi_master_write_command(&dev, 0x2B); // set Page(y) address
 	spi_master_write_addr(&dev, dev._offsety, dev._offsety+dev._height-1);
 	spi_master_write_command(&dev, 0x2C); // Memory Write
-
+	// printf("--window set done \r\n");
 	//uint16_t size = dev->_width*dev->_height;
 	uint32_t size = fb->width*fb->height;
 	uint16_t *image = fb->buffer;
 	if(image == NULL){
-		printf("FB_NULL!!!!\r\n");
+		printf("null buf\r\n");
 		return;
 	}
 	while (size > 0) {
 		// 1024 bytes per time.
-		uint16_t bs = (size > 512) ? 512 : size;
+		uint16_t bs = (size > 1024) ? 1024 : size;
 		spi_master_write_colors(&dev, image, bs);
 		size -= bs;
 		image += bs;

@@ -257,7 +257,7 @@ void onContentClicked_Menu_2(void){
             {
                 menu_1.content[i]->properties.position.x--;
             }
-            ets_delay_us(1000);
+            esp_rom_delay_us(1000);
             
             // uCanvas_Delay(1);
         }  

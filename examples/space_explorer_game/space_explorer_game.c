@@ -516,8 +516,8 @@ void create_hud(){
 void Run_Space_Explorer_Game() {
     start_uCanvas_engine();   
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
-    uCanvas_Initialize_IMU_Device(42,41);
-    uCanvas_IMU_Set_Tilt_Detection_Parameters(7,2);
+    // uCanvas_Initialize_IMU_Device(42,41);
+    // uCanvas_IMU_Set_Tilt_Detection_Parameters(7,2);
     uCanvas_Init_PushButton(PB1);
     uCanvas_Init_PushButton(PB2);
     
@@ -527,23 +527,23 @@ void Run_Space_Explorer_Game() {
     stars_array_init();
     bullets_init(&player_bulletes_instance,5);
     create_spaceship(&player_spaceship);  
-    uCanvas_Add_Task(animate_stars1,NULL,0);
-    uCanvas_Add_Task(animate_stars2,NULL,0);
+    uCanvas_Add_Task((uCanvas_Animation_task_t)animate_stars1,NULL,0);
+    uCanvas_Add_Task((uCanvas_Animation_task_t)animate_stars2,NULL,0);
 
     show_start_screen();
     spawn_enemines();
 
-    uCanvas_Add_Task(animate_enemy_spaceships_1,NULL,0);
-    uCanvas_Add_Task(animate_enemy_spaceships_2,NULL,0);
-    uCanvas_Add_Task(bullets_animation,&player_bulletes_instance,0);
-    uCanvas_Add_Task(controller_task,NULL,0);
-    uCanvas_Add_Task(detect_spaceship_collision_with_enemyship,NULL,0);
+    uCanvas_Add_Task((uCanvas_Animation_task_t)animate_enemy_spaceships_1,NULL,0);
+    uCanvas_Add_Task((uCanvas_Animation_task_t)animate_enemy_spaceships_2,NULL,0);
+    uCanvas_Add_Task((uCanvas_Animation_task_t)bullets_animation,&player_bulletes_instance,0);
+    uCanvas_Add_Task((uCanvas_Animation_task_t)controller_task,NULL,0);
+    uCanvas_Add_Task((uCanvas_Animation_task_t)detect_spaceship_collision_with_enemyship,NULL,0);
     
     
     create_hud();
     create_lives_indicator();
     live_indicatior_set(4);
-    IMU_Monitor();
+    // IMU_Monitor();
 }
 
 void IMU_Monitor(void) {

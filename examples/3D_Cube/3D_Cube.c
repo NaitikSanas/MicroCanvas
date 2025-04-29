@@ -23,12 +23,12 @@ void Run_3D_Cube_Demo() {
     printf("3D-Cube Demo\r\n");
     uCanvas_Scene_t* scene;
     start_uCanvas_engine();
-    ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
+    //ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
     // uCanvas_Set_Display_Properties(320,240,1);
 
     scene = New_uCanvas_Scene();
     uCanvas_set_active_scene(scene);
-    ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
+    //ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
 
     //Background 
     uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,320,240);

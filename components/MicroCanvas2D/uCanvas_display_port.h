@@ -38,7 +38,7 @@ void uCanvas_Draw_Line                  (Coordinate2D_t point1, Coordinate2D_t p
 void uCanvas_Draw_Text (char* text, int x, int y, color_t color,uCanvas_font_properties_t font_properties);
 void uCanvas_Draw_Triangle              (Coordinate2D_t point1, Coordinate2D_t point2, Coordinate2D_t point3, color_t color, fill_t fill);
 void uCanvas_DrawPixel(int x, int y,color_t color);
-
+void uCanvas_framebuffer_draw_bitmap(Framebuffer_t *fb, uCanvas_universal_obj_t *obj);
 void uCanvas_FrameBuf_Dispatch(Framebuffer_t* fb);
 
 #ifdef USE_ST7789

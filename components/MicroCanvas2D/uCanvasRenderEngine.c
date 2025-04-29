@@ -6,6 +6,15 @@ extern SemaphoreHandle_t active_scene_mutex;
 #define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
 TaskHandle_t uCanvas_taskhandle;
 extern uCanvas_Scene_t* active_scene;
+#include "uCanvas_Frame_buffer.h"
+static Framebuffer_t uCanvas_FrameBuffer;
+extern FontxFile fx16G[2];
+extern FontxFile fx24G[2];
+extern FontxFile fx32G[2];
+extern FontxFile fx32L[2];
+extern FontxFile fx16M[2];
+extern FontxFile fx24M[2];
+extern FontxFile fx10M[2];
 
 void ssd1306_sprite_draw(uCanvas_universal_obj_t* obj){
     uint16_t offset_x       = obj->properties.position.x;
@@ -38,27 +47,74 @@ void ssd1306_sprite_draw(uCanvas_universal_obj_t* obj){
 }
 int64_t time_to_draw_element = 1;
 void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj){
-    int64_t start_time = esp_timer_get_time();
+    uint16_t color = convertToRGB565(obj->properties.color);
+    uint16_t x = obj->properties.position.x;
+    uint16_t y = obj->properties.position.y;
     switch (obj->properties.type)
     {
     case RECTANGLE:{
-        uCanvas_Draw_Rectangle(obj->properties.position.x, obj->properties.position.y,
-		    obj->height,obj->width,obj->properties.color,obj->properties.fill);
+        if(obj->properties.fill==FILL){
+            uCanvas_framebuffer_draw_filled_rectangle(&uCanvas_FrameBuffer,x,y,obj->width,obj->height,color);
+        }
+        else {
+            uCanvas_framebuffer_draw_rectangle(&uCanvas_FrameBuffer,x,y,obj->width,obj->height,color);
+        }
         break;
     }
 
     case TEXTBOX : {
-        uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color,obj->font_properties);
+        FontxFile* activefont = NULL;
+        switch (obj->font_properties.font_type)
+        {
+        case FONT_16G:	
+            activefont = fx16G;
+            break;
+        case FONT_24G:	
+            activefont = fx24G;
+            break;
+        case FONT_32G:
+            activefont = fx32G;
+            break;
+        case FONT_32L:
+            activefont = fx32L;
+            break;
+        case FONT_16M:
+            activefont = fx16M;
+            break;
+        case FONT_24M :
+            activefont = fx24M;
+            break;
+        case FONT_10M : 
+            activefont = fx10M;
+            break;
+        default:
+            activefont = fx10M;
+            break;
+        }
+        if(activefont){
+            uCanvas_Framebuffer_Draw_Text(&uCanvas_FrameBuffer,x,y,obj->text,activefont,color,color,uCanvas_Font_Dir_0,0);
+        }
       break;
     }
 
     case CIRCLE : {
-        uCanvas_Draw_Circle(obj->properties.position.x,obj->properties.position.y, obj->r1,obj->properties.color, obj->properties.fill);
+        if(obj->properties.fill==FILL){
+            uCanvas_framebuffer_draw_filled_circle(&uCanvas_FrameBuffer,x,y,obj->r1,color);
+        }
+        else {
+            uCanvas_framebuffer_draw_circle(&uCanvas_FrameBuffer,x,y,obj->r1,color);
+        }
         break;
     }
 
     case LINE : {
-      uCanvas_Draw_Line(obj->point1,obj->point2,obj->properties.color);
+        uCanvas_framebuffer_draw_line(&uCanvas_FrameBuffer,
+            obj->point1.x,
+            obj->point1.y,
+            obj->point2.x,
+            obj->point2.y,
+            color
+        );
       break;
     }
 
@@ -71,73 +127,66 @@ void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj){
         p3.x = obj->point3.x + obj->properties.position.x;
         p3.y = obj->point3.y + obj->properties.position.y;
 
-        uCanvas_Draw_Triangle(p1,
-                              p2,
-                              p3,
-                                obj->properties.color,
-                                obj->properties.fill);
+        if(obj->properties.fill==FILL)uCanvas_framebuffer_draw_filled_triangle(&uCanvas_FrameBuffer,p1.x,p1.y,p2.x,p2.y,p3.x,p3.y,color);
+        else uCanvas_framebuffer_draw_triangle(&uCanvas_FrameBuffer,p1.x,p1.y,p2.x,p2.y,p3.x,p3.y,color);
       break;
     }
 
     case SPRITE2D: {
-        #ifdef USE_SSD1306
-            ssd1306_sprite_draw(obj);
-        #endif
-
-        #ifdef USE_ST7789
-            st7789_draw_sprite_batch(obj);
-        #endif
+        uCanvas_framebuffer_draw_bitmap(&uCanvas_FrameBuffer,obj);
         break;
     }
 
     case ELLIPSE : {
-        uCanvas_Draw_Ellipse(obj->properties.position.x, obj->properties.position.y, obj->r1, obj->r2,obj->properties.color,obj->properties.fill);
+        if(obj->properties.fill==FILL)uCanvas_framebuffer_draw_filled_ellipse(&uCanvas_FrameBuffer,x,y,obj->r1,obj->r2,color);
+        else uCanvas_framebuffer_draw_ellipse(&uCanvas_FrameBuffer,x,y,obj->r1,obj->r2,color);
     }
     default:
       break;
     }
-    time_to_draw_element = esp_timer_get_time() - start_time;
 }
 int64_t elapsed_time = 1;
 int64_t time_to_draw_frame_buf = 1;
 int64_t on_screen_draw_time = 1;
+extern FontxFile fx16M[2];
 void IRAM_ATTR uCanvas_bg_render_engine_task(void*arg){
+    if(uCanvas_framebuffer_init(&uCanvas_FrameBuffer,240,320)){
+        uCanvas_framebuffer_clear(&uCanvas_FrameBuffer,0x00);  
+        while(1){ 
+            
+            vTaskDelay(pdMS_TO_TICKS(9));
+            // uCanvas_Delay(1);
+            
+            if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
+                if(LOCK_ACTIVE_SCENEB_BUF){ 
+                    uCanvas_framebuffer_clear(&uCanvas_FrameBuffer,0x00);
+                    // uCanvas_framebuffer_Draw_Char(&uCanvas_FrameBuffer,30,30,'S',fx16M,0xFFFF,RED,uCanvas_Font_Dir_0,1);
+                    // uCanvas_Framebuffer_Draw_Text(&uCanvas_FrameBuffer,30,30,"Hello world",fx16M,0xFFFF,RED,uCanvas_Font_Dir_0,1);
+                    for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
+                    {
+                        uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
+                        if(obj->properties.visiblity == VISIBLE){
+                            push_element_to_display(obj);
+                        }
+                        else {
+                            // printf("hidden object\r\n");
+                        }   
+                    }
 
-    while(1){ 
-        int64_t start_time = esp_timer_get_time();
-		vTaskDelay(pdMS_TO_TICKS(9));
-        // uCanvas_Delay(1);
-		if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
-			if(LOCK_ACTIVE_SCENEB_BUF){ 
-				uCanvas_Display_clear_buffer();
-                int64_t start_time2 = esp_timer_get_time();
-				for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
-				{
-					uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
-					if(obj->properties.visiblity == VISIBLE){
-						push_element_to_display(obj);
-					}
-					else {
-						// printf("hidden object\r\n");
-					}   
-				}
-                
-                time_to_draw_frame_buf = esp_timer_get_time() - start_time2;
-                int64_t start_time3 = esp_timer_get_time();
-				uCanvas_Update_Display();
-                on_screen_draw_time = esp_timer_get_time() - start_time3;
-                UNLOCK_ACTIVE_SCENEB_BUF;
-				//printf("time to draw %dms", xTaskGetTickCount()-start);  
-			}
+                    uCanvas_FrameBuf_Dispatch(&uCanvas_FrameBuffer);
+                    UNLOCK_ACTIVE_SCENEB_BUF;
+                    //printf("time to draw %dms", xTaskGetTickCount()-start);  
+                }
+            }
         }
-        elapsed_time = esp_timer_get_time() - start_time;
-	}
+    }
 }
 
 void uCanvas_manually_render_scene(void){
     if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
         if(LOCK_ACTIVE_SCENEB_BUF){ 
             uCanvas_Display_clear_buffer();
+            
             for (int i = 0; i < active_scene->_2D_Object_Ptr; i++)
             {
                 uCanvas_universal_obj_t* obj = active_scene->_2D_Objects[i];
@@ -145,14 +194,14 @@ void uCanvas_manually_render_scene(void){
                     push_element_to_display(obj);
                 }
             }
-            uCanvas_Update_Display();
+           
             UNLOCK_ACTIVE_SCENEB_BUF;
         }
     }
 }
-#include "uCanvas_Frame_buffer.h"
+
 extern TFT_t dev;
-Framebuffer_t uCanvas_FrameBuffer;
+
 
 
 void start_uCanvas_engine(void){
@@ -163,23 +212,17 @@ void start_uCanvas_engine(void){
 	// lcdInit(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, 0, 0);
     uCanvas_Set_Display_Brightness(255);
     
-    if(uCanvas_framebuffer_init(&uCanvas_FrameBuffer,240,320)){
-        uCanvas_framebuffer_clear(&uCanvas_FrameBuffer,0x00);
+    
+        // uCanvas_FrameBuf_Dispatch(&uCanvas_FrameBuffer);
+        // uCanvas_framebuffer_draw_filled_rectangle(&uCanvas_FrameBuffer,20,20,50,20,convertToRGB565((color_t){255,0,0}));
+        // uCanvas_framebuffer_draw_rectangle(&uCanvas_FrameBuffer,20,20,50,20,convertToRGB565((color_t){255,255,0}));
         
-        uCanvas_framebuffer_draw_filled_rectangle(&uCanvas_FrameBuffer,20,20,50,20,convertToRGB565((color_t){255,0,0}));
-        uCanvas_framebuffer_draw_rectangle(&uCanvas_FrameBuffer,20,20,50,20,convertToRGB565((color_t){255,255,0}));
+        // uCanvas_framebuffer_draw_circle(&uCanvas_FrameBuffer,20,40,20,convertToRGB565((color_t){255,255,0}));
+        // uCanvas_framebuffer_draw_filled_circle(&uCanvas_FrameBuffer,20,90,20,convertToRGB565((color_t){255,255,0}));
         
-        uCanvas_framebuffer_draw_circle(&uCanvas_FrameBuffer,20,40,20,convertToRGB565((color_t){255,255,0}));
-        uCanvas_framebuffer_draw_filled_circle(&uCanvas_FrameBuffer,20,90,20,convertToRGB565((color_t){255,255,0}));
-        
-        uCanvas_framebuffer_draw_ellipse(&uCanvas_FrameBuffer,100,90,20,30,convertToRGB565((color_t){255,255,0}));
-        uCanvas_framebuffer_draw_filled_ellipse(&uCanvas_FrameBuffer,100,90,20,30,convertToRGB565((color_t){255,255,0}));
-    }
-        while (1)
-        {
-            int64_t s = esp_timer_get_time();
-            uCanvas_FrameBuf_Dispatch(&uCanvas_FrameBuffer);
-        }
+        // uCanvas_framebuffer_draw_ellipse(&uCanvas_FrameBuffer,100,90,20,30,convertToRGB565((color_t){255,255,0}));
+        // uCanvas_framebuffer_draw_filled_ellipse(&uCanvas_FrameBuffer,100,90,20,30,convertToRGB565((color_t){255,255,0}));
+    
     active_scene_mutex = xSemaphoreCreateBinary();
     UNLOCK_ACTIVE_SCENEB_BUF;
 

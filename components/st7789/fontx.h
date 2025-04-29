@@ -1,7 +1,7 @@
 #ifndef MAIN_FONTX_H_
 #define MAIN_FONTX_H_
 #define FontxGlyphBufSize (32*32/8)
-
+#include "stdio.h"
 typedef struct {
 	const char *path;
 	char  fxname[10];

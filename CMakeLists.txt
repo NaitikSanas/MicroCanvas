@@ -5,4 +5,4 @@ cmake_minimum_required(VERSION 3.5)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(MicroCanvas2D)
 
-# spiffs_create_partition_image(storage components/st7789/font FLASH_IN_PROJECT)
+spiffs_create_partition_image(storage components/st7789/font FLASH_IN_PROJECT)

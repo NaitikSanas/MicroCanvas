@@ -447,7 +447,7 @@ void uCanvas_Play_Sprite_Animation(uCanvas_Sprite_KeyFrames_t* obj, sprite2D_t* 
         {
             //Pre-Delay
             if(obj->KeyFrame_Parameters.keyframe_time[i]){
-                ets_delay_us(obj->KeyFrame_Parameters.keyframe_time[i]);
+                esp_rom_delay_us(obj->KeyFrame_Parameters.keyframe_time[i]);
             }
             //Draw New Frame
             uCanvas_Change_Sprite_Source(obj->main_sprite,&sprite_set[i]);
@@ -456,7 +456,7 @@ void uCanvas_Play_Sprite_Animation(uCanvas_Sprite_KeyFrames_t* obj, sprite2D_t* 
             obj->main_sprite->properties.flip_x  = obj->KeyFrame_Parameters.sprite_flip_x[i];
             
             //Delay by defined Frame time to transition to next frame
-            ets_delay_us(obj->KeyFrame_Parameters.frame_time);
+            esp_rom_delay_us(obj->KeyFrame_Parameters.frame_time);
             // printf("frame update done\r\n\r\n");
         }    
     } 

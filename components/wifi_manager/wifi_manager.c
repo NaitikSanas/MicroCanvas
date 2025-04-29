@@ -13,12 +13,12 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base,
                         int32_t event_id, void *event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        ESP_LOGI(TAG, "Wi-Fi initialized, ready to connect.");
+        //ESP_LOGI(TAG, "Wi-Fi initialized, ready to connect.");
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         ESP_LOGW(TAG, "Disconnected from Wi-Fi.");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-        ESP_LOGI(TAG, "Got IP Address: " IPSTR, IP2STR(&event->ip_info.ip));
+        //ESP_LOGI(TAG, "Got IP Address: " IPSTR, IP2STR(&event->ip_info.ip));
     }
 }
 
@@ -51,7 +51,7 @@ void wifi_init(void)
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
                                                         &wifi_event_handler, NULL, NULL));
 
-    ESP_LOGI(TAG, "Wi-Fi stack initialized.");
+    //ESP_LOGI(TAG, "Wi-Fi stack initialized.");
 }
 
 // Function to connect to a Wi-Fi network
@@ -67,7 +67,7 @@ void wifi_connect(const char *ssid, const char *password)
 
     // Start Wi-Fi and connect
     ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_LOGI(TAG, "Attempting to connect to SSID: %s", ssid);
+    //ESP_LOGI(TAG, "Attempting to connect to SSID: %s", ssid);
 
     ESP_ERROR_CHECK(esp_wifi_connect());
 }

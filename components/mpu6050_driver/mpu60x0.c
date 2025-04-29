@@ -44,7 +44,7 @@ static bool mpu_get_aux_i2c_enabled(mpu_handle_t * mpu);
  */
 void mpu_print_something(void)
 {
-    ESP_LOGI(TAG, "Log from mpu6050");
+    //ESP_LOGI(TAG, "Log from mpu6050");
 }
 
 // #### ##    ## #### ########

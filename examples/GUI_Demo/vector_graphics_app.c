@@ -163,7 +163,7 @@ void toggle_graphics_app_test(){
         while (panel_1->properties.position.y != 30)
         {
             panel_1->properties.position.y -= 1;
-            ets_delay_us(800);
+            esp_rom_delay_us(800);
         }
         set_slider_visiblity(&v_slider,VISIBLE);
         set_slider_visiblity(&p_slider,VISIBLE);
@@ -181,7 +181,7 @@ void toggle_graphics_app_test(){
         while (panel_1->properties.position.y != 300)
         {
             panel_1->properties.position.y += 1;
-            ets_delay_us(800);
+            esp_rom_delay_us(800);
         }
         v_slider.is_active = false;
         

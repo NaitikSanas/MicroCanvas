@@ -11,7 +11,7 @@ void color_wipe(uCanvas_universal_obj_t* obj, color_t from_color, color_t to_col
         current_color.green = from_color.green + (green_diff * step) / steps;
         current_color.blue = from_color.blue + (blue_diff * step) / steps;
         uCanvas_Set_Color(obj, current_color.red, current_color.green, current_color.blue);
-        ets_delay_us(delay_us);
+        esp_rom_delay_us(delay_us);
     }
     uCanvas_Set_Color(obj, to_color.red, to_color.green, to_color.blue);
 }

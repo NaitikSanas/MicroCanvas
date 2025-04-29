@@ -216,7 +216,7 @@ void start_game_of_life_demo(){
     uCanvas_Set_Color(prompt,255,255,0);
     prompt->properties.visiblity = INVISIBLE;
     prompt->font_properties.font_type = FONT_24G;
-    printf("Current free heap size: %d bytes\n", esp_get_free_heap_size());
+    // printf("Current free heap size: %ld bytes\n", esp_get_free_heap_size());
     // demo_laws_of_life();
     prompt->font_properties.font_type = FONT_24G;
     while (1) {
