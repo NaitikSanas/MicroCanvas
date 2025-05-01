@@ -27,7 +27,7 @@
 #endif
 
 #if CONFIG_SPI2_HOST
-#define HOST_ID SPI2_HOST
+#define HOST_ID SPI3_HOST
 #elif CONFIG_SPI3_HOST
 #define HOST_ID SPI3_HOST
 #endif
@@ -108,7 +108,8 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 	spi_device_interface_config_t devcfg;
 	memset(&devcfg, 0, sizeof(devcfg));
 	//devcfg.clock_speed_hz = SPI_Frequency;
-	devcfg.clock_speed_hz = SPI_MASTER_FREQ_80M;
+	devcfg.clock_source = SPI_CLK_SRC_SPLL;
+	devcfg.clock_speed_hz = (80 * 1000 * 1000 / 1);
 	devcfg.queue_size = 7;
 	//devcfg.mode = 2;
 	devcfg.mode = 3;
@@ -122,6 +123,9 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 	
 	spi_device_handle_t handle;
 	ret = spi_bus_add_device( HOST_ID, &devcfg, &handle);
+	int clk;
+	spi_device_get_actual_freq(handle,&clk);
+	printf("actual freq - %d\r\n",clk);
 	ESP_LOGD(TAG, "spi_bus_add_device=%d",ret);
 	assert(ret==ESP_OK);
 	dev->_dc = GPIO_DC;

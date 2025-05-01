@@ -70,7 +70,7 @@ void mpu6050_calibrate_error(void){
 float rad_to_deg = 180.0f / 3.14159265f;
 float alpha = 0.50f;  // complementary filter coefficient
 
-
+extern float_axes_t mpu_math_accel_gravity(const raw_axes_t* raw_axes,const accel_fs_t fs);
 tilt_angle_t get_tilt_angles_from_accel()
 {
     raw_axes_t accel_raw;

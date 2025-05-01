@@ -101,6 +101,7 @@ int64_t time_to_draw_frame_buf = 1;
 int64_t on_screen_draw_time = 1;
 void IRAM_ATTR uCanvas_bg_render_engine_task(void*arg){
     while(1){ 
+        uint32_t tick = xTaskGetTickCount();
 		vTaskDelay(pdMS_TO_TICKS(9));
 		if((active_scene != NULL) && (active_scene->_2D_Object_Ptr > 0)){
 			if(LOCK_ACTIVE_SCENEB_BUF){ 
@@ -111,8 +112,9 @@ void IRAM_ATTR uCanvas_bg_render_engine_task(void*arg){
 					if(obj->properties.visiblity == VISIBLE){
 						push_element_to_display(obj);
 					}
-				}    
+				}            
 				uCanvas_Update_Display();
+                // printf("ttd %ld\r\n", xTaskGetTickCount()- tick);
                 UNLOCK_ACTIVE_SCENEB_BUF;
 			}
         }

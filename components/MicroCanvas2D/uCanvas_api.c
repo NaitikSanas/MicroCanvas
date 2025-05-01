@@ -50,7 +50,7 @@ void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
         sprintf(obj->text,"%s",text);
     }
     else{
-        printf("err:uCanvas_Set_Text\r\n");
+        // printf("err:uCanvas_Set_Text\r\n");
     }
 }
 

@@ -27,6 +27,6 @@ void uCanvas_App_Main(void) {
 
         uCanvas_Set_Position(c,posx,c->properties.position.y);
         // uCanvas_manually_render_scene();
-        uCanvas_Delay(6);
+        uCanvas_Delay(2);
     }
 }

@@ -8,9 +8,10 @@ menu "ST7789 Configuration"
 		default 18 if IDF_TARGET_ESP32C2
 		default 19 if IDF_TARGET_ESP32C3
 		default 30 if IDF_TARGET_ESP32C6
+		default 55 if IDF_TARGET_ESP32P4 
 
 	config WIDTH
-		int "SCREEN WIDTH"
+		int "SCREEN WIDTH" 
 		range 0 999
 		default 240
 		help
