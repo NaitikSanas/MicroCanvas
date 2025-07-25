@@ -97,7 +97,7 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 		.sclk_io_num = GPIO_SCLK,
 		.quadwp_io_num = -1,
 		.quadhd_io_num = -1,
-		.max_transfer_sz = 0,
+		.max_transfer_sz = 8192,
 		.flags = 0
 	};
 

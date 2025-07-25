@@ -41,7 +41,7 @@ typedef struct {
 	bool _use_frame_buffer;
 	uint16_t *_frame_buffer;
 } TFT_t;
-#include "uCanvas_api.h"
+
 
 void spi_clock_speed(int speed);
 void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t GPIO_CS, int16_t GPIO_DC, int16_t GPIO_RESET, int16_t GPIO_BL);

@@ -2,11 +2,11 @@
 #include "uCanvas_api.h"
 #include "uCanvas_User_IO.h"
 
-#define CANVAS_HEIGHT       240
-#define CANVAS_WIDTH        320
+#define CANVAS_HEIGHT       600
+#define CANVAS_WIDTH        1024
 #define MAX_STARS           100 
 #define STARS_SCROLLING_RATE 35  
-#define MAX_ENEMIES         15
+#define MAX_ENEMIES         40
 #define COLLISION_THRESHOLD 20  // adjust based on object size
 
 #define ENC_A   39 
@@ -418,7 +418,7 @@ void spawn_enemines(){
         int py = get_random_number(-CANVAS_HEIGHT,0);
         sprite2D_t enemy_spaceship_sprite_obj;
         uCanvas_Compose_2DSprite_Obj(&enemy_spaceship_sprite_obj,ship_enemy,SHIP_ENEMY_WIDTH,SHIP_ENEMY_HEIGHT);
-        // uCanvas_Sprite_Adjust_Contrast(&enemy_spaceship_sprite_obj,300);
+        // uCanvas_Sprite_Adjust_Contrast(&enemy_spaceship_sprite_obj,200);
         
 
         enemy_spaceships[i].obj = New_uCanvas_2DSprite(&enemy_spaceship_sprite_obj,0,0);
@@ -494,7 +494,7 @@ void show_start_screen(){
     }
 }
 void create_hud(){
-    uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,22,320);
+    uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,22,CANVAS_WIDTH);
     uCanvas_Set_Color(bg,0,0,100);
     bg->properties.fill = FILL;
 
@@ -513,9 +513,21 @@ void create_hud(){
     popup_score->font_properties.font_type = FONT_16G;
 }
 
+#include "uCanvas2D_EK79007Port.h"
+#include "uCanvas2D_ST7789_Port.h"
+#include "uCanvas2D_Display_Setup.h"
+#include "uCanvasRenderEngine.h"
+
 void Run_Space_Explorer_Game() {
-    start_uCanvas_engine();   
+
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
+    uCanvas_Scene_t* scene2 = New_uCanvas_Scene();
+
+    uCanvas2D_Instance_t* uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
+    uCanvas2D_Instance_t* uCanvas_Instance_2 = New_uCanvas_Instance(scene2, uCanvas2D_Get_Panel_Driver_ST7789(),NULL);
+
+    uCanvas_Change_Active_Instance(uCanvas_Instance_1);
+    
     // uCanvas_Initialize_IMU_Device(42,41);
     // uCanvas_IMU_Set_Tilt_Detection_Parameters(7,2);
     uCanvas_Init_PushButton(PB1);

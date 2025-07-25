@@ -44,7 +44,7 @@
     uCanvas_Scene_t* New_uCanvas_Scene(void);
     /* Sets Passed 2D instance as Active Scene to Render */
     void uCanvas_set_active_scene(uCanvas_Scene_t* scene);
-    
+    void uCanvas_Change_Active_Instance(uCanvas2D_Instance_t* instance);
     /**
      * API for creating 2D Shapes and Objects
     */

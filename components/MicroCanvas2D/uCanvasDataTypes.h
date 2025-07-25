@@ -6,6 +6,7 @@
     #include "freertos/FreeRTOS.h"
     #include "freertos/task.h"
     #include "freertos/semphr.h"
+    #include "uCanvas2D_Display_Setup.h"
     #define UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE       (256)
 
     typedef TaskFunction_t uCanvas_Animation_task_t;
@@ -225,4 +226,16 @@ typedef struct rotary_encoder_obj
     uint8_t current_state;
     uint8_t last_state;
 }rotary_encoder_t;
+
+
+
+typedef struct uCanvas2D_Instance
+{
+    uCanvas_Scene_t* active_scene;
+    uCanvas2D_Display_Panel_t* panel_1;
+    uCanvas2D_Display_Panel_t* panel_2;
+    
+    uCanvas2D_RenderBuffer_t* render_buffer;
+}uCanvas2D_Instance_t;
+
 #endif

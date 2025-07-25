@@ -1,18 +1,25 @@
 #include "L_System_Demo.h"
+#include "uCanvas2D_EK79007Port.h"
+#include "uCanvas2D_ST7789_Port.h"
+#include "uCanvas2D_Display_Setup.h"
+#include "uCanvasRenderEngine.h"
 
 #define MAX_ITERATIONS 8
-#define MAX_STRING_LENGTH 15000
+#define MAX_STRING_LENGTH 200
 #define ANGLE 30 // Angle in degrees
 #define LENGTH 5 // Initial line length
-#define SCREEN_WIDTH 240
-#define SCREEN_HEIGHT 320
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 600
 uCanvas_Scene_t* scene;
 int endpoint_count = 0;
-
+TurtleState branch_endpoints[1000];
 void L_System_Demo_Main() {
-    start_uCanvas_engine();
+    // start_uCanvas_engine();
     scene = New_uCanvas_Scene();
-    uCanvas_set_active_scene(scene);
+     uCanvas2D_Instance_t* uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
+    // uCanvas_set_active_scene(scene);
+    uCanvas_Change_Active_Instance(uCanvas_Instance_1);
+    
     
     static char lsystem[MAX_STRING_LENGTH] = {0};
     LSystemRule rules[] = {

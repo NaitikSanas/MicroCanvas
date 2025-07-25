@@ -6,7 +6,7 @@ SemaphoreHandle_t active_scene_mutex;
 extern TaskHandle_t uCanvas_taskhandle;
 #define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,1)
 #define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
-
+uCanvas2D_Instance_t* _uCanvas_Instance = NULL;
 void uCanvas_lock_scene(){
     LOCK_ACTIVE_SCENEB_BUF;
 }
@@ -31,16 +31,33 @@ void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
     }
 }
 
+void uCanvas_Change_Active_Instance(uCanvas2D_Instance_t* instance){
+    if(instance != NULL){
+        _uCanvas_Instance = instance;
+        printf("[uCanvas]: Active Instance Changed\r\n");
+    } else {
+        printf("Invalid uCanvas2D_Instance_t\r\n");
+    }
+}
+
 void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
     // 
-    if(active_scene != NULL){
-        // if(LOCK_ACTIVE_SCENEB_BUF){
-            obj->index = active_scene->_2D_Object_Ptr;
-            active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
-            active_scene->_2D_Object_Ptr++;
+    // if(active_scene != NULL){
+    //     // if(LOCK_ACTIVE_SCENEB_BUF){
+    //         obj->index = active_scene->_2D_Object_Ptr;
+    //         active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
+    //         active_scene->_2D_Object_Ptr++;
             
+    //         UNLOCK_ACTIVE_SCENEB_BUF;
+    //     // }
+    // }
+    if(_uCanvas_Instance != NULL && _uCanvas_Instance->active_scene != NULL){
+            obj->index = _uCanvas_Instance->active_scene->_2D_Object_Ptr;
+            _uCanvas_Instance->active_scene->_2D_Objects[_uCanvas_Instance->active_scene->_2D_Object_Ptr] = obj;
+            _uCanvas_Instance->active_scene->_2D_Object_Ptr++;
             UNLOCK_ACTIVE_SCENEB_BUF;
-        // }
+    } else {
+        printf("Invalid uCanvas2D_Instance_t or active scene\r\n");
     }
 }
 
@@ -143,6 +160,15 @@ void uCanvas_set_active_scene(uCanvas_Scene_t* scene){
     // }
 }
 
+void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
+    if(line){
+        line->point1.x = x1;
+        line->point1.y = y1;
+        line->point2.x = x2;
+        line->point2.y = y2;
+    }
+}
+
 uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, uint16_t h, uint16_t w){
     uCanvas_universal_obj_t* rect = uCanvas_Universal_Object;
     if(rect == NULL){
@@ -160,14 +186,6 @@ uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, u
     return rect;
 }
 
-void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
-    if(line){
-        line->point1.x = x1;
-        line->point1.y = y1;
-        line->point2.x = x2;
-        line->point2.y = y2;
-    }
-}
 
 uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
     uCanvas_universal_obj_t* line = uCanvas_Universal_Object;
