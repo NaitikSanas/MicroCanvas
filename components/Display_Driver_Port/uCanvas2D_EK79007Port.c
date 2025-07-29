@@ -1,10 +1,11 @@
 #include "uCanvas2D_EK79007Port.h"
 
-
 void EK79007_Init(uCanvas2D_Display_Orientation_t orientation){
     printf("EK79007_Init prototype\r\n");
     ek79007_init();
+
 }
+
 
 void EK79007_PushTile(int x, int y, uCanvas2D_RenderBuffer_t* buf){
     if (!buf || !buf->pixels) {

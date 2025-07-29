@@ -75,6 +75,8 @@
     }uCanvas_base_t;
 
 
+
+
     /**
      * Create 2D Sprite Object based on raw Sprite buffer to use it easily in application
      *  sprite2D_t (properties) -
@@ -83,12 +85,19 @@
      *      > Sprite_Width  - Actual Width  of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
      *      > Sprite_Orientation
      */
+    typedef enum {
+        SPRITE2D_COLOR_RGBA565 = 0,
+        SPRITE2D_COLOR_RGB565,
+        SPRITE2D_COLOR_ARGB8888,
+        SPRITE2D_COLOR_MONOCHROME
+    }sprite_color_format_t;
     typedef struct sprite2D
     {
-        uint16_t* sprite_buf;
+        void* sprite_buf;
         uint16_t height;
         uint16_t width;
-        uint8_t orientation;    
+        uint8_t orientation;  
+        sprite_color_format_t color_format;  
     }sprite2D_t;
     
     typedef enum {uCanvas_Font_Dir_0, uCanvas_Font_Dir_90, uCanvas_Font_Dir_180, uCanvas_Font_Dir_270} font_draw_direction_t;
@@ -123,6 +132,7 @@
         
         
         uint16_t* sprite_buffer;
+        sprite_color_format_t sprite_color_format;
         // Coordinate2D_t sprite_resolution;
         
         // sprite2D_t sprite_obj;

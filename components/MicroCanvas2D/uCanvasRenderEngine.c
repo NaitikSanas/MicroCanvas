@@ -5,6 +5,7 @@
 #include "uCanvas2D_Display_Setup.h"
 #include "uCanvas2D_ST7789_Port.h"
 #include "uCanvas2D_EK79007Port.h"
+#include "uCanvas2D_Acceleration.h"
 
 uCanvas2D_Display_Panel_t* g_panel;
 uCanvas2D_RenderBuffer_t *g_framebuffer;
@@ -121,7 +122,7 @@ void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj, uCanvas2D_R
             (const uint16_t*)obj->sprite_buffer,
             obj->width,
             obj->height,
-            obj->properties.fill,1
+            obj->sprite_color_format
         );
         break;
     }
@@ -291,7 +292,6 @@ void uCanvas_Setup_Instance(uCanvas2D_Instance_t *instance) {
     instance->panel_1->init(1);
     instance->panel_1->set_backlight(8000); // Set backlight to 100% by default
 }
-
 void IRAM_ATTR uCanvas_renderer_task(void*arg){
     uCanvas2D_Instance_t* instance = (uCanvas2D_Instance_t*)arg;
     if(instance == NULL || instance->render_buffer == NULL){
@@ -301,23 +301,36 @@ void IRAM_ATTR uCanvas_renderer_task(void*arg){
     printf("render buffer addr: %p\r\n", instance->render_buffer);
 
     while(1){ 
-        
         uCanvas_Scene_t* _scene = instance->active_scene;
 		vTaskDelay(pdMS_TO_TICKS(9));
 		if((_scene != NULL) && (_scene->_2D_Object_Ptr > 0)){
 			if(LOCK_ACTIVE_SCENEB_BUF){ 
-				memset(instance->render_buffer->pixels, 0x0000, instance->render_buffer->width * instance->render_buffer->height * sizeof(uint16_t)); 
+                int64_t start = esp_timer_get_time();
+                if(instance->render_buffer->use_ppa){
+                    ppa_helper_fill(
+                    instance->render_buffer->pixels,
+                    instance->render_buffer->width * instance->render_buffer->height * sizeof(uint16_t),
+                    instance->render_buffer->width,
+                    instance->render_buffer->height,
+                    0, 0, instance->render_buffer->width, instance->render_buffer->height, 0x0000
+                    );
+                }
+                else{
+                    memset(instance->render_buffer->pixels, 0x0000, instance->render_buffer->width * instance->render_buffer->height * sizeof(uint16_t)); 
+                }
+
 				for (int i = 0; i < _scene->_2D_Object_Ptr; i++)
 				{
 					uCanvas_universal_obj_t* obj = _scene->_2D_Objects[i];
                     push_element_to_display(obj,instance->render_buffer);
 				}    
+                time_to_draw_frame_buf = esp_timer_get_time() - start;
+                printf("Time to draw frame buffer: %lld Ms\r\n", time_to_draw_frame_buf/1000);
                 if(instance->panel_1 != NULL)instance->panel_1->push_render_buffer(0, 0, instance->render_buffer);
                 if(instance->panel_2 != NULL)instance->panel_2->push_render_buffer(0, 0, instance->render_buffer);
+                printf("Time to push render buffer: %lld Ms\r\n", (esp_timer_get_time() - start)/1000);
                 UNLOCK_ACTIVE_SCENEB_BUF;
 			}
-        }
-        else {
         }
 	}
 }
@@ -420,6 +433,7 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
         printf("Failed to allocate memory for uCanvas2D_Instance_t\r\n");
         return NULL;
     }
+   
 
     instance->active_scene = scene;
     instance->panel_1 = panel_1;
@@ -428,15 +442,17 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
     instance->render_buffer = uCanvas2D_RenderBuffer_Create();
     instance->render_buffer->width = panel_1->width;
     instance->render_buffer->height = panel_1->height;
-    if (instance->render_buffer->pixels == NULL) {
-        printf("Failed to initialize render buffer\r\n");
-        free(instance);
-        return NULL;
-    }
     instance->render_buffer->pitch = 0;
     instance->render_buffer->offset_x = 0;
     instance->render_buffer->offset_y = 0;
-    instance->render_buffer->pixels = (uint16_t*)malloc(panel_1->width * panel_1->height * sizeof(uint16_t));
+    #if CONFIG_IDF_TARGET_ESP32P4
+        Intialize_PPA();
+        instance->render_buffer->use_ppa = true;
+    #else
+        instance->render_buffer->use_ppa = false;
+    #endif
+
+    instance->render_buffer->pixels = heap_caps_aligned_alloc(32, panel_1->width * panel_1->height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);// (uint16_t*)malloc(panel_1->width * panel_1->height * sizeof(uint16_t));
     if (instance->render_buffer->pixels == NULL) {
         printf("Failed to allocate memory for render buffer pixels\r\n");
         free(instance->render_buffer);

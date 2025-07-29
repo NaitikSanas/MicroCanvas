@@ -5,6 +5,9 @@
 #include <math.h>
 #include "fontx.h"
 #include "stdbool.h"
+#include "uCanvas2D_Display_Setup.h"
+#include "uCanvas2D_Acceleration.h"
+
 
 // Helper: Set pixel in RGB565
 static void set_pixel(uCanvas2D_RenderBuffer_t* buf, int x, int y, uint16_t color) {
@@ -156,15 +159,63 @@ void uCanvas2D_DrawEllipse(uCanvas2D_RenderBuffer_t* buf, int xc, int yc, int rx
 }
 
 // Draw sprite (assume src is RGBA565, w x h), draw only pixel with 0x01 alpha (LSB)
-void uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y, const uint16_t* sprite, int w, int h, int fill, int thickness) {
-    (void)fill; (void)thickness;
+void uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y, const uint16_t* sprite, int w, int h,sprite_color_format_t color_format) {
 
-    for (int i = 0; i < h; ++i) {
-        for (int j = 0; j < w; ++j) {
-            uint16_t pixel = sprite[i * w + j];
-            if (pixel & 0x01) { // Only draw if alpha bit (LSB) is set
-                set_pixel(buf, x + j, y + i, pixel & 0xFFFE); // Mask out alpha bit
+    if(buf->use_ppa){
+        // If using PPA, we need to handle the sprite differently
+        switch(color_format) {
+            case SPRITE2D_COLOR_RGBA565:
+                ppa_helper_draw_bitmap_blend((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
+                return;
+            case SPRITE2D_COLOR_ARGB8888:
+                ppa_helper_draw_bitmap_blend((void*)sprite, w, h, 0, 0,PPA_ARGB8888, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
+                return;
+            case SPRITE2D_COLOR_RGB565:
+                ppa_helper_draw_bitmap_blend((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
+                return;
+                break; // No need to convert
+            default :
+                printf ("Unsupported sprite color format: %d\n", color_format);
+                return; // Unsupported color format, do nothing
+        }
+        // ppa_helper_draw_bitmap((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
+        return;
+    }
+    else {
+        switch(color_format) {
+        case SPRITE2D_COLOR_RGBA565:
+            for (int i = 0; i < h; ++i) {
+                for (int j = 0; j < w; ++j) {
+                    uint16_t pixel = sprite[i * w + j];
+                    if (pixel & 0x01) { // Only draw if alpha bit (LSB) is set
+                        set_pixel(buf, x + j, y + i, pixel & 0xFFFE); // Mask out alpha bit
+                    }
+                }
             }
+            break;
+        case SPRITE2D_COLOR_ARGB8888:
+            for (int i = 0; i < h; ++i) {
+                for (int j = 0; j < w; ++j) {
+                    uint32_t pixel = ((const uint32_t*)sprite)[i * w + j];
+                    uint16_t rgba565 = ((pixel & 0xFF0000) >> 8) | ((pixel & 0x00FF00) >> 5) | ((pixel & 0x0000FF) >> 3);
+                    if (rgba565 & 0x01) { // Only draw if alpha bit (LSB) is set
+                        set_pixel(buf, x + j, y + i,rgba565); // Mask out alpha bit and convert to RGB565
+                    }
+                }
+            }
+            break;
+
+        case SPRITE2D_COLOR_RGB565:
+            for (int i = 0; i < h; ++i) {
+                for (int j = 0; j < w; ++j) {
+                    uint16_t pixel = sprite[i * w + j];
+                    set_pixel(buf, x + j, y + i, pixel); // Directly draw RGB565
+                }
+            }
+            break;
+        default:
+            // Unsupported color format, do nothing
+            return;
         }
     }
 }

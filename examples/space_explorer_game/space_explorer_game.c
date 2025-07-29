@@ -4,6 +4,7 @@
 
 #define CANVAS_HEIGHT       600
 #define CANVAS_WIDTH        1024
+
 #define MAX_STARS           100 
 #define STARS_SCROLLING_RATE 35  
 #define MAX_ENEMIES         40
@@ -395,7 +396,19 @@ void bullets_animation(bullets_t* bullets){
 
 void create_spaceship(spaceship_t* obj){
     sprite2D_t spaceship_sprite_obj;
-    uCanvas_Compose_2DSprite_Obj(&spaceship_sprite_obj,ship,40,40);
+    uint32_t* ship_ARGB8888 = (uint32_t*)malloc(SHIP_WIDTH * SHIP_HEIGHT * sizeof(uint32_t));
+    if (ship_ARGB8888 == NULL) {
+        printf("Failed to allocate memory for spaceship sprite buffer\n");
+        return;
+    }
+    uCanvas_Convert_RGB565A_to_ARGB8888(
+        (uint16_t*)ship, 
+        ship_ARGB8888, 
+        SHIP_WIDTH, 
+        SHIP_HEIGHT
+    );
+
+    uCanvas_Compose_2DSprite_Obj(&spaceship_sprite_obj,ship_ARGB8888,40,40,SPRITE2D_COLOR_ARGB8888);
     uCanvas_Sprite_Adjust_Contrast(&spaceship_sprite_obj,400);
     obj->obj = New_uCanvas_2DSprite(&spaceship_sprite_obj,0,0);
     obj->obj->point1 = (Coordinate2D_t){10,0};
@@ -417,7 +430,23 @@ void spawn_enemines(){
         int px = get_random_number(0,CANVAS_WIDTH); 
         int py = get_random_number(-CANVAS_HEIGHT,0);
         sprite2D_t enemy_spaceship_sprite_obj;
-        uCanvas_Compose_2DSprite_Obj(&enemy_spaceship_sprite_obj,ship_enemy,SHIP_ENEMY_WIDTH,SHIP_ENEMY_HEIGHT);
+        uint32_t* enemy_spaceship_rgba8888 = (uint32_t*)malloc(SHIP_ENEMY_WIDTH * SHIP_ENEMY_HEIGHT * sizeof(uint32_t));
+        if (enemy_spaceship_rgba8888 == NULL) {
+            printf("Failed to allocate memory for enemy spaceship sprite buffer\n");
+            return;
+        }
+
+        uCanvas_Convert_RGB565A_to_ARGB8888(
+            (uint16_t*)ship_enemy, 
+            enemy_spaceship_rgba8888, 
+            SHIP_ENEMY_WIDTH, 
+            SHIP_ENEMY_HEIGHT
+        );
+        
+
+        // uCanvas_Compose_2DSprite_Obj(&enemy_spaceship_sprite_obj,ship_enemy,SHIP_ENEMY_WIDTH,SHIP_ENEMY_HEIGHT,SPRITE2D_COLOR_RGBA565);
+        uCanvas_Compose_2DSprite_Obj(&enemy_spaceship_sprite_obj,enemy_spaceship_rgba8888,SHIP_ENEMY_WIDTH,SHIP_ENEMY_HEIGHT,SPRITE2D_COLOR_ARGB8888);
+
         // uCanvas_Sprite_Adjust_Contrast(&enemy_spaceship_sprite_obj,200);
         
 
@@ -522,10 +551,11 @@ void Run_Space_Explorer_Game() {
 
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
     uCanvas_Scene_t* scene2 = New_uCanvas_Scene();
-
+    
+    // uCanvas2D_Instance_t* uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
     uCanvas2D_Instance_t* uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
-    uCanvas2D_Instance_t* uCanvas_Instance_2 = New_uCanvas_Instance(scene2, uCanvas2D_Get_Panel_Driver_ST7789(),NULL);
-
+    // uCanvas2D_Instance_t* uCanvas_Instance_2 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_ST7789(),NULL);
+    // uCanvas_Instance_1->render_buffer->use_ppa = true;
     uCanvas_Change_Active_Instance(uCanvas_Instance_1);
     
     // uCanvas_Initialize_IMU_Device(42,41);

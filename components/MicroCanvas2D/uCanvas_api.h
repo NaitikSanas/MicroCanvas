@@ -65,7 +65,8 @@
      * @param pos_y : absolute y axis position on active scene
      */
     uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t pos_x, uint16_t pos_y);
-    
+    void uCanvas_Convert_RGB565A_to_RGBA8888(uint16_t* src, uint32_t* dest, int width, int height);
+    void uCanvas_Convert_RGB565A_to_ARGB8888(uint16_t* src, uint32_t* dest, int width, int height);
     /**
      * @brief This API let's user scale up their custom 2D sprite Buffers. 
      * @param src           : sprite to be scaled
@@ -99,7 +100,7 @@
      * @param  width : actual width of sprite_buffer content
      * @param  height : actual width of height content
      */
-    void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint16_t width, uint16_t height);
+    void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, void* sprite_buffer,uint16_t width, uint16_t height, sprite_color_format_t color_format);
     
     /**
      * Properties Control API

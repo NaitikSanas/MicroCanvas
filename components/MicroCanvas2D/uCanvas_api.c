@@ -291,6 +291,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t 
     uCanvas_Sprite->properties.position.y = pos_y;
     uCanvas_Sprite->properties.flip_x = 0;
     uCanvas_Sprite->properties.flip_y = 0;
+    uCanvas_Sprite->sprite_color_format = sprite2D_obj->color_format;
     uCanvas_push_object_to_activescene(uCanvas_Sprite);
     // printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
     return uCanvas_Sprite;
@@ -385,6 +386,31 @@ void uCanvas_ScaleUp_SpriteBuf(uint16_t* src, uint16_t* dest, int src_width, int
     }
 }
 
+void uCanvas_Convert_RGB565A_to_RGBA8888(uint16_t* src, uint32_t* dest, int width, int height) {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            uint16_t pixel = src[y * width + x];
+            uint8_t r = (pixel >> 11) & 0x1F;
+            uint8_t g = (pixel >> 5) & 0x3F;
+            uint8_t b = pixel & 0x1F;   
+            dest[y * width + x] = (r << 19) | (g << 10) | (b << 3) | 0xFF000000; // Set alpha to 255
+        }
+    }
+}
+
+void uCanvas_Convert_RGB565A_to_ARGB8888(uint16_t* src, uint32_t* dest, int width, int height) {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            uint16_t pixel = src[y * width + x];
+            uint8_t r = (pixel >> 11) & 0x1F;
+            uint8_t g = (pixel >> 5) & 0x3F;
+            uint8_t b = pixel & 0x1F;   
+            uint8_t a = (pixel & 0x01) ? 0xFF : 0x00; // Extract alpha bit
+            // Convert to ARGB8888 format
+            dest[y * width + x] = (a << 24) | (r << 19) | (g << 10) | (b << 3); // Set alpha to 255 if pixel is not transparent
+        }
+    }
+}
 
 
 void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint16_t* reference,uint16_t* buffer, int h, int w, int scale_factor){
@@ -392,7 +418,7 @@ void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint16_t* reference,uint16_
     int new_w = w*scale_factor;
     memset(buffer,0,(new_h * new_w));
     uCanvas_ScaleUp_SpriteBuf(reference,buffer,w,h,scale_factor);
-    uCanvas_Compose_2DSprite_Obj(sprite_obj,buffer,new_w,new_h);
+    uCanvas_Compose_2DSprite_Obj(sprite_obj,buffer,new_w,new_h,sprite_obj->color_format);
 }
 
    
@@ -407,10 +433,11 @@ void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t* spri
         }
 }
 
-void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, uint16_t* sprite_buffer,uint16_t width, uint16_t height){
+void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, void* sprite_buffer,uint16_t width, uint16_t height, sprite_color_format_t color_format){
     obj->sprite_buf = sprite_buffer;
     obj->height = height;
     obj->width = width;
+    obj->color_format = color_format; // Default format, can be changed later
     // printf("composed sprite of %dx%d\r\n",width,height);
 }
 /**

@@ -1,6 +1,7 @@
 #pragma once
 #include "stdio.h"
 #include "stdint.h"
+#include "driver/ppa.h"
 typedef enum {
     OR_LANDSCAPE,
     OR_LANDSCAPE_FLIPPED,
@@ -14,6 +15,8 @@ typedef struct {
     int offset_x;
     int offset_y;
     uint16_t* pixels;
+    int use_ppa;
+
 } uCanvas2D_RenderBuffer_t;
 typedef struct {
     void (*init)(uCanvas2D_Display_Orientation_t orientation);
@@ -21,6 +24,6 @@ typedef struct {
     void (*set_backlight)(int percent);
     uCanvas2D_Display_Orientation_t orientation;
     uint16_t width;
-    uint16_t height;
+    uint16_t height; 
 } uCanvas2D_Display_Panel_t;
 
