@@ -35,4 +35,3 @@
 void ek79007_deinit(void);
 void ek79007_init(void);
 void ek79007_draw_tile(int x, int y, int tile_w, int tile_h, uint16_t* pixel_data);
-//need method to get refresh_finish semaphore

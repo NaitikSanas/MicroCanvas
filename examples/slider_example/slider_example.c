@@ -16,7 +16,7 @@ void p_slider_callback(void){
 }
 
 void uCanvas_slider_demo_Setup() {
-    start_uCanvas_engine();
+    // start_uCanvas_engine();
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
     uCanvas_set_active_scene(scene);
     

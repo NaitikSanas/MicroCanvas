@@ -246,6 +246,9 @@ typedef struct uCanvas2D_Instance
     uCanvas2D_Display_Panel_t* panel_2;
     
     uCanvas2D_RenderBuffer_t* render_buffer;
+    TaskHandle_t render_task_handle;
+    SemaphoreHandle_t render_buffer_lock;
+    
 }uCanvas2D_Instance_t;
 
 #endif

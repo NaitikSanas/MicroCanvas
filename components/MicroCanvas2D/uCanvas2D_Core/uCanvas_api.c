@@ -4,18 +4,12 @@
 uCanvas_Scene_t* active_scene;
 SemaphoreHandle_t active_scene_mutex;
 extern TaskHandle_t uCanvas_taskhandle;
-#define LOCK_ACTIVE_SCENEB_BUF      xSemaphoreTake(active_scene_mutex,1)
-#define UNLOCK_ACTIVE_SCENEB_BUF    xSemaphoreGive(active_scene_mutex);
+
 uCanvas2D_Instance_t* _uCanvas_Instance = NULL;
-void uCanvas_lock_scene(){
-    LOCK_ACTIVE_SCENEB_BUF;
-}
-void uCanvas_unlock_scene(){
-    UNLOCK_ACTIVE_SCENEB_BUF;
-}
+
 void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
     if(active_scene != NULL){
-        if(LOCK_ACTIVE_SCENEB_BUF){
+        // if(LOCK_ACTIVE_SCENEB_BUF){
             free(active_scene->_2D_Objects[obj->index]);
             if(active_scene->_2D_Object_Ptr > obj->index){
                 int objects_to_reallocate = active_scene->_2D_Object_Ptr - obj->index;
@@ -26,8 +20,8 @@ void uCanvas_delete_object(uCanvas_universal_obj_t* obj){
                 }
             }
             active_scene->_2D_Object_Ptr--;
-            UNLOCK_ACTIVE_SCENEB_BUF;
-        }
+            // UNLOCK_ACTIVE_SCENEB_BUF;
+        // }
     }
 }
 
@@ -41,21 +35,11 @@ void uCanvas_Change_Active_Instance(uCanvas2D_Instance_t* instance){
 }
 
 void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
-    // 
-    // if(active_scene != NULL){
-    //     // if(LOCK_ACTIVE_SCENEB_BUF){
-    //         obj->index = active_scene->_2D_Object_Ptr;
-    //         active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
-    //         active_scene->_2D_Object_Ptr++;
-            
-    //         UNLOCK_ACTIVE_SCENEB_BUF;
-    //     // }
-    // }
     if(_uCanvas_Instance != NULL && _uCanvas_Instance->active_scene != NULL){
             obj->index = _uCanvas_Instance->active_scene->_2D_Object_Ptr;
             _uCanvas_Instance->active_scene->_2D_Objects[_uCanvas_Instance->active_scene->_2D_Object_Ptr] = obj;
             _uCanvas_Instance->active_scene->_2D_Object_Ptr++;
-            UNLOCK_ACTIVE_SCENEB_BUF;
+            UNLOCK_RESOURCE(_uCanvas_Instance->render_buffer_lock);
     } else {
         printf("Invalid uCanvas2D_Instance_t or active scene\r\n");
     }
@@ -424,13 +408,13 @@ void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint16_t* reference,uint16_
    
    
 void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t* sprite_obj){
-        if(LOCK_ACTIVE_SCENEB_BUF){
+        // if(LOCK_ACTIVE_SCENEB_BUF){
             // obj->sprite_obj = sprite_obj;
             obj->sprite_buffer       = sprite_obj->sprite_buf;
             obj->width = sprite_obj->width;
             obj->height = sprite_obj->height;
-            UNLOCK_ACTIVE_SCENEB_BUF;
-        }
+            // UNLOCK_ACTIVE_SCENEB_BUF;
+        // }
 }
 
 void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, void* sprite_buffer,uint16_t width, uint16_t height, sprite_color_format_t color_format){

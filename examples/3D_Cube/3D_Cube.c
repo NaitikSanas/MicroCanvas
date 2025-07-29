@@ -17,17 +17,20 @@ uCanvas_universal_obj_t* line2D[12];
 // #define USE_PRIMITIVE_TRIANGLE2D 1
 #define USE_PRIMITIVE_LINE2D 1
 void Render_3D_Cube( float angle);
-#include "uCanvas_display_port.h"
+
 void Run_3D_Cube_Demo() {
     //start ucanvas engine and setup scene
     printf("3D-Cube Demo\r\n");
     uCanvas_Scene_t* scene;
-    start_uCanvas_engine();
+    scene = New_uCanvas_Scene();
+    uCanvas_set_active_scene(scene);
+    
+    uCanvas2D_Instance_t* uCanvas_Instance_1 = uCANVAS2D_EK79007_SETUP(scene);
+    uCanvas_Change_Active_Instance(uCanvas_Instance_1);
     //ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
     // uCanvas_Set_Display_Properties(320,240,1);
 
-    scene = New_uCanvas_Scene();
-    uCanvas_set_active_scene(scene);
+    
     //ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
 
     //Background 

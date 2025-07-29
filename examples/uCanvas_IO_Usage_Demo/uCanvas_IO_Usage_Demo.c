@@ -7,7 +7,7 @@
 #define ENC_SW  37
 
 void Run_uCanvas_IO_Usage_Demo() {
-    start_uCanvas_engine();
+    // start_uCanvas_engine();
 
     //SetUp IMU Device
     uCanvas_Initialize_IMU_Device(42,41);

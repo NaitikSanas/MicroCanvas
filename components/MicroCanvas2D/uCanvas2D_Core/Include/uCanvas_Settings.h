@@ -1,4 +1,7 @@
 #define MAX_ELEMENTS_NUM                        (1500)
+
+#define USE_PPA_FOR_RENDERING                (1)
+
 #define UCANVAS_TASK_STACK_SIZE                 (4046)
 #define UCANVAS_RENDER_TASK_STACK_SIZE          (4096)
 #define UCANVAS_RENDER_TASK_PRIORITY            (1)

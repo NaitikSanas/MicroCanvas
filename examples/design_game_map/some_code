@@ -1,7 +1,6 @@
 #include "app.h"
 #include "uCanvas_api.h"
 #include "ucanvas_slider.h"
-#include "uCanvas_display_port.h"
 
 // Maze dimensions
 #define MAZE_ROWS 20

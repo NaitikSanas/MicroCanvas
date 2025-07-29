@@ -61,7 +61,7 @@ void ppa_helper_fill(
     ppa_do_fill(ppa_fill_handle, &fill_config);
 }
 
-void ppa_helper_draw_bitmap(
+void ppa_srm_bitmap(
     void* in_buf, 
     int in_w, 
     int in_h, 
@@ -136,7 +136,7 @@ void ppa_helper_draw_bitmap(
     ESP_ERROR_CHECK(ppa_do_scale_rotate_mirror(ppa_srm_handle, &config));
 }
 
-void ppa_helper_draw_bitmap_blend(
+void ppa_blend_bitmap(
     void* in_buf, 
     int in_w, 
     int in_h, 

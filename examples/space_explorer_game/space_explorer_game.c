@@ -5,9 +5,9 @@
 #define CANVAS_HEIGHT       600
 #define CANVAS_WIDTH        1024
 
-#define MAX_STARS           100 
-#define STARS_SCROLLING_RATE 35  
-#define MAX_ENEMIES         40
+#define MAX_STARS           600 
+#define STARS_SCROLLING_RATE 30  
+#define MAX_ENEMIES         120
 #define COLLISION_THRESHOLD 20  // adjust based on object size
 
 #define ENC_A   39 
@@ -546,10 +546,10 @@ void create_hud(){
 #include "uCanvas2D_ST7789_Port.h"
 #include "uCanvas2D_Display_Setup.h"
 #include "uCanvasRenderEngine.h"
-
+ uCanvas_Scene_t* scene = NULL;
 void Run_Space_Explorer_Game() {
 
-    uCanvas_Scene_t* scene = New_uCanvas_Scene();
+    scene = New_uCanvas_Scene();
     uCanvas_Scene_t* scene2 = New_uCanvas_Scene();
     
     // uCanvas2D_Instance_t* uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
@@ -572,7 +572,7 @@ void Run_Space_Explorer_Game() {
     uCanvas_Add_Task(animate_stars1,NULL,0);
     uCanvas_Add_Task(animate_stars2,NULL,0);
 
-    show_start_screen();
+    // show_start_screen();
     spawn_enemines();
 
     uCanvas_Add_Task(animate_enemy_spaceships_1,NULL,0);
@@ -585,6 +585,10 @@ void Run_Space_Explorer_Game() {
     create_hud();
     create_lives_indicator();
     live_indicatior_set(4);
+    while(1){
+        printf("fps: %lld\r\n",uCanvas_Get_FPS());
+        vTaskDelay(1000 / portTICK_PERIOD_MS);   
+    }
     // IMU_Monitor();
 }
 

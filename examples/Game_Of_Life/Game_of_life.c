@@ -145,8 +145,9 @@ void create_game_stat_text_area(){
 }
 
 void setup(){
-    start_uCanvas_engine();
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
+    uCanvas2D_Instance_t* uCanvas_Instance_1 = uCANVAS2D_EK79007_SETUP(scene);
+    uCanvas_Change_Active_Instance(uCanvas_Instance_1);
     uCanvas_set_active_scene(scene);
     srand(xTaskGetTickCount());
     create_grid(); 

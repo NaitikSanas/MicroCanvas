@@ -5,19 +5,29 @@
     #include "freertos/semphr.h"
     #include "uCanvasDataTypes.h"
 
-   
+    #include "uCanvas2D_Display_Setup.h"
+    #include "uCanvas2D_EK79007Port.h"
+    #include "uCanvas2D_ST7789_Port.h"   
     #define uCanvas_Universal_Object    (uCanvas_universal_obj_t*)malloc(sizeof(uCanvas_universal_obj_t))
     #define uCanvas_Scene_Object        (uCanvas_Scene_t*)malloc(sizeof(uCanvas_Scene_t)) 
-    
+
+    #define LOCK_RESOURCE(x)      xSemaphoreTake(x,portMAX_DELAY)
+    #define UNLOCK_RESOURCE(x)    xSemaphoreGive(x);
+
     void uCanvas_lock_scene();
     void uCanvas_unlock_scene();
+    #define uCANVAS2D_EK79007_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_EK79007(),NULL)
+    #define uCANVAS2D_ST7789_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_ST7789(),NULL)
 
     /*Starts Rendering Engine and Initializes Display*/
-    void start_uCanvas_engine(void);
+    uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel_1,uCanvas2D_Display_Panel_t* panel_2);
+    int64_t uCanvas_Get_FPS(void);
+    /**
+
     void pause_uCanvas_engine(void);
     void resume_uCanvas_engine(void);
-    void uCanvas_manually_render_scene(void);
-    /**
+
+    
      * APIs to creating uCanvas related Tasks to work with Scene objects, 
      * creating Animations, handling User Input etc.
     */

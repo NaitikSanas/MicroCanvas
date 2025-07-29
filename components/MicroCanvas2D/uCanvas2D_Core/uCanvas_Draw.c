@@ -165,20 +165,19 @@ void uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y, const uin
         // If using PPA, we need to handle the sprite differently
         switch(color_format) {
             case SPRITE2D_COLOR_RGBA565:
-                ppa_helper_draw_bitmap_blend((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
+                ppa_blend_bitmap((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
                 return;
             case SPRITE2D_COLOR_ARGB8888:
-                ppa_helper_draw_bitmap_blend((void*)sprite, w, h, 0, 0,PPA_ARGB8888, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
+                ppa_blend_bitmap((void*)sprite, w, h, 0, 0,PPA_ARGB8888, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
                 return;
             case SPRITE2D_COLOR_RGB565:
-                ppa_helper_draw_bitmap_blend((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
+                ppa_blend_bitmap((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
                 return;
                 break; // No need to convert
             default :
                 printf ("Unsupported sprite color format: %d\n", color_format);
                 return; // Unsupported color format, do nothing
         }
-        // ppa_helper_draw_bitmap((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
         return;
     }
     else {
