@@ -4,7 +4,7 @@ ppa_client_handle_t ppa_srm_handle = NULL;
 ppa_client_handle_t ppa_blend_handle = NULL;
 ppa_client_config_t ppa_blend_config = {
         .oper_type = PPA_OPERATION_BLEND,
-        .max_pending_trans_num  = 10,
+        .max_pending_trans_num  = 1000,
 };
 
 
@@ -12,17 +12,24 @@ ppa_client_handle_t ppa_fill_handle = NULL;
 
 ppa_client_config_t ppa_fill_config = {
         .oper_type = PPA_OPERATION_FILL,
-        .max_pending_trans_num = 10,
+        .max_pending_trans_num = 1000,
 };
 ppa_client_config_t ppa_srm_config = {
         .oper_type = PPA_OPERATION_SRM,
-        .max_pending_trans_num = 10,
+        .max_pending_trans_num = 1000,
 };
 
 void Intialize_PPA(void){
-    ESP_ERROR_CHECK(ppa_register_client(&ppa_srm_config, &ppa_srm_handle));
-    ESP_ERROR_CHECK(ppa_register_client(&ppa_fill_config, &ppa_fill_handle));
-    ESP_ERROR_CHECK(ppa_register_client(&ppa_blend_config, &ppa_blend_handle));
+    static uint8_t initialized = false;
+    if(!initialized){
+        printf("Initializing PPA Client\r\n");
+        ESP_ERROR_CHECK(ppa_register_client(&ppa_srm_config, &ppa_srm_handle));
+        ESP_ERROR_CHECK(ppa_register_client(&ppa_fill_config, &ppa_fill_handle));
+        ESP_ERROR_CHECK(ppa_register_client(&ppa_blend_config, &ppa_blend_handle));
+    }
+    else {
+        printf("ppa already initialized\r\n");
+    }
 }
 
 
@@ -130,7 +137,8 @@ void ppa_srm_bitmap(
         .mirror_x = 0,
         .mirror_y = 0,
         .alpha_update_mode = PPA_ALPHA_NO_CHANGE,
-        .mode = PPA_TRANS_MODE_BLOCKING,
+        .mode = PPA_TRANS_MODE_NON_BLOCKING,
+        
     };
 
     ESP_ERROR_CHECK(ppa_do_scale_rotate_mirror(ppa_srm_handle, &config));
@@ -216,7 +224,7 @@ void ppa_blend_bitmap(
         .bg_ck_en = false,
         .fg_ck_en = false,
 
-        .mode = PPA_TRANS_MODE_BLOCKING,
+        .mode = PPA_TRANS_MODE_NON_BLOCKING,
     };
      ppa_do_blend(ppa_blend_handle, &blend_config);
 

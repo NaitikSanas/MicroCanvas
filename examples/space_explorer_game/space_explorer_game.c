@@ -5,9 +5,9 @@
 #define CANVAS_HEIGHT       600
 #define CANVAS_WIDTH        1024
 
-#define MAX_STARS           600 
-#define STARS_SCROLLING_RATE 30  
-#define MAX_ENEMIES         120
+#define MAX_STARS           100 
+#define STARS_SCROLLING_RATE 22  
+#define MAX_ENEMIES         100
 #define COLLISION_THRESHOLD 20  // adjust based on object size
 
 #define ENC_A   39 
@@ -42,18 +42,22 @@ int current_score = 0;
 int last_score = 0;
 int cur_lives = 4;
 float distance_travelled = 0;
-
+    
 spaceship_t enemy_spaceships [MAX_ENEMIES];
 uCanvas_universal_obj_t* stars[MAX_STARS];
 spaceship_t player_spaceship;
 bullets_t player_bulletes_instance;
 rotary_encoder_t rotary_encoder_1;
 char buf[64] = {0};
+#define LIVE_INDICATER_DOT_W 8
+#define LIVE_INDICATER_DOT_GAP 25
+#define LIVE_INDICATER_DOT_POS_X 20
+#define LIVE_INDICATER_DOT_POS_Y 20
 
 void create_lives_indicator(){
     for (int i = 0; i < 4; i++)
     {
-        lives[i] = New_uCanvas_2DCircle((i*10)+10,10,4);
+        lives[i] = New_uCanvas_2DCircle((i*LIVE_INDICATER_DOT_GAP)+LIVE_INDICATER_DOT_POS_X,40/2,10);
         uCanvas_Set_Color(lives[i],255,0,0);
         lives[i]->properties.fill = FILL;
     }
@@ -142,7 +146,7 @@ void detect_spaceship_collision_with_enemyship(void){
                 cur_lives = 4;
                 live_indicatior_set(cur_lives);
                 title_tb_3->properties.visiblity = VISIBLE;
-                title_tb_3->font_properties.font_type = FONT_16G;
+                title_tb_3->font_properties.font_type = FONTX_16G;
                 uCanvas_Set_Text(title_tb_3,"Game Over");
                 uCanvas_Delay(2500);
                 while (1)
@@ -489,16 +493,16 @@ void controller_task(void){
 }
 
 void show_start_screen(){
-    uCanvas_universal_obj_t* title_tb_1 = New_uCanvas_2DTextbox("Space",50,-40);
-    uCanvas_universal_obj_t* title_tb_2 = New_uCanvas_2DTextbox("Explorer",150,-40);
-    title_tb_3 = New_uCanvas_2DTextbox("Press ENC_SW to Play",50,-10);
+    uCanvas_universal_obj_t* title_tb_1 = New_uCanvas_2DTextbox("Space",CANVAS_WIDTH/4,-40);
+    uCanvas_universal_obj_t* title_tb_2 = New_uCanvas_2DTextbox("Explorer",CANVAS_WIDTH/4 +100,-40);
+    title_tb_3 = New_uCanvas_2DTextbox("Press ENC_SW to Play",CANVAS_WIDTH/4,-10);
     uCanvas_Set_Color(title_tb_1,255,255,0);
     uCanvas_Set_Color(title_tb_2,255,255,0);
     uCanvas_Set_Color(title_tb_3,255,255,255);
 
-    title_tb_1->font_properties.font_type = FONT_24M;
-    title_tb_2->font_properties.font_type = FONT_24M;
-    title_tb_3->font_properties.font_type = FONT_24M;
+    title_tb_1->font_properties.font_type = FONTX_32L;
+    title_tb_2->font_properties.font_type = FONTX_32L;
+    title_tb_3->font_properties.font_type = FONTX_32L;
     title_tb_3->properties.visiblity = INVISIBLE;
     printf("anim start\r\n");
     for (int i = 0; i < (CANVAS_HEIGHT/2)+40; i++)
@@ -523,41 +527,71 @@ void show_start_screen(){
     }
 }
 void create_hud(){
-    uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,22,CANVAS_WIDTH);
+    uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,40,CANVAS_WIDTH);
     uCanvas_Set_Color(bg,0,0,100);
     bg->properties.fill = FILL;
 
     textbox1 = New_uCanvas_2DTextbox(" ",240,  20);
     uCanvas_Set_Color(textbox1,255,255,0);
-    textbox1->font_properties.font_type = FONT_16G;
+    textbox1->font_properties.font_type = SFONT_24;
 
-    textbox2 = New_uCanvas_2DTextbox("",80, 20);
+    textbox2 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/2-100, 5);
     uCanvas_Set_Color(textbox2,255,255,0);
-    textbox2->font_properties.font_type = FONT_16G;
+    textbox2->font_properties.font_type = SFONT_24;
+
     popup = New_uCanvas_2DTextbox("+1",0,0);
     popup_score = New_uCanvas_2DTextbox("+1",0,0);
     uCanvas_Set_Color(popup,255,255,255);
     uCanvas_Set_Color(popup_score,0,255,0);
-    popup->font_properties.font_type = FONT_16G;
-    popup_score->font_properties.font_type = FONT_16G;
+    popup->font_properties.font_type = FONTX_32L;
+    popup_score->font_properties.font_type = FONTX_32L;
 }
-
+#include "uCanvas_Draw.h"
 #include "uCanvas2D_EK79007Port.h"
 #include "uCanvas2D_ST7789_Port.h"
 #include "uCanvas2D_Display_Setup.h"
 #include "uCanvasRenderEngine.h"
- uCanvas_Scene_t* scene = NULL;
-void Run_Space_Explorer_Game() {
+#include "uCanvas2D_Acceleration.h"
 
+ uCanvas_Scene_t* scene = NULL;
+uCanvas2D_Instance_t* uCanvas_Instance_1 = NULL;
+uCanvas2D_Instance_t* game_window = NULL;
+void fps_monitor(void){
+    uCanvas_universal_obj_t* fps_counter = New_uCanvas_2DTextbox("",CANVAS_WIDTH-150,5);
+    fps_counter->font_properties.font_type = SFONT_24;
+    uCanvas_Set_Color(fps_counter,255,255,255);
+    char buf[32]={0};
+    while (1)
+    {
+        sprintf(buf,"FPS:%lld",uCanvas_Get_FPS(uCanvas_Instance_1));
+        uCanvas_Set_Text(fps_counter,buf);
+        vTaskDelay(pdMS_TO_TICKS(200));
+    } 
+}
+
+void Run_Space_Explorer_Game() {
+    uCanvas_Load_FontX();
     scene = New_uCanvas_Scene();
-    uCanvas_Scene_t* scene2 = New_uCanvas_Scene();
+    // game_window = New_uCanvas_Window_Instance(scene,CANVAS_WIDTH,CANVAS_HEIGHT);
+
+    // sprite2D_t game_window_spr;
+    // uCanvas_Compose_2DSprite_Obj(&game_window_spr,game_window->render_buffer->pixels,game_window->render_buffer->width,game_window->render_buffer->height,SPRITE2D_COLOR_RGB565);
+    // uCanvas_Scene_t* out_scene =  New_uCanvas_Scene();
+    // uCanvas_Instance_1 = New_uCanvas_Instance(out_scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
+    // uCanvas_set_active_scene(uCanvas_Instance_1->active_scene);
+    // uCanvas_Instance_1->Clear_On_Refresh = false;
+    // game_window->refresh_delay = 5;
+    // uCanvas_Instance_1->window_instance = (uCanvas2D_Instance_t*) game_window;
+    // uCanvas_Instance_1->synchronize = true;
+    // uCanvas_universal_obj_t* rect = New_uCanvas_2DRectangle(100-1,100-11,CANVAS_HEIGHT+1,CANVAS_WIDTH+1);
+    //  uCanvas_Set_Color(rect,255,255,0);
+    // uCanvas_universal_obj_t* out_spr = New_uCanvas_2DSprite(&game_window_spr, 100,100);
     
-    // uCanvas2D_Instance_t* uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
-    uCanvas2D_Instance_t* uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
-    // uCanvas2D_Instance_t* uCanvas_Instance_2 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_ST7789(),NULL);
-    // uCanvas_Instance_1->render_buffer->use_ppa = true;
-    uCanvas_Change_Active_Instance(uCanvas_Instance_1);
-    
+   
+    // out_spr->properties.visiblity = INVISIBLE;
+     uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
+    uCanvas_set_active_scene(uCanvas_Instance_1->active_scene);
+    uCanvas_Instance_1->refresh_delay = 2;
     // uCanvas_Initialize_IMU_Device(42,41);
     // uCanvas_IMU_Set_Tilt_Detection_Parameters(7,2);
     uCanvas_Init_PushButton(PB1);
@@ -565,19 +599,21 @@ void Run_Space_Explorer_Game() {
     
     uCanvas_rotary_encoder_init(&rotary_encoder_1,ENC_A,ENC_B,ENC_SW);
 
-    uCanvas_set_active_scene(scene);
+
+    printf("---setup\r\n");
     stars_array_init();
     bullets_init(&player_bulletes_instance,5);
     create_spaceship(&player_spaceship);  
     uCanvas_Add_Task(animate_stars1,NULL,0);
     uCanvas_Add_Task(animate_stars2,NULL,0);
-
+    printf("---done\r\n");
     // show_start_screen();
     spawn_enemines();
 
     uCanvas_Add_Task(animate_enemy_spaceships_1,NULL,0);
     uCanvas_Add_Task(animate_enemy_spaceships_2,NULL,0);
     uCanvas_Add_Task((void (*))bullets_animation,&player_bulletes_instance,0);
+    uCanvas_Add_Task((void (*))fps_monitor,NULL,0);
     // uCanvas_Add_Task((void (*))controller_task,NULL,0);
     // uCanvas_Add_Task((void (*))detect_spaceship_collision_with_enemyship,NULL,0);
     
@@ -585,10 +621,12 @@ void Run_Space_Explorer_Game() {
     create_hud();
     create_lives_indicator();
     live_indicatior_set(4);
-    while(1){
-        printf("fps: %lld\r\n",uCanvas_Get_FPS());
-        vTaskDelay(1000 / portTICK_PERIOD_MS);   
-    }
+    printf("--here\r\n");
+    // while(1){
+
+    //     printf("fps: %lld\r\n",uCanvas_Get_FPS(uCanvas_Instance_1));
+    //     vTaskDelay(1000 / portTICK_PERIOD_MS);   
+    // }
     // IMU_Monitor();
 }
 

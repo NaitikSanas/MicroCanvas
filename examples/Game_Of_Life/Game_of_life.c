@@ -139,12 +139,13 @@ void create_game_stat_text_area(){
     uCanvas_Set_Color(game_stats[4],50,50,0);
     for (int i = 0; i < 4; i++){
         game_stats[i] = New_uCanvas_2DTextbox("-",20,320 -  (i*20));
-        game_stats[i]->font_properties.font_type = FONT_16G;
+        game_stats[i]->font_properties.font_type = FONTX_16G;
         uCanvas_Set_Color(game_stats[i],255,255,0);
     }
 }
-
+#include "uCanvas_Draw.h"
 void setup(){
+    uCanvas_Load_FontX();
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
     uCanvas2D_Instance_t* uCanvas_Instance_1 = uCANVAS2D_EK79007_SETUP(scene);
     uCanvas_Change_Active_Instance(uCanvas_Instance_1);
@@ -156,7 +157,7 @@ void setup(){
 
 void demo_laws_of_life() {
     // Ensure prompt is visible during the demo
-    prompt->font_properties.font_type = FONT_10M;
+    prompt->font_properties.font_type = FONTX_10M;
     uCanvas_Set_Text(prompt, "Clearing grid...");
     prompt->properties.visiblity = VISIBLE;
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -216,10 +217,10 @@ void start_game_of_life_demo(){
     prompt = New_uCanvas_2DTextbox("Randomizing Grid...",20,320/2);
     uCanvas_Set_Color(prompt,255,255,0);
     prompt->properties.visiblity = INVISIBLE;
-    prompt->font_properties.font_type = FONT_24G;
+    prompt->font_properties.font_type = FONTX_24G;
     printf("Current free heap size: %ld bytes\n", esp_get_free_heap_size());
     // demo_laws_of_life();
-    prompt->font_properties.font_type = FONT_24G;
+    prompt->font_properties.font_type = FONTX_24G;
     while (1) {
         set_cell(get_random_number(0,20),get_random_number(0,20),FILL);
         set_cell(get_random_number(0,20),get_random_number(0,20),FILL);

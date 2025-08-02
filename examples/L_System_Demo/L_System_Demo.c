@@ -107,11 +107,11 @@ void render_lsystem(const char *lsystem, float startX, float startY) {
     
     textbox1 = New_uCanvas_2DTextbox("-", 240/2, 320-16);
     uCanvas_Set_Color(textbox1, 255, 255, 0);
-    textbox1->font_properties.font_type = FONT_10M;
+    textbox1->font_properties.font_type = FONTX_10M;
 
     textbox2 = New_uCanvas_2DTextbox("-", 240/2, 320-32);
     uCanvas_Set_Color(textbox2, 255, 255, 0);
-    textbox2->font_properties.font_type = FONT_10M;
+    textbox2->font_properties.font_type = FONTX_10M;
     
     uint16_t total_objects = 0;
     for (int i = 0; lsystem[i] != '\0'; i++) {

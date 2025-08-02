@@ -127,7 +127,7 @@ void start_vector_graphics_app(){
     c3 = New_uCanvas_2DCircle((240/2)+100,(320/2)+50,5);
    
     text = New_uCanvas_2DTextbox("",10,80);
-    text->font_properties.font_type = FONT_32L;
+    text->font_properties.font_type = FONTX_32L;
     uCanvas_Set_Color(text,255,255,0);
     
 

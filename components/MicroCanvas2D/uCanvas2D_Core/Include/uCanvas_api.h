@@ -21,7 +21,11 @@
 
     /*Starts Rendering Engine and Initializes Display*/
     uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel_1,uCanvas2D_Display_Panel_t* panel_2);
-    int64_t uCanvas_Get_FPS(void);
+    uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int width, int height);
+    void uCanvas_Pause_Instance(uCanvas2D_Instance_t* instance);
+    void uCanvas_Resume_Instance(uCanvas2D_Instance_t* instance);
+    void uCanvas_Destroy_Instance(uCanvas2D_Instance_t* instance);
+    int64_t uCanvas_Get_FPS(uCanvas2D_Instance_t* instance);
     /**
 
     void pause_uCanvas_engine(void);
@@ -156,4 +160,7 @@
     void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj);
     void uCanvas_Delete_Scene(uCanvas_Scene_t* scene_obj);
     void uCanvas_Play_Sprite_Animation(uCanvas_Sprite_KeyFrames_t* obj, sprite2D_t* sprite_set);
+
+    uCanvas2D_RenderBuffer_t* uCanvas2D_Create_RenderBuffer(int width, int height);
+    void draw_universal_object_to_target_render_buffer(uCanvas_universal_obj_t* obj, uCanvas2D_RenderBuffer_t* framebuffer);
 #endif

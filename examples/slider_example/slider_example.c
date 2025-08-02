@@ -29,7 +29,7 @@ void uCanvas_slider_demo_Setup() {
     uCanvas_Set_Color(bg,10,4,0);
     
     uCanvas_universal_obj_t* title = New_uCanvas_2DTextbox("DEMO",100,24);
-    title->font_properties.font_type = FONT_24G;
+    title->font_properties.font_type = FONTX_24G;
     uCanvas_Set_Color(title,180,0,0);
 
     v_slider.is_active = true;

@@ -40,7 +40,7 @@
     
 //     //Create text box and Set properties for clock element
 //     status_bar.timestamp = New_uCanvas_2DTextbox("11:00PM",10,10+15);
-//     status_bar.timestamp->font_properties.font_type = FONT_16G;
+//     status_bar.timestamp->font_properties.font_type = FONTX_16G;
 //     uCanvas_Set_Color(status_bar.timestamp,255,0,0);
     
 //     //Create network strenght indicator element
@@ -87,7 +87,7 @@
 //     title->properties.visiblity = VISIBLE;
 //     color_wipe(title,title->properties.color,(color_t){.red = 255,0,0},1000,50);
 //     uCanvas_Set_Color(status_bar.timestamp,50,0,0);
-//     status_bar.timestamp->font_properties.font_type = FONT_32L;
+//     status_bar.timestamp->font_properties.font_type = FONTX_32L;
 //     color_wipe(status_bar.timestamp,status_bar.timestamp->properties.color,(color_t){.red = 255, 0, 0},600,100);  
 // }
 
@@ -96,7 +96,7 @@
 //     uCanvas_Set_Color(status_bar.timestamp,100,0,0);
 //     color_wipe(title,title->properties.color,(color_t){.red = 100,0,0},1000,90);
     
-//     status_bar.timestamp->font_properties.font_type = FONT_16G;
+//     status_bar.timestamp->font_properties.font_type = FONTX_16G;
     
 //     while (status_bar.timestamp->properties.position.y != 25)
 //     {
@@ -113,7 +113,7 @@
 
 // void menu_task(void* arg){
 //     title = New_uCanvas_2DTextbox("Clock App",10,30);
-//     title->font_properties.font_type = FONT_32L;
+//     title->font_properties.font_type = FONTX_32L;
 //     title->properties.visiblity = INVISIBLE;
 //     uCanvas_Set_Color(title,100,0,0);
 

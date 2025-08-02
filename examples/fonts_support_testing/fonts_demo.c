@@ -7,13 +7,13 @@ void uCanvas_Run_Fonts_demo(void){
     uCanvas2D_Instance_t* uCanvas_Instance_1 = uCANVAS2D_EK79007_SETUP(scene);
     uCanvas_Change_Active_Instance(uCanvas_Instance_1);
     uCanvas_universal_obj_t* text = New_uCanvas_2DTextbox("Hello",20,70);
-    text->font_properties.font_type = FONT_16G;
+    text->font_properties.font_type = FONTX_16G;
     text->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
     
     while (1)
     {
-        if(text->font_properties.font_type < FONT_10M)text->font_properties.font_type++;
-        else text->font_properties.font_type = FONT_16G;
+        if(text->font_properties.font_type < FONTX_10M)text->font_properties.font_type++;
+        else text->font_properties.font_type = FONTX_16G;
         uCanvas_Delay(100);
     }
 }

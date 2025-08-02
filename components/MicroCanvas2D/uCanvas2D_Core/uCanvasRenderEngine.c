@@ -12,7 +12,7 @@ extern SemaphoreHandle_t active_scene_mutex;
 TaskHandle_t uCanvas_taskhandle;
 extern uCanvas_Scene_t* active_scene;
 
-void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj, uCanvas2D_RenderBuffer_t* framebuffer){
+void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_obj_t* obj, uCanvas2D_RenderBuffer_t* framebuffer){
     uint16_t color = obj->properties.color.red << 11 | obj->properties.color.green << 5 | obj->properties.color.blue;
     switch (obj->properties.type)
     {
@@ -30,6 +30,7 @@ void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj, uCanvas2D_R
     }
 
     case TEXTBOX : {
+        uCanvas_Draw_Text(framebuffer,obj->properties.position.x,obj->properties.position.y,obj->text,obj->font_properties.font_type,color,0x0000,obj->font_properties.Font_Draw_Direction,0);
         // uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color,obj->font_properties);
         break;
     }
@@ -109,60 +110,90 @@ void IRAM_ATTR push_element_to_display(uCanvas_universal_obj_t* obj, uCanvas2D_R
     }
 }
 
-uCanvas2D_Instance_t* uCanvas_New_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel, uCanvas2D_RenderBuffer_t* render_buffer) {
-    uCanvas2D_Instance_t* instance = (uCanvas2D_Instance_t*)malloc(sizeof(uCanvas2D_Instance_t));
-    if (instance == NULL) {
-        printf("Failed to allocate memory for uCanvas2D_Instance_t\r\n");
-        return NULL;
-    }
-    instance->active_scene = scene;
-    instance->panel_1 = panel;
-    instance->render_buffer = render_buffer;
-    return instance;
-}
+
 int64_t fps=0;
-int64_t uCanvas_Get_FPS(void){
-    return fps;
+int64_t uCanvas_Get_FPS(uCanvas2D_Instance_t* instance){
+    if(instance == NULL)return 0;
+    instance->fps = 1000000 /instance->fps;
+    return instance->fps;
 }
 
 void IRAM_ATTR uCanvas_renderer_task(void*arg){
     uCanvas2D_Instance_t* instance = (uCanvas2D_Instance_t*)arg;
+    uCanvas2D_RenderBuffer_t* current_bufffer = instance->render_buffer;
+    uCanvas2D_RenderBuffer_t* draw_bufffer = instance->render_buffer;
     if(instance == NULL || instance->render_buffer == NULL){
         printf("Invalid uCanvas2D_Instance_t\r\n");
         return;
     }
+    int switch_buffer = 0;
     while(1){ 
+        // int64_t start = esp_timer_get_time();
         uCanvas_Scene_t* _scene = instance->active_scene;
-		vTaskDelay(pdMS_TO_TICKS(9));
+		// vTaskDelay(pdMS_TO_TICKS(instance->refresh_delay));
+
+        // //check if manual refresh on signal is enabled.
+        // if(instance->refresh_mode == REFRESH_ON_SIGNAL){
+        //     while (!instance->signal_scene_refresh)
+        //     {
+        //         vTaskDelay(pdMS_TO_TICKS(instance->refresh_delay));
+        //     } 
+        // }
+
+        //Synchronizer for parent uCanvas Instance
+        // if(instance->synchronize){
+        //     uCanvas2D_Instance_t* w_inst = (uCanvas2D_Instance_t*)instance->window_instance;
+        //     LOCK_RESOURCE(w_inst->render_buffer_lock);
+        // }
+
+        //Switch Render Buffer when Double buffering enabled.
+        if(switch_buffer) current_bufffer = instance->render_buffer_aux;
+        else current_bufffer = instance->render_buffer;
+        switch_buffer = !switch_buffer;
+
 		if((_scene != NULL) && (_scene->_2D_Object_Ptr > 0)){
 			if(LOCK_RESOURCE(instance->render_buffer_lock)){ 
                 int64_t start = esp_timer_get_time();
+                //Clear Display
                 if(instance->render_buffer->use_ppa){
                     ppa_helper_fill(
-                    instance->render_buffer->pixels,
-                    instance->render_buffer->width * instance->render_buffer->height * sizeof(uint16_t),
-                    instance->render_buffer->width,
-                    instance->render_buffer->height,
-                    0, 0, instance->render_buffer->width, instance->render_buffer->height, 0x0000
+                    current_bufffer->pixels,
+                    current_bufffer->width * current_bufffer->height * sizeof(uint16_t),
+                    current_bufffer->width,
+                    current_bufffer->height,
+                    0, 0, current_bufffer->width, current_bufffer->height, 0x0000
                     );
                 }
                 else{
-                    memset(instance->render_buffer->pixels, 0x0000, instance->render_buffer->width * instance->render_buffer->height * sizeof(uint16_t)); 
+                    memset(current_bufffer->pixels, 0x0000, current_bufffer->width * current_bufffer->height * sizeof(uint16_t)); 
                 }
-
+                
+                //Push All elements to display 
 				for (int i = 0; i < _scene->_2D_Object_Ptr; i++)
 				{
-					uCanvas_universal_obj_t* obj = _scene->_2D_Objects[i];
-                    push_element_to_display(obj,instance->render_buffer);
-				}    
-                if(instance->panel_1 != NULL)instance->panel_1->push_render_buffer(0, 0, instance->render_buffer);
-                if(instance->panel_2 != NULL)instance->panel_2->push_render_buffer(0, 0, instance->render_buffer);
-                fps = 1000000 / (esp_timer_get_time() - start);
+					if(_scene->_2D_Objects[i]->properties.visiblity == INVISIBLE)continue;
+                    uCanvas_universal_obj_t* obj = _scene->_2D_Objects[i];
+                    draw_universal_object_to_target_render_buffer(obj,current_bufffer);
+				}
+                //Update display panel (This is non blockig)
+                draw_bufffer = current_bufffer;
+                if(instance->panel_1 != NULL)instance->panel_1->push_render_buffer(0, 0, draw_bufffer);
+                instance->fps = (esp_timer_get_time() - start);
                 UNLOCK_RESOURCE(instance->render_buffer_lock);
 			}
         }
+
+        // //Synchronizer for parent uCanvas Instance
+        // if(instance->synchronize){
+        //     uCanvas2D_Instance_t* w_inst = (uCanvas2D_Instance_t*)instance->window_instance;
+        //     UNLOCK_RESOURCE(w_inst->render_buffer_lock);
+        // }
+        // instance->signal_scene_refresh = false;
 	}
 }
+
+
+
 
 uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel_1,uCanvas2D_Display_Panel_t* panel_2) {
     printf("Creating new uCanvas2D_Instance_t\r\n");
@@ -171,11 +202,15 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
         printf("Failed to allocate memory for uCanvas2D_Instance_t\r\n");
         return NULL;
     }
+    instance->synchronize = false;
+    instance->window_instance = NULL;
+    instance->refresh_delay = 16;
     // Plug in Scene and panels to the instance
     instance->active_scene = scene;
     instance->panel_1 = panel_1;
     instance->panel_2 = panel_2;
-
+    instance->refresh_mode = AUTO_REFRESH;
+    instance->render_buffer_aux = NULL;
     // Create a new render buffer for the instance
     instance->render_buffer = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
     instance->render_buffer->width = panel_1->width;
@@ -192,6 +227,24 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
     }
     memset(instance->render_buffer->pixels, 0x0000, panel_1->width * panel_1->height * sizeof(uint16_t)); // Initialize to black
 
+
+    // Create a new render buffer for the instance
+    instance->render_buffer_aux = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
+    instance->render_buffer_aux->width = panel_1->width;
+    instance->render_buffer_aux->height = panel_1->height;
+    instance->render_buffer_aux->pitch = 0;
+    instance->render_buffer_aux->offset_x = 0;
+    instance->render_buffer_aux->offset_y = 0;
+    instance->render_buffer_aux->pixels = heap_caps_aligned_alloc(32, panel_1->width * panel_1->height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);// (uint16_t*)malloc(panel_1->width * panel_1->height * sizeof(uint16_t));
+    if (instance->render_buffer_aux->pixels == NULL) {
+        printf("Failed to allocate memory for render buffer pixels\r\n");
+        free(instance->render_buffer_aux);
+        free(instance);
+        return NULL;
+    }
+    memset(instance->render_buffer_aux->pixels, 0x0000, panel_1->width * panel_1->height * sizeof(uint16_t)); // Initialize to black
+
+
     // Setup PPA if Target is ESP32P4 and PPA is enabled
     #if CONFIG_IDF_TARGET_ESP32P4 && USE_PPA_FOR_RENDERING
         Intialize_PPA();
@@ -199,8 +252,8 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
     #else
         instance->render_buffer->use_ppa = false;
     #endif
-
     
+    instance->Clear_On_Refresh = true;
     instance->render_buffer_lock = xSemaphoreCreateBinary();
     UNLOCK_RESOURCE(instance->render_buffer_lock);
 
@@ -212,13 +265,112 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
         instance->panel_2->init(1);
         instance->panel_2->set_backlight(8000);
     }
-
-    xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, 1);
+    instance->pin_to_core = 1; // Default to core 0, can be changed later
+    xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
     printf("uCanvas2D_Instance_t created successfully\r\n");
     return instance;
 }
 
+uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int width, int height) {
+    printf("Creating new uCanvas2D_Instance_t\r\n");
+    uCanvas2D_Instance_t* instance = (uCanvas2D_Instance_t*)malloc(sizeof(uCanvas2D_Instance_t));
+    if (instance == NULL) {
+        printf("Failed to allocate memory for uCanvas2D_Instance_t\r\n");
+        return NULL;
+    }
+    instance->panel_1 = NULL;
+    instance->panel_2 = NULL;
+    instance->refresh_delay = 20;
+    instance->synchronize = false;
+    instance->window_instance = NULL;
+    // Plug in Scene and panels to the instance
+    instance->active_scene = scene;
+    instance->refresh_mode = AUTO_REFRESH;
+    instance->Clear_On_Refresh = true;
+    // Create a new render buffer for the instance
+    instance->render_buffer = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
+    instance->render_buffer->width = width;
+    instance->render_buffer->height = height;
+    instance->render_buffer->pitch = 0;
+    instance->render_buffer->offset_x = 0;
+    instance->render_buffer->offset_y = 0;
+    instance->render_buffer->pixels = heap_caps_aligned_alloc(32, width * height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);// (uint16_t*)malloc(panel_1->width * panel_1->height * sizeof(uint16_t));
+    if (instance->render_buffer->pixels == NULL) {
+        printf("Failed to allocate memory for render buffer pixels\r\n");
+        free(instance->render_buffer);
+        free(instance);
+        return NULL;
+    }
+    memset(instance->render_buffer->pixels, 0x0000, width * height * sizeof(uint16_t)); // Initialize to black
 
+
+    instance->render_buffer_aux = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
+    instance->render_buffer_aux->width = width;
+    instance->render_buffer_aux->height = height;
+    instance->render_buffer_aux->pitch = 0;
+    instance->render_buffer_aux->offset_x = 0;
+    instance->render_buffer_aux->offset_y = 0;
+    instance->render_buffer_aux->pixels = heap_caps_aligned_alloc(32, width * height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);// (uint16_t*)malloc(panel_1->width * panel_1->height * sizeof(uint16_t));
+    if (instance->render_buffer_aux->pixels == NULL) {
+        printf("Failed to allocate memory for render buffer pixels\r\n");
+        free(instance->render_buffer_aux);
+        free(instance);
+        return NULL;
+    }
+    memset(instance->render_buffer->pixels, 0x0000, width * height * sizeof(uint16_t)); // Initialize to black
+
+
+    // Setup PPA if Target is ESP32P4 and PPA is enabled
+    #if CONFIG_IDF_TARGET_ESP32P4 && USE_PPA_FOR_RENDERING
+        Intialize_PPA();
+        instance->render_buffer->use_ppa = true;
+    #else
+        instance->render_buffer->use_ppa = false;
+    #endif
+
+    
+    instance->render_buffer_lock = xSemaphoreCreateBinary();
+    UNLOCK_RESOURCE(instance->render_buffer_lock);
+    
+    instance->pin_to_core = 0; // Default to core 0, can be changed later
+    xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    printf("uCanvas2D_Instance_t created successfully\r\n");
+    return instance;
+}
+
+void uCanvas_Pause_Instance(uCanvas2D_Instance_t* instance){
+    if(instance == NULL || instance->render_task_handle == NULL){
+        printf("Invalid uCanvas2D_Instance_t or render task handle\r\n");
+        return;
+    }
+    vTaskSuspend(instance->render_task_handle);
+}
+
+void uCanvas_Resume_Instance(uCanvas2D_Instance_t* instance){
+    if(instance == NULL || instance->render_task_handle == NULL){
+        printf("Invalid uCanvas2D_Instance_t or render task handle\r\n");
+        return;
+    }
+    vTaskResume(instance->render_task_handle);
+}
+
+void uCanvas_Destroy_Instance(uCanvas2D_Instance_t* instance) {
+    if (instance == NULL) {
+        printf("Invalid uCanvas2D_Instance_t\r\n");
+        return;
+    }
+    if (instance->render_buffer != NULL) {
+        if (instance->render_buffer->pixels != NULL) {
+            free(instance->render_buffer->pixels);
+        }
+        free(instance->render_buffer);
+    }
+    if (instance->render_task_handle != NULL) {
+        vTaskDelete(instance->render_task_handle);
+    }
+    free(instance);
+    printf("uCanvas2D_Instance_t destroyed successfully\r\n");
+}
 
 void pause_uCanvas_engine(void){
     vTaskSuspend(uCanvas_taskhandle);
@@ -226,3 +378,4 @@ void pause_uCanvas_engine(void){
 void resume_uCanvas_engine(void){
     vTaskResume(uCanvas_taskhandle);
 }
+

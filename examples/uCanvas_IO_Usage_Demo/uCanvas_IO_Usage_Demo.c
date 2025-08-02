@@ -27,11 +27,11 @@ void Run_uCanvas_IO_Usage_Demo() {
 
     uCanvas_universal_obj_t* textbox1 = New_uCanvas_2DTextbox("",30,30);
     uCanvas_Set_Color(textbox1,0,255,0);
-    textbox1->font_properties.font_type = FONT_16M;
+    textbox1->font_properties.font_type = FONTX_16M;
 
     uCanvas_universal_obj_t* textbox2 = New_uCanvas_2DTextbox("",30,60);
     uCanvas_Set_Color(textbox2,0,255,0);
-    textbox2->font_properties.font_type = FONT_16M;
+    textbox2->font_properties.font_type = FONTX_16M;
     
     uint8_t mode = 0;
     char buf[32];

@@ -1,4 +1,5 @@
 #include "stdint.h"
+#pragma once
 
 #define SHIP_ENEMY_HEIGHT 41
 #define SHIP_ENEMY_WIDTH 40

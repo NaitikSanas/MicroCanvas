@@ -84,7 +84,7 @@
 
 //     uCanvas_universal_obj_t* textbox = New_uCanvas_2DTextbox("Frames :",40,30);
 //     uCanvas_Set_Color(textbox,255,255,0);
-//     textbox->font_properties.font_type = FONT_16G;
+//     textbox->font_properties.font_type = FONTX_16G;
     
 
 //     printf("done\r\n");

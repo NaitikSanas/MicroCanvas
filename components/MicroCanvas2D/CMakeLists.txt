@@ -4,6 +4,7 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
                     "uCanvas2D_Core/uCanvas_User_IO.c"
                     "uCanvas2D_Core/uCanvas_Draw.c"
                     "uCanvas2D_Core/uCanvas_Physix.c" 
+                    "uCanvas2D_Core/uCanvas_Fonts.c" 
 
                     "uCanvas2D_GUI_Components/simple_menu/simple_menu.c"
                     "uCanvas2D_GUI_Components/ucanvas_button/ucanvas_button.c"
@@ -13,7 +14,16 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
                     "Display_Driver_Port/uCanvas2D_EK79007Port.c" 
                     "Display_Driver_Port/uCanvas2D_ST7789_Port.c"
                     "Display_Driver_Port/uCanvas2D_Acceleration.c"
-                    
+
+                    "Fonts/font8.c"
+                    "Fonts/font12.c"
+                    "Fonts/font16.c"
+                    "Fonts/font20.c"
+                    "Fonts/font24.c"
+                    "Fonts/BitcountPropDouble32.c"
+                    "Fonts/Roboto_Italic_32.c"
+                    "Fonts/SixyFour32.c"
+                                 
 )
 
 idf_component_register( SRCS "${COMPONENT_SRCS}"
@@ -23,4 +33,6 @@ idf_component_register( SRCS "${COMPONENT_SRCS}"
                                         "uCanvas2D_GUI_Components/ucanvas_button" 
                                         "uCanvas2D_GUI_Components/ucanvas_slider"
                                         "Display_Driver_Port"
+                                        "Fonts"
+                                        
                         PRIV_REQUIRES driver EK79007 SSD1306_Driver st7789  spiffs mpu6050_driver esp_timer esp_lcd esp_driver_ppa)

@@ -35,13 +35,21 @@ void uCanvas_Change_Active_Instance(uCanvas2D_Instance_t* instance){
 }
 
 void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
-    if(_uCanvas_Instance != NULL && _uCanvas_Instance->active_scene != NULL){
-            obj->index = _uCanvas_Instance->active_scene->_2D_Object_Ptr;
-            _uCanvas_Instance->active_scene->_2D_Objects[_uCanvas_Instance->active_scene->_2D_Object_Ptr] = obj;
-            _uCanvas_Instance->active_scene->_2D_Object_Ptr++;
-            UNLOCK_RESOURCE(_uCanvas_Instance->render_buffer_lock);
+    // if(_uCanvas_Instance != NULL && _uCanvas_Instance->active_scene != NULL){
+    //         obj->index = _uCanvas_Instance->active_scene->_2D_Object_Ptr;
+    //         _uCanvas_Instance->active_scene->_2D_Objects[_uCanvas_Instance->active_scene->_2D_Object_Ptr] = obj;
+    //         _uCanvas_Instance->active_scene->_2D_Object_Ptr++;
+    //         UNLOCK_RESOURCE(_uCanvas_Instance->render_buffer_lock);
+    // } else {
+    //     printf("Invalid uCanvas2D_Instance_t or active scene\r\n");
+    // }
+
+    if(active_scene != NULL){
+        obj->index = active_scene->_2D_Object_Ptr;
+        active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
+        active_scene->_2D_Object_Ptr++;
     } else {
-        printf("Invalid uCanvas2D_Instance_t or active scene\r\n");
+        printf("Invalid active_scene\r\n");
     }
 }
 
@@ -193,7 +201,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     memset(textbox->text,0,256);
     sprintf(textbox->text,"%s",text);
     textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
-    textbox->font_properties.font_type = FONT_10M;
+    textbox->font_properties.font_type = FONTX_10M;
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, TEXTBOX);
     uCanvas_Set_Color(textbox,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
@@ -267,7 +275,6 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t 
     uCanvas_Sprite->sprite_buffer = sprite2D_obj->sprite_buf;
     uCanvas_Sprite->width  = sprite2D_obj->width;
     uCanvas_Sprite->height = sprite2D_obj->height;
-
     // uCanvas_Sprite->sprite_resolution.x = sprite2D_obj->width;
     // uCanvas_Sprite->sprite_resolution.y = sprite2D_obj->height;
 
@@ -489,4 +496,17 @@ void uCanvas_Play_Sprite_Animation(uCanvas_Sprite_KeyFrames_t* obj, sprite2D_t* 
             // printf("frame update done\r\n\r\n");
         }    
     } 
+}
+
+
+uCanvas2D_RenderBuffer_t* uCanvas2D_Create_RenderBuffer(int width, int height){
+    uCanvas2D_RenderBuffer_t* render_buffer = heap_caps_aligned_alloc(32, sizeof(uCanvas2D_RenderBuffer_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
+    render_buffer->width = width;
+    render_buffer->height = height;
+    render_buffer->offset_x = 0;
+    render_buffer->offset_y = 0;
+    render_buffer->pitch = 0;
+    render_buffer->use_ppa = USE_PPA_FOR_RENDERING;
+    render_buffer->pixels = heap_caps_aligned_alloc(32, width * height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
+    return render_buffer;
 }

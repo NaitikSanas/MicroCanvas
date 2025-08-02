@@ -13,13 +13,23 @@
     typedef TaskHandle_t uCanvas_Animation_task_handle_t;
     
     typedef enum{
-        FONT_16G,
-        FONT_24G,
-        FONT_32G,
-        FONT_32L,
-        FONT_16M,
-        FONT_24M,
-        FONT_10M,
+        FONTX_16G,
+        FONTX_24G,
+        FONTX_32G,
+        FONTX_32L,
+        FONTX_16M,
+        FONTX_24M,
+        FONTX_10M,
+
+        SFONT_8,
+        SFONT_12,
+        SFONT_16,
+        SFONT_20,
+        SFONT_24,
+        SFONT_ROBOTO_ITALIC_32,
+        SFONT_SIXTYFOUR_32,
+        SFONT_BITCOUNT_32,
+
         OLED_7x10,
         OLED_11x18,
         OLED_16x26,
@@ -133,6 +143,8 @@
         
         uint16_t* sprite_buffer;
         sprite_color_format_t sprite_color_format;
+
+
         // Coordinate2D_t sprite_resolution;
         
         // sprite2D_t sprite_obj;
@@ -237,18 +249,61 @@ typedef struct rotary_encoder_obj
     uint8_t last_state;
 }rotary_encoder_t;
 
-
+typedef enum {
+    NO_REFRESH,
+    AUTO_REFRESH,
+    REFRESH_ON_SIGNAL
+}uCanvas2D_Render_Mode_t;
 
 typedef struct uCanvas2D_Instance
 {
     uCanvas_Scene_t* active_scene;
     uCanvas2D_Display_Panel_t* panel_1;
     uCanvas2D_Display_Panel_t* panel_2;
-    
+    uint8_t instance_dirty;
     uCanvas2D_RenderBuffer_t* render_buffer;
+    uCanvas2D_RenderBuffer_t* render_buffer_aux;
+    uCanvas2D_RenderBuffer_t* active_render_buf;
     TaskHandle_t render_task_handle;
     SemaphoreHandle_t render_buffer_lock;
-    
+    int pin_to_core;
+    uCanvas2D_Render_Mode_t refresh_mode;
+    uint8_t signal_scene_refresh;
+    uint64_t fps;
+    uint8_t blend;
+    uint8_t Clear_On_Refresh;
+    uint32_t refresh_delay;
+    void* window_instance;
+    int synchronize;
 }uCanvas2D_Instance_t;
+
+
+
+typedef struct{
+    uCanvas_Scene_t* active_scene;
+    uCanvas2D_RenderBuffer_t* render_buffer;
+    SemaphoreHandle_t render_buffer_lock; 
+    uint8_t signal_scene_refresh;
+    uCanvas2D_Render_Mode_t refresh_mode;
+    TaskHandle_t layer_render_taskhandle;
+    uint8_t layer_dirty;
+    uint8_t active;
+    int position_x;
+    int position_y;
+}uCanvas_Layer_t;
+
+typedef struct {
+    uCanvas_Layer_t* Layers[10];
+    int Active_Layers;
+    TaskHandle_t blend_task_handle;
+    int pin_to_core;
+}uCanvas_Layer_Stack_t;
+
+typedef struct {
+    uCanvas_Layer_Stack_t* LayerStack;
+    uCanvas2D_Display_Panel_t* Panel;
+    TaskHandle_t DirectBlend_Handle;
+}uCanvas_DirectBlend_t;
+
 
 #endif

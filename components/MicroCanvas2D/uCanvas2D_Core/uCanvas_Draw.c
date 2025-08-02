@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
-#include "fontx.h"
+
 #include "stdbool.h"
 #include "uCanvas2D_Display_Setup.h"
 #include "uCanvas2D_Acceleration.h"
@@ -218,127 +218,295 @@ void uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y, const uin
         }
     }
 }
-
-
-int uCanvas_Draw_Char(uCanvas2D_RenderBuffer_t *fb, int x, int y, char ascii, FontxFile *fx, uint16_t color1,uint16_t color2, uint16_t font_direction, uint8_t ul_en) {
-    uint16_t xx,yy,bit,ofs;
-	unsigned char fonts[128]; // font pattern
-	unsigned char pw, ph;
-	int h,w;
-	uint16_t mask;
-	bool rc;
-
-	rc = GetFontx(fx, ascii, fonts, &pw, &ph);
-	if (!rc) return 0;
-
-	int16_t xd1 = 0;
-	int16_t yd1 = 0;
-	int16_t xd2 = 0;
-	int16_t yd2 = 0;
-	uint16_t xss = 0;
-	uint16_t yss = 0;
-	int16_t xsd = 0;
-	int16_t ysd = 0;
-	int16_t next = 0;
-	uint16_t x0  = 0;
-	uint16_t x1  = 0;
-	uint16_t y0  = 0;
-	uint16_t y1  = 0;
-	if (font_direction == 0) {
-		xd1 = +1;
-		yd1 = +1; //-1;
-		xd2 =  0;
-		yd2 =  0;
-		xss =  x;
-		yss =  y - (ph - 1);
-		xsd =  1;
-		ysd =  0;
-		next = x + pw;
-
-		x0	= x;
-		y0	= y - (ph-1);
-		x1	= x + (pw-1);
-		y1	= y;
-	} else if (font_direction == 2) {
-		xd1 = -1;
-		yd1 = -1; //+1;
-		xd2 =  0;
-		yd2 =  0;
-		xss =  x;
-		yss =  y + ph + 1;
-		xsd =  1;
-		ysd =  0;
-		next = x - pw;
-
-		x0	= x - (pw-1);
-		y0	= y;
-		x1	= x;
-		y1	= y + (ph-1);
-	} else if (font_direction == 1) {
-		xd1 =  0;
-		yd1 =  0;
-		xd2 = -1;
-		yd2 = +1; //-1;
-		xss =  x + ph;
-		yss =  y;
-		xsd =  0;
-		ysd =  1;
-		next = y + pw; //y - pw;
-
-		x0	= x;
-		y0	= y;
-		x1	= x + (ph-1);
-		y1	= y + (pw-1);
-	} else if (font_direction == 3) {
-		xd1 =  0;
-		yd1 =  0;
-		xd2 = +1;
-		yd2 = -1; //+1;
-		xss =  x - (ph - 1);
-		yss =  y;
-		xsd =  0;
-		ysd =  1;
-		next = y - pw; //y + pw;
-
-		x0	= x - (ph-1);
-		y0	= y - (pw-1);
-		x1	= x;
-		y1	= y;
+#include "esp_spiffs.h"
+#define TAG "uCanvas_Draw"
+#include "esp_vfs.h"
+#include "esp_log.h"
+FontxFile fx16G[2];
+FontxFile fx24G[2];
+FontxFile fx32G[2];
+FontxFile fx32L[2];
+FontxFile fx16M[2];
+FontxFile fx24M[2];
+FontxFile fx10M[2];
+static void SPIFFS_Directory(char * path) {
+	DIR* dir = opendir(path);
+	assert(dir != NULL);
+	while (true) {
+		struct dirent*pe = readdir(dir);
+		if (!pe) break;
+		ESP_LOGI(__FUNCTION__,"d_name=%s d_ino=%d d_type=%x", pe->d_name,pe->d_ino, pe->d_type);
 	}
-
-
-	int bits;
-	ofs = 0;
-	yy = yss;
-	xx = xss;
-
-	for(h=0;h<ph;h++) {
-		if(xsd) xx = xss;
-		if(ysd) yy = yss;
-		//for(w=0;w<(pw/8);w++) {
-		bits = pw;
-		for(w=0;w<((pw+4)/8);w++) {
-			mask = 0x80;
-			for(bit=0;bit<8;bit++) {
-				bits--;
-				if (bits < 0) continue;
-				if (fonts[ofs] & mask) {
-                    set_pixel(fb, xx, yy, color1);
-				} 
-                if (h == (ph-2) && ul_en)
-					set_pixel(fb, xx, yy, color2);
-				if (h == (ph-1) && ul_en)
-                    set_pixel(fb, xx, yy, color2);
-				xx = xx + xd1;
-				yy = yy + yd2;
-				mask = mask >> 1;
-			}
-			ofs++;
-		}
-		yy = yy + yd1;
-		xx = xx + xd2;
-	}
-
-	if (next < 0) next = 0;
-	return next;
+	closedir(dir);
 }
+
+
+void uCanvas_Load_FontX(void){
+    esp_vfs_spiffs_conf_t conf = {
+		.base_path = "/spiffs",
+		.partition_label = NULL,
+		.max_files = 12,
+		.format_if_mount_failed =true
+	};
+
+	// Use settings defined above toinitialize and mount SPIFFS filesystem.
+	// Note: esp_vfs_spiffs_register is anall-in-one convenience function.
+	esp_err_t ret = esp_vfs_spiffs_register(&conf);
+
+	if (ret != ESP_OK) {
+		if (ret == ESP_FAIL) {
+			ESP_LOGE(TAG, "Failed to mount or format filesystem");
+		} else if (ret == ESP_ERR_NOT_FOUND) {
+			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
+		} else {
+			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)",esp_err_to_name(ret));
+		}
+		return;
+	}
+
+	size_t total = 0, used = 0;
+	ret = esp_spiffs_info(NULL, &total,&used);
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG,"Failed to get SPIFFS partition information (%s)",esp_err_to_name(ret));
+	} else {
+		ESP_LOGI(TAG,"Partition size: total: %d, used: %d", total, used);
+	}
+
+	SPIFFS_Directory("/spiffs/");
+	InitFontx(fx16G,"/spiffs/ILGH16XB.FNT",""); // 8x16Dot Gothic
+	InitFontx(fx24G,"/spiffs/ILGH24XB.FNT",""); // 12x24Dot Gothic
+	InitFontx(fx32G,"/spiffs/ILGH32XB.FNT",""); // 16x32Dot Gothic
+	InitFontx(fx32L,"/spiffs/LATIN32B.FNT",""); // 16x32Dot Latin
+
+	
+	InitFontx(fx16M,"/spiffs/ILMH16XB.FNT",""); // 8x16Dot Mincyo
+	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
+	InitFontx(fx10M,"/spiffs/FONT10X20.FNT",""); // 16x32Dot Mincyo
+	
+}
+#include "fonts.h"
+void* get_font_by_name(FontType_t font_type){
+    void* activefont = NULL;
+    switch (font_type)
+	{
+	case FONTX_16G:	 return fx16G; break;
+	case FONTX_24G:	 return fx24G; break;
+	case FONTX_32G:  return fx32G; break;
+	case FONTX_32L:  return fx32L; break;
+	case FONTX_16M:  return fx16M; break;
+	case FONTX_24M : return fx24M; break;
+	case FONTX_10M : return fx10M; break;
+
+    case SFONT_8 :   return &Font8; break;
+    case SFONT_12 :  return &Font12;break;
+    case SFONT_16 :  return &Font16; break;
+    case SFONT_20 :  return &Font20; break;
+    case SFONT_24 :  return &Font24; break;
+    case SFONT_ROBOTO_ITALIC_32 : return &Roboto_Italic_32; break;
+    case SFONT_SIXTYFOUR_32     : return &Sixtyfour_32; break;
+    case SFONT_BITCOUNT_32      : return &BitcountPropDouble32; break;
+	default:
+		activefont = fx10M;
+		break;
+	}
+    return activefont;
+}
+
+int uCanvas_Draw_FONTX(uCanvas2D_RenderBuffer_t *fb, int x, int y, char ascii,
+                      FontType_t font_type, uint16_t color1, uint16_t color2,
+                      uint16_t font_direction, uint8_t ul_en) {
+    unsigned char fonts[128]; // glyph bitmap
+    uint8_t pw, ph;
+
+    if (!GetFontx(get_font_by_name(font_type), ascii, fonts, &pw, &ph))
+        return 0;
+
+    int16_t xd1 = 0, yd1 = 0, xd2 = 0, yd2 = 0;
+    int16_t xx = 0, yy = 0;
+    int16_t next = 0;
+
+    // Direction setup
+    switch (font_direction) {
+        case 0:
+            xd1 = +1; yd1 = +1;
+            xx = x; yy = y - (ph - 1);
+            next = x + pw;
+            break;
+        case 1:
+            xd2 = -1; yd2 = +1;
+            xx = x + ph; yy = y;
+            next = y + pw;
+            break;
+        case 2:
+            xd1 = -1; yd1 = -1;
+            xx = x; yy = y + ph + 1;
+            next = x - pw;
+            break;
+        case 3:
+            xd2 = +1; yd2 = -1;
+            xx = x - (ph - 1); yy = y;
+            next = y - pw;
+            break;
+        default:
+            return 0;
+    }
+
+    int ofs = 0;
+    for (int h = 0; h < ph; h++) {
+        int bits_remaining = pw;
+        int16_t xline = xx;
+        int16_t yline = yy;
+
+        for (int w = 0; w < ((pw + 7) >> 3); w++) {
+            uint8_t b = fonts[ofs++];
+            for (int bit = 0; bit < 8 && bits_remaining > 0; bit++, bits_remaining--) {
+                uint8_t is_on = b & (0x80 >> bit);
+                if (is_on) {
+                    set_pixel(fb, xline, yline, color1);
+                } else if (ul_en && (h == ph - 2 || h == ph - 1)) {
+                    set_pixel(fb, xline, yline, color2);
+                }
+
+                xline += xd1;
+                yline += yd2;
+            }
+        }
+
+        xx += xd2;
+        yy += yd1;
+    }
+
+    return (next < 0) ? 0 : next;
+}
+
+
+#define DRAW_PIXEL(fb, x, y, color)  ((fb)->pixels[(y) * (fb)->width + (x)] = (color))
+
+void uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
+                        uint16_t fg_color, uint16_t bg_color, uint16_t font_direction)
+{
+    if (!Font || !fb || !fb->pixels || ascii < ' ') return;
+
+    uint8_t char_width = Font->Width;
+    uint8_t char_height = Font->Height;
+    uint8_t bytes_per_row = (char_width + 7) / 8;
+
+    const uint8_t* glyph_ptr = &Font->table[(ascii - ' ') * char_height * bytes_per_row];
+
+    for (int row = 0; row < char_height; row++) {
+        for (int col = 0; col < char_width; col++) {
+            int byte_index = col / 8;
+            int bit_index = 7 - (col % 8);  // MSB first
+            uint8_t byte = glyph_ptr[row * bytes_per_row + byte_index];
+
+            if (byte & (1 << bit_index)) {
+                DRAW_PIXEL(fb, x + col, y + row, fg_color);
+            } else {
+                // DRAW_PIXEL(fb, x + col, y + row, bg_color);
+            }
+        }
+    }
+}
+
+
+// int uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
+//                     uint16_t color1, uint16_t color2, uint16_t font_direction) {
+//     int row, col;
+//     int bytes_per_row = (Font->Width + 7) / 8;  // number of bytes per row
+//     const uint8_t* bitmap = &Font->table[(ascii - ' ') * Font->Height * bytes_per_row];
+
+//     for (row = 0; row < Font->Height; row++) {
+//         for (col = 0; col < Font->Width; col++) {
+//             int byte_index = row * bytes_per_row + (col / 8);
+//             uint8_t byte = bitmap[byte_index];
+//             if (byte & (0x80 >> (col % 8))) {
+//                 set_pixel(fb, x + col, y + row, color1);
+//             } else {
+//                 set_pixel(fb, x + col, y + row, color2);
+//             }
+//         }
+//     }
+
+//     return 0;
+// }
+
+// int uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
+//                        uint16_t color1, uint16_t color2, uint16_t font_direction) {
+//     uint8_t char_width = Font->Width;
+//     uint8_t char_height = Font->Height;
+//     uint8_t bytes_per_row = (char_width + 7) / 8;
+
+//     uint32_t offset = (ascii - ' ') * char_height * bytes_per_row;
+//     const uint8_t *ptr = &Font->table[offset];
+
+//     for (int row = 0; row < char_height; row++) {
+//         for (int col = 0; col < char_width; col++) {
+//             int byte_index = col / 8;
+//             int bit_index = 7 - (col % 8); // MSB first
+
+//             uint8_t byte = ptr[byte_index];
+//             uint8_t bit = (byte >> bit_index) & 0x01;
+
+//             uint16_t color = bit ? color1 : color2;
+//             set_pixel(fb, x + col, y + row, color);
+//         }
+//         ptr += bytes_per_row;
+//     }
+
+//     return 0;
+// }
+
+// int uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
+//                     uint16_t color1, uint16_t color2,
+//                     uint16_t font_direction) {
+//     uint8_t char_width = Font->Width;
+//     uint8_t char_height = Font->Height;
+//     uint8_t bytes_per_column = (char_height + 7) / 8;
+
+//     uint32_t offset = (ascii - ' ') * char_width * bytes_per_column;
+//     const uint8_t *ptr = &Font->table[offset];
+
+//     for (int col = 0; col < char_width; col++) {
+//         for (int byte = 0; byte < bytes_per_column; byte++) {
+//             uint8_t data = *ptr++;
+//             for (int bit = 0; bit < 8; bit++) {
+//                 int row = byte * 8 + bit;
+//                 if (row >= char_height) continue;
+
+//                 uint16_t color = (data & (1 << bit)) ? color1 : color2;
+//                 set_pixel(fb, x + col, y + row, color);
+//             }
+//         }
+//     }
+
+//     return 0;
+// }
+void uCanvas_Draw_SFONT_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, const char *pString,
+                         FontType_t font_type, uint16_t color1, uint16_t color2, int font_direction) {
+    sFONT* Font = get_font_by_name(font_type);
+    if (Font == NULL || pString == NULL) return;
+
+    while (*pString != '\0') {
+        uCanvas_Draw_SFONT(fb, Font, x, y, *pString, color1, color2, font_direction);
+        pString++;
+        x += Font->Width;
+    }
+}
+int uCanvas_Draw_FONTX_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){
+    int len = strlen(text);
+    for (int i = 0; i < len; i++) {
+        int pos = uCanvas_Draw_FONTX(fb, x, y, text[i], font_type, color1, color2, font_direction, ul_en);
+        if (font_direction == 0 || font_direction == 2) x = pos;
+        else y = pos;
+    }
+    return (font_direction == 0 || font_direction == 2) ? x : y;
+}
+
+
+int uCanvas_Draw_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){
+    if(font_type < SFONT_8)uCanvas_Draw_FONTX_Text(fb,x,y,text,font_type,color1,color2,font_direction,ul_en);
+    if(font_type >= SFONT_8)uCanvas_Draw_SFONT_Text(fb,x,y,text,font_type,color1,color2,font_direction);
+
+    return 0;
+}
+
