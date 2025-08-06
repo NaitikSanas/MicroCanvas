@@ -25,7 +25,7 @@ void Run_3D_Cube_Demo() {
     scene = New_uCanvas_Scene();
     uCanvas_set_active_scene(scene);
     
-    uCanvas2D_Instance_t* uCanvas_Instance_1 = uCANVAS2D_EK79007_SETUP(scene);
+    uCanvas2D_Instance_t* uCanvas_Instance_1 = NULL; //uCANVAS2D_EK79007_SETUP(scene);
     uCanvas_Change_Active_Instance(uCanvas_Instance_1);
     //ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
     // uCanvas_Set_Display_Properties(320,240,1);

@@ -56,9 +56,9 @@ def generate_c_file(font_data, width, height, font_name, out_file):
         f.write('};\n\n')
 
         f.write(f'sFONT {font_name} = {{\n')
+        f.write(f'  {font_name}_table,\n')
         f.write(f'  {width}, // Width\n')
-        f.write(f'  {height}, // Height\n')
-        f.write(f'  {font_name}_table\n')
+        f.write(f'  {height}// Height\n')
         f.write('};\n')
 
 # Main entry
