@@ -2,8 +2,8 @@
 #include "uCanvas_api.h"
 #include "uCanvas_User_IO.h"
 
-#define CANVAS_HEIGHT       600
-#define CANVAS_WIDTH        1024
+#define CANVAS_HEIGHT       300
+#define CANVAS_WIDTH        512
 
 #define MAX_STARS           100 
 #define STARS_SCROLLING_RATE 22  
@@ -412,7 +412,7 @@ void create_spaceship(spaceship_t* obj){
         SHIP_HEIGHT
     );
 
-    uCanvas_Compose_2DSprite_Obj(&spaceship_sprite_obj,ship_ARGB8888,40,40,SPRITE2D_COLOR_ARGB8888);
+    uCanvas_Compose_2DSprite_Obj(&spaceship_sprite_obj,ship_ARGB8888,40,40,COLOR_ARGB8888);
     uCanvas_Sprite_Adjust_Contrast(&spaceship_sprite_obj,400);
     obj->obj = New_uCanvas_2DSprite(&spaceship_sprite_obj,0,0);
     obj->obj->point1 = (Coordinate2D_t){10,0};
@@ -448,8 +448,8 @@ void spawn_enemines(){
         );
         
 
-        // uCanvas_Compose_2DSprite_Obj(&enemy_spaceship_sprite_obj,ship_enemy,SHIP_ENEMY_WIDTH,SHIP_ENEMY_HEIGHT,SPRITE2D_COLOR_RGBA565);
-        uCanvas_Compose_2DSprite_Obj(&enemy_spaceship_sprite_obj,enemy_spaceship_rgba8888,SHIP_ENEMY_WIDTH,SHIP_ENEMY_HEIGHT,SPRITE2D_COLOR_ARGB8888);
+        // uCanvas_Compose_2DSprite_Obj(&enemy_spaceship_sprite_obj,ship_enemy,SHIP_ENEMY_WIDTH,SHIP_ENEMY_HEIGHT,COLOR_RGBA565);
+        uCanvas_Compose_2DSprite_Obj(&enemy_spaceship_sprite_obj,enemy_spaceship_rgba8888,SHIP_ENEMY_WIDTH,SHIP_ENEMY_HEIGHT,COLOR_ARGB8888);
 
         // uCanvas_Sprite_Adjust_Contrast(&enemy_spaceship_sprite_obj,200);
         
@@ -554,51 +554,90 @@ void create_hud(){
 #include "uCanvas2D_Acceleration.h"
 
  uCanvas_Scene_t* scene = NULL;
-uCanvas2D_Instance_t* uCanvas_Instance_1 = NULL;
+uCanvas2D_Instance_t uCanvas_Instance_1;
+uCanvas2D_Instance_t uCanvas_Instance_2;
 uCanvas2D_Instance_t* game_window = NULL;
 void fps_monitor(void){
-    uCanvas_universal_obj_t* fps_counter = New_uCanvas_2DTextbox("",CANVAS_WIDTH-150,5);
+    uCanvas_universal_obj_t* fps_counter = New_uCanvas_2DTextbox("",CANVAS_WIDTH-150,60);
     fps_counter->font_properties.font_type = SFONT_24;
     uCanvas_Set_Color(fps_counter,255,255,255);
+
+    // uCanvas_set_active_scene(uCanvas_Instance_2.active_scene);
+    // uCanvas_universal_obj_t* fps_counter2 = New_uCanvas_2DTextbox("",128-60,128-16);
+    // fps_counter2->font_properties.font_type = SFONT_12;
+    // uCanvas_Set_Color(fps_counter2,255,255,0);
+
+
     char buf[32]={0};
+    char buf2[32]={0};
     while (1)
     {
-        sprintf(buf,"FPS:%lld",uCanvas_Get_FPS(uCanvas_Instance_1));
+        sprintf(buf,"FPS:%lld",uCanvas_Get_FPS(&uCanvas_Instance_1));
         uCanvas_Set_Text(fps_counter,buf);
+
+        // sprintf(buf2,"FPS:%lld",uCanvas_Get_FPS(&uCanvas_Instance_2));
+        // uCanvas_Set_Text(fps_counter2,buf2);
+
         vTaskDelay(pdMS_TO_TICKS(200));
     } 
 }
-
 void Run_Space_Explorer_Game() {
-    uCanvas_Load_FontX();
-    scene = New_uCanvas_Scene();
-    // game_window = New_uCanvas_Window_Instance(scene,CANVAS_WIDTH,CANVAS_HEIGHT);
+    // uCanvas_Load_FontX();
+    Intialize_PPA(); //Enable 2D Pixel Processing Accelerator
 
-    // sprite2D_t game_window_spr;
-    // uCanvas_Compose_2DSprite_Obj(&game_window_spr,game_window->render_buffer->pixels,game_window->render_buffer->width,game_window->render_buffer->height,SPRITE2D_COLOR_RGB565);
-    // uCanvas_Scene_t* out_scene =  New_uCanvas_Scene();
-    // uCanvas_Instance_1 = New_uCanvas_Instance(out_scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
-    // uCanvas_set_active_scene(uCanvas_Instance_1->active_scene);
-    // uCanvas_Instance_1->Clear_On_Refresh = false;
-    // game_window->refresh_delay = 5;
-    // uCanvas_Instance_1->window_instance = (uCanvas2D_Instance_t*) game_window;
-    // uCanvas_Instance_1->synchronize = true;
-    // uCanvas_universal_obj_t* rect = New_uCanvas_2DRectangle(100-1,100-11,CANVAS_HEIGHT+1,CANVAS_WIDTH+1);
-    //  uCanvas_Set_Color(rect,255,255,0);
-    // uCanvas_universal_obj_t* out_spr = New_uCanvas_2DSprite(&game_window_spr, 100,100);
+    
+    
+    uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
+    panel->init(1);
+    // panel->set_backlight(3000);
+    
+
+    // uCanvas2D_Display_Panel_t* panel_st7789 = uCanvas2D_Get_Panel_Driver_ST7789();
+    // panel_st7789->init(1);
+    // // panel_st7789->set_backlight(3000);
+
+    uCanvas_Scene_t*  scene = New_uCanvas_Scene();
+
+    // uCanvas_set_active_scene(uCanvas_Instance_2.active_scene);
+    // // Draws Everything within the Set Active scene
+    // uCanvas_universal_obj_t* rect = New_uCanvas_2DRectangle(0,0,128,128);
+    // uCanvas_Set_Color(rect,255,255,0);
+    // uCanvas_universal_obj_t* text = New_uCanvas_2DTextbox("Window", 5,5);
+    // text->font_properties.font_type = SFONT_12;
+    // uCanvas_Set_Color(text,255,255,0);
+    // uCanvas_universal_obj_t* line = New_uCanvas_2DLine(0,20,128,20);
+    // uCanvas_Set_Color(line,255,255,0);
     
    
-    // out_spr->properties.visiblity = INVISIBLE;
-     uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL);
-    uCanvas_set_active_scene(uCanvas_Instance_1->active_scene);
-    uCanvas_Instance_1->refresh_delay = 2;
+    uCanvas_Instance_1.scale_output = true;
+    uCanvas_Instance_1.scale_x = 2.0;
+    uCanvas_Instance_1.scale_y = 2.0;
+    if(uCanvas_Attach_RenderBuffer(&uCanvas_Instance_1,CANVAS_WIDTH,CANVAS_HEIGHT)){
+        uCanvas_Set_Panel_RefreshDelay(&uCanvas_Instance_1,2);
+        uCanvas_Attach_Panel(&uCanvas_Instance_1,panel);
+        uCanvas_Set_ViewPort_Position(&uCanvas_Instance_1,0,0);
+        uCanvas_Attach_Scene(&uCanvas_Instance_1,scene);
+        uCanvas_Attach_Renderer(&uCanvas_Instance_1,1);
+    }
+    // uCanvas2D_GetPanel_Driver_ST7789(&panel_st7789);
+    // panel_st7789.init(1);
+    // panel_st7789.set_backlight(3000);
+
+    
+    // uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL,CANVAS_WIDTH,CANVAS_HEIGHT,100,100);
+    // uCanvas2D_Instance_t* uCanvas_Instance_2 = New_uCanvas_Instance(hud_scene, uCanvas2D_Get_Panel_Driver_ST7789(),NULL,CANVAS_WIDTH,CANVAS_HEIGHT,0,0);
+    // uCanvas_set_active_scene(uCanvas_Instance_2->active_scene);
+    // uCanvas_universal_obj_t* rect = New_uCanvas_2DRectangle(0,0,200,200);
+    // uCanvas_Set_Color(rect,255,255,0);
+
+    uCanvas_set_active_scene(uCanvas_Instance_1.active_scene);
     // uCanvas_Initialize_IMU_Device(42,41);
     // uCanvas_IMU_Set_Tilt_Detection_Parameters(7,2);
     uCanvas_Init_PushButton(PB1);
     uCanvas_Init_PushButton(PB2);
     
     uCanvas_rotary_encoder_init(&rotary_encoder_1,ENC_A,ENC_B,ENC_SW);
-
+    uCanvas_set_active_scene(uCanvas_Instance_1.active_scene);
 
     printf("---setup\r\n");
     stars_array_init();

@@ -16,12 +16,19 @@
 
     void uCanvas_lock_scene();
     void uCanvas_unlock_scene();
-    #define uCANVAS2D_EK79007_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_EK79007(),NULL)
-    #define uCANVAS2D_ST7789_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_ST7789(),NULL)
+    // #define uCANVAS2D_EK79007_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_EK79007(),NULL)
+    // #define uCANVAS2D_ST7789_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_ST7789(),NULL)
 
     /*Starts Rendering Engine and Initializes Display*/
-    uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel_1,uCanvas2D_Display_Panel_t* panel_2);
+    uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel_1,uCanvas2D_Display_Panel_t* panel_2, int width, int height, int offset_x, int offset_y);
     uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int width, int height);
+    void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance, int core_id);
+    void uCanvas_Attach_Panel(uCanvas2D_Instance_t* instance, uCanvas2D_Display_Panel_t* panel);
+    int uCanvas_Attach_RenderBuffer(uCanvas2D_Instance_t* instance, int width, int height);
+    void uCanvas_Set_ViewPort_Position(uCanvas2D_Instance_t* instance, int x, int y);
+    void uCanvas_Attach_Scene(uCanvas2D_Instance_t* instance, uCanvas_Scene_t* scene);
+    void uCanvas_Set_Panel_RefreshDelay(uCanvas2D_Instance_t* instance, uint16_t RefreshDelay);
+
     void uCanvas_Pause_Instance(uCanvas2D_Instance_t* instance);
     void uCanvas_Resume_Instance(uCanvas2D_Instance_t* instance);
     void uCanvas_Destroy_Instance(uCanvas2D_Instance_t* instance);
@@ -68,6 +75,7 @@
     uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinate2D_t Point2, Coordinate2D_t Point3);
     uCanvas_universal_obj_t* New_uCanvas_2DEllipse(uint16_t xpos, uint16_t ypos,uint16_t radius_x, uint16_t radius_y);
+    uCanvas_universal_obj_t* New_uCanvas_ViewPort(uCanvas2D_Instance_t* Window_Instance,uint16_t pos_x, uint16_t pos_y);
     /**
      * @brief api creates Sprite Element on currently active scene and forwards to the render engine.
      *  sprite_element(properties) - 
@@ -104,17 +112,17 @@
      * This API Creates 2D Sprite Object that packages the sprite buffer, width, height and orientation
      * Create 2D Sprite Object based on raw Sprite buffer so we can use it easily in application
      *  sprite2D_t (properties) -
-     *      > Sprite_buffer - Pointes to 1D buffer storing the pixel values
+     *      > pixel_data - Pointes to 1D buffer storing the pixel values
      *      > Sprite_Height - Actual Height of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
      *      > Sprite_Width  - Actual Width  of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
      *      > Sprite_Orientation
      * 
      * @param  obj : reference to object variable
-     * @param  sprite_buffer : reference to sprite_buffer
-     * @param  width : actual width of sprite_buffer content
+     * @param  pixel_data : reference to pixel_data
+     * @param  width : actual width of pixel_data content
      * @param  height : actual width of height content
      */
-    void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, void* sprite_buffer,uint16_t width, uint16_t height, sprite_color_format_t color_format);
+    void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, void* pixel_data,uint16_t width, uint16_t height, uCanvas_color_format_t color_format);
     
     /**
      * Properties Control API
@@ -161,6 +169,6 @@
     void uCanvas_Delete_Scene(uCanvas_Scene_t* scene_obj);
     void uCanvas_Play_Sprite_Animation(uCanvas_Sprite_KeyFrames_t* obj, sprite2D_t* sprite_set);
 
-    uCanvas2D_RenderBuffer_t* uCanvas2D_Create_RenderBuffer(int width, int height);
-    void draw_universal_object_to_target_render_buffer(uCanvas_universal_obj_t* obj, uCanvas2D_RenderBuffer_t* framebuffer);
+    void uCanvas2D_Create_RenderBuffer(uCanvas2D_RenderBuffer_t* render_buffer, int width, int height);
+    void draw_universal_object_to_target_render_buffer(uCanvas_universal_obj_t* obj, uCanvas2D_RenderBuffer_t* framebuffer, uCanvas2D_Display_Panel_t* panel);
 #endif

@@ -198,7 +198,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
 uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
     textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE*sizeof(uint8_t));
-    memset(textbox->text,0,256);
+    memset(textbox->text,0,UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
     sprintf(textbox->text,"%s",text);
     textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
     textbox->font_properties.font_type = FONTX_10M;
@@ -272,7 +272,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t 
     uCanvas_Sprite->invert_sprite_pixels = false;
     uCanvas_Sprite->properties.type = SPRITE2D;
     uCanvas_Set_Monochrome_Color(uCanvas_Sprite,1);
-    uCanvas_Sprite->sprite_buffer = sprite2D_obj->sprite_buf;
+    uCanvas_Sprite->pixel_data = sprite2D_obj->sprite_buf;
     uCanvas_Sprite->width  = sprite2D_obj->width;
     uCanvas_Sprite->height = sprite2D_obj->height;
     // uCanvas_Sprite->sprite_resolution.x = sprite2D_obj->width;
@@ -282,11 +282,30 @@ uCanvas_universal_obj_t* New_uCanvas_2DSprite(sprite2D_t* sprite2D_obj,uint16_t 
     uCanvas_Sprite->properties.position.y = pos_y;
     uCanvas_Sprite->properties.flip_x = 0;
     uCanvas_Sprite->properties.flip_y = 0;
-    uCanvas_Sprite->sprite_color_format = sprite2D_obj->color_format;
+    uCanvas_Sprite->color_format = sprite2D_obj->color_format;
     uCanvas_push_object_to_activescene(uCanvas_Sprite);
     // printf("[uCanvas]uCanvas_push_object_to_activescene\r\n");
     return uCanvas_Sprite;
 }
+
+
+uCanvas_universal_obj_t* New_uCanvas_ViewPort(uCanvas2D_Instance_t* Window_Instance,uint16_t pos_x, uint16_t pos_y){
+    uCanvas_universal_obj_t* Window_Obj = uCanvas_Universal_Object;
+    uCanvas_Set_Visiblity(Window_Obj,VISIBLE);
+    Window_Obj->ctx_data = (uCanvas2D_Instance_t*) Window_Instance;
+    Window_Obj->invert_sprite_pixels = false;
+    Window_Obj->properties.type = WINDOW;
+    Window_Obj->pixel_data = Window_Instance->render_buffer->pixels;
+    Window_Obj->width  = Window_Instance->render_buffer->width;
+    Window_Obj->height = Window_Instance->render_buffer->height;
+    Window_Obj->properties.position.x = pos_x;
+    Window_Obj->properties.position.y = pos_y;
+    Window_Obj->color_format = COLOR_RGB565;
+    Window_Obj->requires_update = true;
+    uCanvas_push_object_to_activescene(Window_Obj);
+    return Window_Obj;
+}
+
 
 void uCanvas_Sprite_Adjust_Contrast(sprite2D_t *sprite, int contrast) {
     // Validate inputs
@@ -417,15 +436,15 @@ void uCanvas_ScaleUp_Sprite2D(sprite2D_t* sprite_obj,uint16_t* reference,uint16_
 void uCanvas_Change_Sprite_Source(uCanvas_universal_obj_t* obj, sprite2D_t* sprite_obj){
         // if(LOCK_ACTIVE_SCENEB_BUF){
             // obj->sprite_obj = sprite_obj;
-            obj->sprite_buffer       = sprite_obj->sprite_buf;
+            obj->pixel_data       = sprite_obj->sprite_buf;
             obj->width = sprite_obj->width;
             obj->height = sprite_obj->height;
             // UNLOCK_ACTIVE_SCENEB_BUF;
         // }
 }
 
-void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, void* sprite_buffer,uint16_t width, uint16_t height, sprite_color_format_t color_format){
-    obj->sprite_buf = sprite_buffer;
+void uCanvas_Compose_2DSprite_Obj(sprite2D_t* obj, void* pixel_data,uint16_t width, uint16_t height, uCanvas_color_format_t color_format){
+    obj->sprite_buf = pixel_data;
     obj->height = height;
     obj->width = width;
     obj->color_format = color_format; // Default format, can be changed later
@@ -499,14 +518,23 @@ void uCanvas_Play_Sprite_Animation(uCanvas_Sprite_KeyFrames_t* obj, sprite2D_t* 
 }
 
 
-uCanvas2D_RenderBuffer_t* uCanvas2D_Create_RenderBuffer(int width, int height){
-    uCanvas2D_RenderBuffer_t* render_buffer = heap_caps_aligned_alloc(32, sizeof(uCanvas2D_RenderBuffer_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
+void uCanvas2D_Create_RenderBuffer(uCanvas2D_RenderBuffer_t* render_buffer, int width, int height){
     render_buffer->width = width;
     render_buffer->height = height;
     render_buffer->offset_x = 0;
     render_buffer->offset_y = 0;
     render_buffer->pitch = 0;
     render_buffer->use_ppa = USE_PPA_FOR_RENDERING;
-    render_buffer->pixels = heap_caps_aligned_alloc(32, width * height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
-    return render_buffer;
+    // if(width < 600 && height < 600){
+    //     printf("Allocating Render Buffer Interally\r\n");
+    //     render_buffer->pixels = heap_caps_calloc( width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
+    // }
+    // else render_buffer->pixels = heap_caps_aligned_alloc(32, width * height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
+    render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
+    if(render_buffer->pixels == NULL){
+        printf("-Failed To Allocate Render Buffer of %d x %d\r\n",width,height);
+    }else {
+        printf("-Success To Allocate Render Buffer of %d x %d\r\n",width,height);
+    }
+    return;
 }
