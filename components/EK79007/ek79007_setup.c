@@ -6,7 +6,7 @@ static esp_ldo_channel_handle_t ldo_mipi_phy = NULL;
 static esp_lcd_panel_handle_t panel_handle = NULL;
 static esp_lcd_dsi_bus_handle_t mipi_dsi_bus = NULL;
 static esp_lcd_panel_io_handle_t mipi_dbi_io = NULL;
-SemaphoreHandle_t refresh_finish = NULL;
+static SemaphoreHandle_t refresh_finish = NULL;
 
 
 IRAM_ATTR static bool notify_refresh_ready(esp_lcd_panel_handle_t panel, esp_lcd_dpi_panel_event_data_t *edata, void *user_ctx)

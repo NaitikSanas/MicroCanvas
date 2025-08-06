@@ -27,7 +27,7 @@
 #endif
 
 #if CONFIG_SPI2_HOST
-#define HOST_ID SPI2_HOST
+#define HOST_ID SPI3_HOST
 #elif CONFIG_SPI3_HOST
 #define HOST_ID SPI3_HOST
 #endif
@@ -91,13 +91,13 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 
 	//ESP_LOGI(TAG, "GPIO_MOSI=%d",GPIO_MOSI);
 	//ESP_LOGI(TAG, "GPIO_SCLK=%d",GPIO_SCLK);
-	static spi_bus_config_t buscfg = {
-		.mosi_io_num = CONFIG_MOSI_GPIO,
+	spi_bus_config_t buscfg = {
+		.mosi_io_num = GPIO_MOSI,
 		.miso_io_num = -1,
-		.sclk_io_num = CONFIG_SCLK_GPIO,
+		.sclk_io_num = GPIO_SCLK,
 		.quadwp_io_num = -1,
 		.quadhd_io_num = -1,
-		.max_transfer_sz = 1024*8,
+		.max_transfer_sz = 8192,
 		.flags = 0
 	};
 
@@ -105,12 +105,12 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 	ESP_LOGD(TAG, "spi_bus_initialize=%d",ret);
 	// assert(ret==ESP_OK);
 
-	static spi_device_interface_config_t devcfg;
+	spi_device_interface_config_t devcfg;
 	memset(&devcfg, 0, sizeof(devcfg));
 	//devcfg.clock_speed_hz = SPI_Frequency;
 	devcfg.clock_source = SPI_CLK_SRC_SPLL;
 	devcfg.clock_speed_hz = (80 * 1000 * 1000 / 1);
-	devcfg.queue_size =7;
+	devcfg.queue_size = 7;
 	//devcfg.mode = 2;
 	devcfg.mode = 3;
 	devcfg.flags = SPI_DEVICE_NO_DUMMY;
@@ -133,7 +133,7 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 	dev->_SPIHandle = handle;
 }
 
-bool  spi_master_write_byte(spi_device_handle_t SPIHandle, const uint8_t* Data, size_t DataLength)
+bool IRAM_ATTR spi_master_write_byte(spi_device_handle_t SPIHandle, const uint8_t* Data, size_t DataLength)
 {
 	spi_transaction_t SPITransaction;
 	esp_err_t ret;
@@ -153,7 +153,7 @@ bool  spi_master_write_byte(spi_device_handle_t SPIHandle, const uint8_t* Data, 
 	return true;
 }
 
-bool  spi_master_write_command(TFT_t * dev, uint8_t cmd)
+bool IRAM_ATTR spi_master_write_command(TFT_t * dev, uint8_t cmd)
 {
 	static uint8_t Byte = 0;
 	Byte = cmd;
@@ -161,7 +161,7 @@ bool  spi_master_write_command(TFT_t * dev, uint8_t cmd)
 	return spi_master_write_byte( dev->_SPIHandle, &Byte, 1 );
 }
 
-bool  spi_master_write_data_byte(TFT_t * dev, uint8_t data)
+bool IRAM_ATTR spi_master_write_data_byte(TFT_t * dev, uint8_t data)
 {
 	static uint8_t Byte = 0;
 	Byte = data;
@@ -179,7 +179,7 @@ bool spi_master_write_data_word(TFT_t * dev, uint16_t data)
 	return spi_master_write_byte( dev->_SPIHandle, Byte, 2);
 }
 
-bool  spi_master_write_addr(TFT_t * dev, uint16_t addr1, uint16_t addr2)
+bool IRAM_ATTR spi_master_write_addr(TFT_t * dev, uint16_t addr1, uint16_t addr2)
 {
 	static uint8_t Byte[4];
 	Byte[0] = (addr1 >> 8) & 0xFF;
@@ -190,7 +190,7 @@ bool  spi_master_write_addr(TFT_t * dev, uint16_t addr1, uint16_t addr2)
 	return spi_master_write_byte( dev->_SPIHandle, Byte, 4);
 }
 
-bool   spi_master_write_color(TFT_t * dev, uint16_t color, uint16_t size)
+bool  IRAM_ATTR spi_master_write_color(TFT_t * dev, uint16_t color, uint16_t size)
 {
 	static uint8_t Byte[1024];
 	int index = 0;
@@ -248,7 +248,10 @@ inline bool spi_master_write_colors(TFT_t * dev, uint16_t * colors, uint16_t siz
 }
 
 void delayMS(int ms) {
-	vTaskDelay(pdMS_TO_TICKS(ms));
+	int _ms = ms + (portTICK_PERIOD_MS - 1);
+	TickType_t xTicksToDelay = _ms / portTICK_PERIOD_MS;
+	ESP_LOGD(TAG, "ms=%d _ms=%d portTICK_PERIOD_MS=%"PRIu32" xTicksToDelay=%"PRIu32,ms,_ms,portTICK_PERIOD_MS,xTicksToDelay);
+	vTaskDelay(xTicksToDelay);
 }
 
 
@@ -304,16 +307,16 @@ void lcdInit(TFT_t * dev, int width, int height, int offsetx, int offsety)
 	}
 
 	dev->_use_frame_buffer = false;
-// #if CONFIG_FRAME_BUFFER
-// 	dev->_frame_buffer = heap_caps_malloc(sizeof(uint16_t)*width*height, MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
-// 	if (dev->_frame_buffer == NULL) {
-// 		ESP_LOGE(TAG, "heap_caps_malloc fail");
-// 	} else {
-// 		//ESP_LOGI(TAG, "heap_caps_malloc success");
-// 		dev->_use_frame_buffer = true;
-// 	}
+#if CONFIG_FRAME_BUFFER
+	dev->_frame_buffer = heap_caps_malloc(sizeof(uint16_t)*width*height, MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
+	if (dev->_frame_buffer == NULL) {
+		ESP_LOGE(TAG, "heap_caps_malloc fail");
+	} else {
+		//ESP_LOGI(TAG, "heap_caps_malloc success");
+		dev->_use_frame_buffer = true;
+	}
 
-// #endif
+#endif
 }
 
 

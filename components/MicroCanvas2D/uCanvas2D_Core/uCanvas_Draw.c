@@ -10,14 +10,13 @@
 
 
 // Helper: Set pixel in RGB565
-
-void IRAM_ATTR set_pixel(uCanvas2D_RenderBuffer_t* buf, int x, int y, uint16_t color) {
+static void set_pixel(uCanvas2D_RenderBuffer_t* buf, int x, int y, uint16_t color) {
     if (x < 0 || y < 0 || x >= buf->width || y >= buf->height) return;
     buf->pixels[y * buf->width + x] = color;
 }
 
 // Draw line (Bresenham) with thickness
-void IRAM_ATTR uCanvas2D_DrawLine(uCanvas2D_RenderBuffer_t* buf, int x0, int y0, int x1, int y1, uint16_t color, int thickness) {
+void uCanvas2D_DrawLine(uCanvas2D_RenderBuffer_t* buf, int x0, int y0, int x1, int y1, uint16_t color, int thickness) {
     int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
     int dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
     int err = dx + dy, e2;
@@ -37,20 +36,11 @@ void IRAM_ATTR uCanvas2D_DrawLine(uCanvas2D_RenderBuffer_t* buf, int x0, int y0,
 }
 
 // Draw rectangle with fill and thickness
-void IRAM_ATTR uCanvas2D_DrawRect(uCanvas2D_RenderBuffer_t* buf, int x, int y, int w, int h, uint16_t color, int fill, int thickness) {
+void uCanvas2D_DrawRect(uCanvas2D_RenderBuffer_t* buf, int x, int y, int w, int h, uint16_t color, int fill, int thickness) {
     if (fill) {
-        if(buf->use_ppa){
-            ppa_helper_fill(
-            buf->pixels,
-            buf->width * buf->height * sizeof(uint16_t),
-            buf->width,
-            buf->height,x,y,w,h, color, 0
-            );
-        }else{
         for (int i = 0; i < h; ++i)
             for (int j = 0; j < w; ++j)
                 set_pixel(buf, x + j, y + i, color);
-        }
     } else {
         for (int t = 0; t < thickness; t++) {
             // Top
@@ -70,7 +60,7 @@ void IRAM_ATTR uCanvas2D_DrawRect(uCanvas2D_RenderBuffer_t* buf, int x, int y, i
 }
 
 // Draw circle with fill and thickness
-void IRAM_ATTR uCanvas2D_DrawCircle(uCanvas2D_RenderBuffer_t* buf, int xc, int yc, int r, uint16_t color, int fill, int thickness) {
+void uCanvas2D_DrawCircle(uCanvas2D_RenderBuffer_t* buf, int xc, int yc, int r, uint16_t color, int fill, int thickness) {
     if (fill) {
         for (int y = -r; y <= r; y++) {
             for (int x = -r; x <= r; x++) {
@@ -100,7 +90,7 @@ void IRAM_ATTR uCanvas2D_DrawCircle(uCanvas2D_RenderBuffer_t* buf, int xc, int y
 }
 
 // Draw triangle with fill and thickness
-void IRAM_ATTR uCanvas2D_DrawTriangle(uCanvas2D_RenderBuffer_t* buf, int x0, int y0, int x1, int y1, int x2, int y2, uint16_t color, int fill, int thickness) {
+void uCanvas2D_DrawTriangle(uCanvas2D_RenderBuffer_t* buf, int x0, int y0, int x1, int y1, int x2, int y2, uint16_t color, int fill, int thickness) {
     if (fill) {
         // Sort vertices by y
         if (y0 > y1) { int t; t = y0; y0 = y1; y1 = t; t = x0; x0 = x1; x1 = t; }
@@ -126,7 +116,7 @@ void IRAM_ATTR uCanvas2D_DrawTriangle(uCanvas2D_RenderBuffer_t* buf, int x0, int
 }
 
 // Draw ellipse with fill and thickness
-void IRAM_ATTR uCanvas2D_DrawEllipse(uCanvas2D_RenderBuffer_t* buf, int xc, int yc, int rx, int ry, uint16_t color, int fill, int thickness) {
+void uCanvas2D_DrawEllipse(uCanvas2D_RenderBuffer_t* buf, int xc, int yc, int rx, int ry, uint16_t color, int fill, int thickness) {
     if (fill) {
         for (int y = -ry; y <= ry; y++) {
             for (int x = -rx; x <= rx; x++) {
@@ -169,18 +159,18 @@ void IRAM_ATTR uCanvas2D_DrawEllipse(uCanvas2D_RenderBuffer_t* buf, int xc, int 
 }
 
 // Draw sprite (assume src is RGBA565, w x h), draw only pixel with 0x01 alpha (LSB)
-void IRAM_ATTR uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y, const uint16_t* sprite, int w, int h,uCanvas_color_format_t color_format) {
+void uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y, const uint16_t* sprite, int w, int h,sprite_color_format_t color_format) {
 
     if(buf->use_ppa){
         // If using PPA, we need to handle the sprite differently
         switch(color_format) {
-            case COLOR_RGBA565:
+            case SPRITE2D_COLOR_RGBA565:
                 ppa_blend_bitmap((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
                 return;
-            case COLOR_ARGB8888:
+            case SPRITE2D_COLOR_ARGB8888:
                 ppa_blend_bitmap((void*)sprite, w, h, 0, 0,PPA_ARGB8888, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
                 return;
-            case COLOR_RGB565:
+            case SPRITE2D_COLOR_RGB565:
                 ppa_blend_bitmap((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
                 return;
                 break; // No need to convert
@@ -192,7 +182,7 @@ void IRAM_ATTR uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y,
     }
     else {
         switch(color_format) {
-        case COLOR_RGBA565:
+        case SPRITE2D_COLOR_RGBA565:
             for (int i = 0; i < h; ++i) {
                 for (int j = 0; j < w; ++j) {
                     uint16_t pixel = sprite[i * w + j];
@@ -202,7 +192,7 @@ void IRAM_ATTR uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y,
                 }
             }
             break;
-        case COLOR_ARGB8888:
+        case SPRITE2D_COLOR_ARGB8888:
             for (int i = 0; i < h; ++i) {
                 for (int j = 0; j < w; ++j) {
                     uint32_t pixel = ((const uint32_t*)sprite)[i * w + j];
@@ -214,7 +204,7 @@ void IRAM_ATTR uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y,
             }
             break;
 
-        case COLOR_RGB565:
+        case SPRITE2D_COLOR_RGB565:
             for (int i = 0; i < h; ++i) {
                 for (int j = 0; j < w; ++j) {
                     uint16_t pixel = sprite[i * w + j];
@@ -299,13 +289,13 @@ void* get_font_by_name(FontType_t font_type){
     void* activefont = NULL;
     switch (font_type)
 	{
-	// case FONTX_16G:	 return fx16G; break;
-	// case FONTX_24G:	 return fx24G; break;
-	// case FONTX_32G:  return fx32G; break;
-	// case FONTX_32L:  return fx32L; break;
-	// case FONTX_16M:  return fx16M; break;
-	// case FONTX_24M : return fx24M; break;
-	// case FONTX_10M : return fx10M; break;
+	case FONTX_16G:	 return fx16G; break;
+	case FONTX_24G:	 return fx24G; break;
+	case FONTX_32G:  return fx32G; break;
+	case FONTX_32L:  return fx32L; break;
+	case FONTX_16M:  return fx16M; break;
+	case FONTX_24M : return fx24M; break;
+	case FONTX_10M : return fx10M; break;
 
     case SFONT_8 :   return &Font8; break;
     case SFONT_12 :  return &Font12;break;
@@ -316,7 +306,7 @@ void* get_font_by_name(FontType_t font_type){
     case SFONT_SIXTYFOUR_32     : return &Sixtyfour_32; break;
     case SFONT_BITCOUNT_32      : return &BitcountPropDouble32; break;
 	default:
-		activefont = &Font8;
+		activefont = fx10M;
 		break;
 	}
     return activefont;
@@ -392,7 +382,7 @@ int uCanvas_Draw_FONTX(uCanvas2D_RenderBuffer_t *fb, int x, int y, char ascii,
 
 #define DRAW_PIXEL(fb, x, y, color)  ((fb)->pixels[(y) * (fb)->width + (x)] = (color))
 
-void IRAM_ATTR uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
+void uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
                         uint16_t fg_color, uint16_t bg_color, uint16_t font_direction)
 {
     if (!Font || !fb || !fb->pixels || ascii < ' ') return;
@@ -491,7 +481,7 @@ void IRAM_ATTR uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int
 
 //     return 0;
 // }
-void IRAM_ATTR uCanvas_Draw_SFONT_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, const char *pString,
+void uCanvas_Draw_SFONT_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, const char *pString,
                          FontType_t font_type, uint16_t color1, uint16_t color2, int font_direction) {
     sFONT* Font = get_font_by_name(font_type);
     if (Font == NULL || pString == NULL) return;
@@ -502,7 +492,6 @@ void IRAM_ATTR uCanvas_Draw_SFONT_Text(uCanvas2D_RenderBuffer_t *fb, int x, int 
         x += Font->Width;
     }
 }
-
 int uCanvas_Draw_FONTX_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){
     int len = strlen(text);
     for (int i = 0; i < len; i++) {
@@ -514,8 +503,8 @@ int uCanvas_Draw_FONTX_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* te
 }
 
 
-int IRAM_ATTR uCanvas_Draw_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){
-    // if(font_type < SFONT_8)uCanvas_Draw_FONTX_Text(fb,x,y,text,font_type,color1,color2,font_direction,ul_en);
+int uCanvas_Draw_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){
+    if(font_type < SFONT_8)uCanvas_Draw_FONTX_Text(fb,x,y,text,font_type,color1,color2,font_direction,ul_en);
     if(font_type >= SFONT_8)uCanvas_Draw_SFONT_Text(fb,x,y,text,font_type,color1,color2,font_direction);
 
     return 0;

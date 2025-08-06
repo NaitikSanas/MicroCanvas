@@ -7,7 +7,7 @@
     #include "freertos/task.h"
     #include "freertos/semphr.h"
     #include "uCanvas2D_Display_Setup.h"
-   
+    #define UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE       (256)
 
     typedef TaskFunction_t uCanvas_Animation_task_t;
     typedef TaskHandle_t uCanvas_Animation_task_handle_t;
@@ -44,8 +44,7 @@
         LINE,
         ELLIPSE,
         TRIANGLE,
-        SPRITE2D,
-        WINDOW
+        SPRITE2D
     }uCanvas_element_type_t;
 
     typedef struct _point
@@ -91,24 +90,24 @@
     /**
      * Create 2D Sprite Object based on raw Sprite buffer to use it easily in application
      *  sprite2D_t (properties) -
-     *      > pixel_data - Pointes to 1D buffer storing the pixel values
+     *      > Sprite_buffer - Pointes to 1D buffer storing the pixel values
      *      > Sprite_Height - Actual Height of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
      *      > Sprite_Width  - Actual Width  of sprite buffer (CHANGING THIS DOES NOT SCALES THE SPRITES)
      *      > Sprite_Orientation
      */
     typedef enum {
-        COLOR_RGBA565 = 0,
-        COLOR_RGB565,
-        COLOR_ARGB8888,
-        COLOR_MONOCHROME
-    }uCanvas_color_format_t;
+        SPRITE2D_COLOR_RGBA565 = 0,
+        SPRITE2D_COLOR_RGB565,
+        SPRITE2D_COLOR_ARGB8888,
+        SPRITE2D_COLOR_MONOCHROME
+    }sprite_color_format_t;
     typedef struct sprite2D
     {
         void* sprite_buf;
         uint16_t height;
         uint16_t width;
         uint8_t orientation;  
-        uCanvas_color_format_t color_format;  
+        sprite_color_format_t color_format;  
     }sprite2D_t;
     
     typedef enum {uCanvas_Font_Dir_0, uCanvas_Font_Dir_90, uCanvas_Font_Dir_180, uCanvas_Font_Dir_270} font_draw_direction_t;
@@ -138,14 +137,18 @@
 
         uint8_t invert_sprite_pixels;
         uint8_t state;
-        
-        uCanvas_font_properties_t font_properties;
-        uCanvas_color_format_t color_format;
-        uint8_t requires_update;
-        void* ctx_data;
-        uint16_t* pixel_data;
         char* text;
+        uCanvas_font_properties_t font_properties;
+        
+        
+        uint16_t* sprite_buffer;
+        sprite_color_format_t sprite_color_format;
 
+
+        // Coordinate2D_t sprite_resolution;
+        
+        // sprite2D_t sprite_obj;
+        // sprite2D_t* sprite2D_obj;
     } uCanvas_universal_obj_t;
 
      typedef uCanvas_universal_obj_t uCanvas_obj_t;
@@ -260,10 +263,7 @@ typedef struct uCanvas2D_Instance
     uint8_t instance_dirty;
     uCanvas2D_RenderBuffer_t* render_buffer;
     uCanvas2D_RenderBuffer_t* render_buffer_aux;
-    uCanvas2D_RenderBuffer_t* post_processing_frame_buf;
-    float scale_x;
-    float scale_y;
-    bool scale_output;
+    uCanvas2D_RenderBuffer_t* active_render_buf;
     TaskHandle_t render_task_handle;
     SemaphoreHandle_t render_buffer_lock;
     int pin_to_core;
@@ -275,7 +275,6 @@ typedef struct uCanvas2D_Instance
     uint32_t refresh_delay;
     void* window_instance;
     int synchronize;
-    int direct_draw_bitmap;
 }uCanvas2D_Instance_t;
 
 
