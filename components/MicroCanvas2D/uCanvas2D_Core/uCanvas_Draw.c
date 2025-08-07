@@ -410,7 +410,7 @@ void IRAM_ATTR uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int
             uint8_t byte = glyph_ptr[row * bytes_per_row + byte_index];
 
             if (byte & (1 << bit_index)) {
-                DRAW_PIXEL(fb, x + col, y + row, fg_color);
+                set_pixel(fb, x + col, y + row, fg_color);
             } else {
                 // DRAW_PIXEL(fb, x + col, y + row, bg_color);
             }

@@ -352,7 +352,7 @@ void uCanvas_Animate_Text_Reveal(uCanvas_universal_obj_t*obj, char* text, uint16
     {
         tmp[i] = text[i];
         uCanvas_Set_Text(obj,tmp);
-        uCanvas_Delay(delay);
+        uCanvas_Delay(pdMS_TO_TICKS(delay));
     }
     uCanvas_Set_Text(obj,text);
 }

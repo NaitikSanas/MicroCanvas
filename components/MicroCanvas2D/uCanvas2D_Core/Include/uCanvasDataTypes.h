@@ -306,5 +306,38 @@ typedef struct {
     TaskHandle_t DirectBlend_Handle;
 }uCanvas_DirectBlend_t;
 
+typedef enum{
+    INPUT_DEVICE_NONE = 0,
+    INPUT_DEVICE_KEYBOARD = 1,
+    INPUT_DEVICE_MOUSE = 1 << 2,
+    INPUT_DEVICE_TOUCHPOINT = 1 << 3
+}uCanvasInputDeviceType_t;
+typedef struct {
+    enum key_state {
+        KEY_STATE_PRESSED = 0x00,
+        KEY_STATE_RELEASED = 0x01
+    } state;
+    uint8_t modifier;
+    uint8_t key_code;
+    uint8_t key_char;
+} key_event_t;
+
+// typedef void (*EventListenerCallback)(uCanvasInputDeviceType_t device_type, int event_code, void* user_data); 
+typedef void (*uCanvas_Input_HID_Device_Init)(void);
+#define MAX_EVENT_LISTENER_CLIENTS 32
+typedef struct {
+    void (*EventListenerCallback)(uCanvasInputDeviceType_t device_type, int event_code, void* user_data);
+    uint8_t EventListenerState; //Active or Inactive
+    uCanvasInputDeviceType_t inputdevices;
+}uCanvas_Indev_Listener_Client_t;
+
+typedef struct {
+    uCanvas_Indev_Listener_Client_t* in_dev_listener_client[MAX_EVENT_LISTENER_CLIENTS];
+    uint8_t listener_idx;
+    void (*uCanvas_Input_HID_Device_Init)(void);
+    void (*uCanvas_Input_HID_Device_DeInit)(void);
+    void (*EventListenerCallback)(uCanvasInputDeviceType_t device_type, key_event_t* key_event, void* user_data) ; 
+    void* arg;
+}uCanvas_Input_HID_Device_t;
 
 #endif

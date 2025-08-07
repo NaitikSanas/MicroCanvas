@@ -2,13 +2,13 @@
 #include "uCanvas_api.h"
 #include "uCanvas_User_IO.h"
 
-#define CANVAS_HEIGHT       300
-#define CANVAS_WIDTH        512
+#define CANVAS_HEIGHT       300*2
+#define CANVAS_WIDTH        512*2
 
 #define MAX_STARS           100 
-#define STARS_SCROLLING_RATE 22  
+#define STARS_SCROLLING_RATE 10  
 #define MAX_ENEMIES         100
-#define COLLISION_THRESHOLD 20  // adjust based on object size
+#define COLLISION_THRESHOLD 30  // adjust based on object size
 
 #define ENC_A   39 
 #define ENC_B   40 
@@ -53,7 +53,7 @@ char buf[64] = {0};
 #define LIVE_INDICATER_DOT_GAP 25
 #define LIVE_INDICATER_DOT_POS_X 20
 #define LIVE_INDICATER_DOT_POS_Y 20
-
+key_event_t event;
 void create_lives_indicator(){
     for (int i = 0; i < 4; i++)
     {
@@ -71,28 +71,28 @@ void live_indicatior_set(int val){
          * thanks to u/dmitrygr for pointing out this stupid little 
          * bug where all indecies were set to zero XD. 
         */
-        uCanvas_Set_Color(lives[0],120,0,0);
-        uCanvas_Set_Color(lives[1],120,0,0);
-        uCanvas_Set_Color(lives[2],120,0,0);
-        uCanvas_Set_Color(lives[3],120,0,0);
+        uCanvas_Set_Color(lives[0],10,0,0);
+        uCanvas_Set_Color(lives[1],10,0,0);
+        uCanvas_Set_Color(lives[2],10,0,0);
+        uCanvas_Set_Color(lives[3],10,0,0);
         break;
     case 1:
         uCanvas_Set_Color(lives[0],255,0,0);
-        uCanvas_Set_Color(lives[1],120,0,0);
-        uCanvas_Set_Color(lives[2],120,0,0);
-        uCanvas_Set_Color(lives[3],120,0,0);
+        uCanvas_Set_Color(lives[1],10,0,0);
+        uCanvas_Set_Color(lives[2],10,0,0);
+        uCanvas_Set_Color(lives[3],10,0,0);
         break;
     case 2:
         uCanvas_Set_Color(lives[0],255,0,0);
         uCanvas_Set_Color(lives[1],255,0,0);
-        uCanvas_Set_Color(lives[2],120,0,0);
-        uCanvas_Set_Color(lives[3],120,0,0);
+        uCanvas_Set_Color(lives[2],10,0,0);
+        uCanvas_Set_Color(lives[3],10,0,0);
         break;
     case 3:
         uCanvas_Set_Color(lives[0],255,0,0);
         uCanvas_Set_Color(lives[1],255,0,0);
         uCanvas_Set_Color(lives[2],255,0,0);
-        uCanvas_Set_Color(lives[3],120,0,0);
+        uCanvas_Set_Color(lives[3],10,0,0);
         break;
     case 4:
         uCanvas_Set_Color(lives[0],255,0,0);
@@ -137,7 +137,7 @@ void detect_spaceship_collision_with_enemyship(void){
             if(cur_lives > 0){
                 cur_lives--;
                 live_indicatior_set(cur_lives);
-                // printf("live : %d\r\n",cur_lives);
+                 printf("live : %d\r\n",cur_lives);
             }
             else {
                 distance_travelled = 0.0;
@@ -145,17 +145,18 @@ void detect_spaceship_collision_with_enemyship(void){
                 current_score = 0;
                 cur_lives = 4;
                 live_indicatior_set(cur_lives);
+                title_tb_3->properties.position.x = 150;
                 title_tb_3->properties.visiblity = VISIBLE;
-                title_tb_3->font_properties.font_type = FONTX_16G;
-                uCanvas_Set_Text(title_tb_3,"Game Over");
+                uCanvas_Set_Text(title_tb_3,"");
+                uCanvas_Animate_Text_Reveal(title_tb_3,"Game Over",50);
                 uCanvas_Delay(2500);
                 while (1)
                 {
                     randomize_all_enemiens();
-                    uCanvas_Set_Text(title_tb_3,"Press ENC_SW for New game");
-                    uCanvas_rotary_encoder_read(&rotary_encoder_1);
+                    uCanvas_Set_Text(title_tb_3,"Press SPACE for Restart");
+                    
                     distance_travelled = 0.0;
-                    if(!rotary_encoder_1.sw_state){
+                    if(event.key_char==' '){
                         title_tb_3->properties.visiblity = INVISIBLE;
                         break;
                     }
@@ -264,7 +265,7 @@ void animate_enemy_spaceships_1(void* arg){
                 enemy_spaceships[i].obj->properties.visiblity = INVISIBLE;
             }
         }
-        uCanvas_Delay(9);  
+        uCanvas_Delay(4);  
     }
 }
 
@@ -311,7 +312,7 @@ void trigger_weapon(spaceship_t* spaceship,bullets_t* bullets){
             bullets->obj[i]->properties.position.y += 8 * i;
             bullets->obj[i]->properties.visiblity = VISIBLE;
             bullets->active += 1;
-            uCanvas_Delay(5);
+            uCanvas_Delay(1);
         }
     }
 }
@@ -394,7 +395,8 @@ void bullets_animation(bullets_t* bullets){
                 }
             }
         }
-        uCanvas_Delay(1);
+        // esp_rom_delay_us(100);
+        uCanvas_Delay(pdMS_TO_TICKS(1));
     }
 }
 
@@ -472,52 +474,87 @@ void spawn_enemines(){
 void controller_task(void){
     while (1)
     {    
-        uCanvas_rotary_encoder_read(&rotary_encoder_1);
-        if(!rotary_encoder_1.sw_state){
-            trigger_weapon(&player_spaceship, &player_bulletes_instance);
+        switch (event.key_char)
+        {
+            case 'd': 
+                if(event.state == KEY_STATE_PRESSED){
+                    if(player_spaceship.obj->properties.position.x < CANVAS_WIDTH) {
+                        player_spaceship.obj->properties.position.x  += 1;
+                    }
+                }
+                break;
 
+            case 'a':
+                if(event.state == KEY_STATE_PRESSED){
+                    if(player_spaceship.obj->properties.position.x > 0){
+                        player_spaceship.obj->properties.position.x -= 1;
+                    }
+                }
+                break;
+            default : break;
         }
 
-        if(uCanvas_Get_PushbuttonState(PB1) || uCanvas_rotary_encoder_get_state(&rotary_encoder_1) == ENCODER_CW){
-            if(player_spaceship.obj->properties.position.x < CANVAS_WIDTH) 
-                    player_spaceship.obj->properties.position.x += 1;
+        switch (event.key_char)
+        {
+            case ' ':
+                if(event.state == KEY_STATE_PRESSED){
+                    trigger_weapon(&player_spaceship, &player_bulletes_instance);
+                }
+                break;
+            default : break;
         }
+        
+        // uCanvas_rotary_encoder_read(&rotary_encoder_1);
+        // if(!rotary_encoder_1.sw_state){
+        //     trigger_weapon(&player_spaceship, &player_bulletes_instance);
 
-        if(uCanvas_Get_PushbuttonState(PB2) || uCanvas_rotary_encoder_get_state(&rotary_encoder_1) == ENCODER_CCW){
-            if(player_spaceship.obj->properties.position.x > 0) 
-                    player_spaceship.obj->properties.position.x -= 1;
-        }
+        // }
 
-        uCanvas_Delay(5);
+        // if(uCanvas_Get_PushbuttonState(PB1) || uCanvas_rotary_encoder_get_state(&rotary_encoder_1) == ENCODER_CW){
+        //     if(player_spaceship.obj->properties.position.x < CANVAS_WIDTH) 
+        //             player_spaceship.obj->properties.position.x += 1;
+        // }
+
+        // if(uCanvas_Get_PushbuttonState(PB2) || uCanvas_rotary_encoder_get_state(&rotary_encoder_1) == ENCODER_CCW){
+        //     if(player_spaceship.obj->properties.position.x > 0) 
+        //             player_spaceship.obj->properties.position.x -= 1;
+        // }
+
+        uCanvas_Delay(1);
     }
 }
 
 void show_start_screen(){
-    uCanvas_universal_obj_t* title_tb_1 = New_uCanvas_2DTextbox("Space",CANVAS_WIDTH/4,-40);
-    uCanvas_universal_obj_t* title_tb_2 = New_uCanvas_2DTextbox("Explorer",CANVAS_WIDTH/4 +100,-40);
-    title_tb_3 = New_uCanvas_2DTextbox("Press ENC_SW to Play",CANVAS_WIDTH/4,-10);
+    uCanvas_universal_obj_t* title_tb_1 = New_uCanvas_2DTextbox("Space",CANVAS_WIDTH/4 ,0);
+    uCanvas_universal_obj_t* title_tb_2 = New_uCanvas_2DTextbox("Explorer",CANVAS_WIDTH/5 +100,0);
+    title_tb_3 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/4,0);
     uCanvas_Set_Color(title_tb_1,255,255,0);
     uCanvas_Set_Color(title_tb_2,255,255,0);
     uCanvas_Set_Color(title_tb_3,255,255,255);
 
-    title_tb_1->font_properties.font_type = FONTX_32L;
-    title_tb_2->font_properties.font_type = FONTX_32L;
-    title_tb_3->font_properties.font_type = FONTX_32L;
+    title_tb_1->font_properties.font_type = SFONT_SIXTYFOUR_32;
+    title_tb_2->font_properties.font_type = SFONT_SIXTYFOUR_32;
+    title_tb_3->font_properties.font_type = SFONT_SIXTYFOUR_32;
     title_tb_3->properties.visiblity = INVISIBLE;
+    title_tb_1->properties.position.y = -32;
+    title_tb_3->properties.position.y = +70;
     printf("anim start\r\n");
-    for (int i = 0; i < (CANVAS_HEIGHT/2)+40; i++)
+    for (int i = 0; i < (CANVAS_HEIGHT/2); i++)
     {
         title_tb_1->properties.position.y += 1;
         title_tb_2->properties.position.y += 1;
-        title_tb_3->properties.position.y += 1;
-        uCanvas_Delay(20);
+        // title_tb_3->properties.position.y += 1;
+        uCanvas_Delay(10);
     }
-    printf("anim end\r\n");
     title_tb_3->properties.visiblity = VISIBLE;
+    uCanvas_Animate_Text_Reveal(title_tb_3,"Press SPACE to Play",50);
+    printf("anim end\r\n");
+    printf("pos %d\r\n",title_tb_3->properties.position.y );
+    
     while (1)
     {
-        uCanvas_rotary_encoder_read(&rotary_encoder_1);
-        if(!rotary_encoder_1.sw_state){
+        
+        if(event.key_char == ' '){
             title_tb_1->properties.visiblity = INVISIBLE;
             title_tb_2->properties.visiblity = INVISIBLE;
             title_tb_3->properties.visiblity = INVISIBLE;
@@ -531,9 +568,9 @@ void create_hud(){
     uCanvas_Set_Color(bg,0,0,100);
     bg->properties.fill = FILL;
 
-    textbox1 = New_uCanvas_2DTextbox(" ",240,  20);
+    textbox1 = New_uCanvas_2DTextbox(" ",CANVAS_WIDTH-220,  5);
     uCanvas_Set_Color(textbox1,255,255,0);
-    textbox1->font_properties.font_type = SFONT_24;
+    textbox1->font_properties.font_type = SFONT_BITCOUNT_32;
 
     textbox2 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/2-100, 5);
     uCanvas_Set_Color(textbox2,255,255,0);
@@ -543,8 +580,8 @@ void create_hud(){
     popup_score = New_uCanvas_2DTextbox("+1",0,0);
     uCanvas_Set_Color(popup,255,255,255);
     uCanvas_Set_Color(popup_score,0,255,0);
-    popup->font_properties.font_type = FONTX_32L;
-    popup_score->font_properties.font_type = FONTX_32L;
+    popup->font_properties.font_type = SFONT_16;
+    popup_score->font_properties.font_type = SFONT_16;
 }
 #include "uCanvas_Draw.h"
 #include "uCanvas2D_EK79007Port.h"
@@ -581,10 +618,40 @@ void fps_monitor(void){
         vTaskDelay(pdMS_TO_TICKS(200));
     } 
 }
+#include "uCanvas_HID.h"
+static uCanvas_Input_HID_Device_t KeyBoardDevice;
+
+static inline void MyKeyboardListener(uCanvasInputDeviceType_t device_type, key_event_t* key_event, void* user_data) {
+    // printf("%c",(char)event_code);
+
+        // if (!!event_code) {
+        //     putchar(event_code);
+        //     if ('\r' == event_code) {
+        //         putchar('\n');
+        //     }
+        //     fflush(stdout);
+        // }
+    event.key_char = key_event->key_char;
+    event.state = key_event->state;
+    event.key_code = key_event->key_code;
+    printf("key_event_callback\r\n");
+    if (event.state == KEY_STATE_PRESSED) {
+        printf("Key pressed: %c\n", event.key_char);
+
+    } else if (event.state == KEY_STATE_RELEASED) {
+        printf("Key released: %c\n", event.key_char);
+    }
+    return;
+}
+
+
+
 void Run_Space_Explorer_Game() {
     // uCanvas_Load_FontX();
     Intialize_PPA(); //Enable 2D Pixel Processing Accelerator
-
+    KeyBoardDevice.EventListenerCallback = MyKeyboardListener;
+    uCanvas_Get_HID_Device(&KeyBoardDevice);
+    KeyBoardDevice.uCanvas_Input_HID_Device_Init();
     
     
     uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
@@ -609,7 +676,7 @@ void Run_Space_Explorer_Game() {
     // uCanvas_Set_Color(line,255,255,0);
     
    
-    uCanvas_Instance_1.scale_output = true;
+    uCanvas_Instance_1.scale_output = false;
     uCanvas_Instance_1.scale_x = 2.0;
     uCanvas_Instance_1.scale_y = 2.0;
     if(uCanvas_Attach_RenderBuffer(&uCanvas_Instance_1,CANVAS_WIDTH,CANVAS_HEIGHT)){
@@ -640,21 +707,24 @@ void Run_Space_Explorer_Game() {
     uCanvas_set_active_scene(uCanvas_Instance_1.active_scene);
 
     printf("---setup\r\n");
+   
+
     stars_array_init();
-    bullets_init(&player_bulletes_instance,5);
+    bullets_init(&player_bulletes_instance,10);
     create_spaceship(&player_spaceship);  
     uCanvas_Add_Task(animate_stars1,NULL,0);
     uCanvas_Add_Task(animate_stars2,NULL,0);
     printf("---done\r\n");
-    // show_start_screen();
+    
+    show_start_screen();
     spawn_enemines();
 
-    uCanvas_Add_Task(animate_enemy_spaceships_1,NULL,0);
-    uCanvas_Add_Task(animate_enemy_spaceships_2,NULL,0);
+    uCanvas_Add_Task(animate_enemy_spaceships_1,NULL,1);
+    uCanvas_Add_Task(animate_enemy_spaceships_2,NULL,1);
     uCanvas_Add_Task((void (*))bullets_animation,&player_bulletes_instance,0);
     uCanvas_Add_Task((void (*))fps_monitor,NULL,0);
-    // uCanvas_Add_Task((void (*))controller_task,NULL,0);
-    // uCanvas_Add_Task((void (*))detect_spaceship_collision_with_enemyship,NULL,0);
+    uCanvas_Add_Task((void (*))controller_task,NULL,0);
+    uCanvas_Add_Task((void (*))detect_spaceship_collision_with_enemyship,NULL,0);
     
     
     create_hud();

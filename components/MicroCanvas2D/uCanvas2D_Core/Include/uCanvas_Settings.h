@@ -14,3 +14,10 @@
 #define UCANVAS_DISPLAY_ORIENTATION             1
 
 #define UCANVAS_USE_DOUBLE_BUFFERING            (1)
+
+enum {
+    UNDEFINED,
+    ESP32,
+    STM32
+};
+#define UCANVAS_TARGET ESP32

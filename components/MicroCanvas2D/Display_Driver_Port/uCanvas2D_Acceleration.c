@@ -4,12 +4,14 @@ static ppa_client_handle_t ppa_srm_handle = NULL;
 static ppa_client_config_t ppa_srm_config = {
         .oper_type = PPA_OPERATION_SRM,
         .max_pending_trans_num = 1000,
+        // .data_burst_length = PPA_DATA_BURST_LENGTH_128
 };
 
 static ppa_client_handle_t ppa_blend_handle = NULL;
 static ppa_client_config_t ppa_blend_config = {
         .oper_type = PPA_OPERATION_BLEND,
         .max_pending_trans_num  = 1000,
+        .data_burst_length = PPA_DATA_BURST_LENGTH_128
 };
 
 
@@ -17,6 +19,7 @@ static ppa_client_handle_t ppa_fill_handle = NULL;
 static ppa_client_config_t ppa_fill_config = {
         .oper_type = PPA_OPERATION_FILL,
         .max_pending_trans_num = 2,
+        // .data_burst_length = PPA_DATA_BURST_LENGTH_128
 };
 
 #include "freertos/FreeRTOS.h"

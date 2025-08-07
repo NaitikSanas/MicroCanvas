@@ -23,6 +23,8 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
                     "Fonts/BitcountPropDouble32.c"
                     "Fonts/Roboto_Italic_32.c"
                     "Fonts/SixyFour32.c"
+                    
+                    "Input_Devices/USB_HID/uCanvas_HID.c"
                                  
 )
 
@@ -33,6 +35,7 @@ idf_component_register( SRCS "${COMPONENT_SRCS}"
                                         "uCanvas2D_GUI_Components/ucanvas_button" 
                                         "uCanvas2D_GUI_Components/ucanvas_slider"
                                         "Display_Driver_Port"
+                                        "Input_Devices/USB_HID"
                                         "Fonts"
                                         
-                        PRIV_REQUIRES driver EK79007 SSD1306_Driver st7789  spiffs mpu6050_driver esp_timer esp_lcd esp_driver_ppa)
+                        PRIV_REQUIRES driver EK79007 SSD1306_Driver st7789  spiffs mpu6050_driver esp_timer esp_lcd esp_driver_ppa usb)

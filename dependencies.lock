@@ -1,9 +1,25 @@
 dependencies:
+  espressif/usb_host_hid:
+    component_hash: eabf03fe3cb1bdb5325d2725f420c6324c3e150033d893ce3737222929455a55
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.4'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    targets:
+    - esp32s2
+    - esp32s3
+    - esp32p4
+    version: 1.0.3
   idf:
-    component_hash: null
     source:
       type: idf
-    version: 4.4.7
-manifest_hash: c1177a30490867b4a3206b028e83af2969c056fb2aae85be1a0fadffaeb4c971
-target: esp32s3
-version: 1.0.0
+    version: 5.4.1
+direct_dependencies:
+- espressif/usb_host_hid
+- idf
+manifest_hash: 137dbf6a9ba104c19849b227bfad49ffacd7bec320b092af49f101f5695e8e89
+target: esp32p4
+version: 2.0.0
