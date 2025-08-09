@@ -11,6 +11,8 @@
 
     typedef TaskFunction_t uCanvas_Animation_task_t;
     typedef TaskHandle_t uCanvas_Animation_task_handle_t;
+
+    typedef enum {uCanvas_Font_Dir_0, uCanvas_Font_Dir_90, uCanvas_Font_Dir_180, uCanvas_Font_Dir_270} font_draw_direction_t;
     
     typedef enum{
         FONTX_16G,
@@ -45,7 +47,8 @@
         ELLIPSE,
         TRIANGLE,
         SPRITE2D,
-        WINDOW
+        WINDOW,
+        RICH_TEXBOX
     }uCanvas_element_type_t;
 
     typedef struct _point
@@ -71,6 +74,43 @@
         VISIBLE = 1
     }visibility_ctrl_t;
 
+    typedef enum {
+        TEXT_LEFT_ALIGNED = 0,
+        TEXT_CENTER_ALIGNED,
+        TEXT_RIGHT_ALIGNED
+    }uCanvas_Text_Alignment_t;
+
+    typedef enum {
+        TEXT_NO_WRAP = 0,
+        TEXT_WRAP_PER_NCHARACTER,
+        TEXT_WRAP_PER_NWORDS,
+        TEXT_WRAP_STRECH
+    }uCanvas_Text_Wrap_t;
+
+    typedef struct uCanvas_font_properties
+    {
+        FontType_t font_type;
+        font_draw_direction_t Font_Draw_Direction;
+    }uCanvas_font_properties_t;
+
+    typedef struct 
+    {
+        int textbox_height;
+        int textbox_width;
+        int margin_x;
+        int margin_y;
+        int wrap_index;
+        fill_t fill_background;
+        uCanvas_Text_Alignment_t text_alignment;
+        uCanvas_Text_Wrap_t text_wrap_mode; 
+        color_t background_color;
+        FontType_t font_type;
+        font_draw_direction_t Font_Draw_Direction;
+        char* textbox_content;
+    }uCanvas_TextBox_Properties_t;
+
+    
+
     typedef struct uCanvas_base 
     { 
         visibility_ctrl_t visiblity;
@@ -83,6 +123,8 @@
         uint8_t collision_detection;
         uint8_t flip_x;
         uint8_t flip_y;
+
+       
     }uCanvas_base_t;
 
 
@@ -111,13 +153,8 @@
         uCanvas_color_format_t color_format;  
     }sprite2D_t;
     
-    typedef enum {uCanvas_Font_Dir_0, uCanvas_Font_Dir_90, uCanvas_Font_Dir_180, uCanvas_Font_Dir_270} font_draw_direction_t;
     
-    typedef struct uCanvas_font_properties
-    {
-        FontType_t font_type;
-        font_draw_direction_t Font_Draw_Direction;
-    }uCanvas_font_properties_t;
+   
     
     typedef struct uCanvas_universal_obj
     {
@@ -145,10 +182,10 @@
         void* ctx_data;
         uint16_t* pixel_data;
         char* text;
-
+        uCanvas_TextBox_Properties_t* textbox_properties;
     } uCanvas_universal_obj_t;
 
-     typedef uCanvas_universal_obj_t uCanvas_obj_t;
+    typedef uCanvas_universal_obj_t uCanvas_obj_t;
     typedef struct uCanvas_rectangle
     {
         uCanvas_base_t properties; 

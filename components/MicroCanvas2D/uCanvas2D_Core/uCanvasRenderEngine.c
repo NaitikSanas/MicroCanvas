@@ -11,12 +11,20 @@ extern SemaphoreHandle_t active_scene_mutex;
 
 TaskHandle_t uCanvas_taskhandle;
 extern uCanvas_Scene_t* active_scene;
+uint16_t IRAM_ATTR convertToRGB565(color_t color) {
+    // Combine into RGB565 format
+  	return (((color.red * 31) / 255) << 11) | (((color.green * 63) / 255) << 5) | ((color.blue * 31) / 255);
+}
 
 void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_obj_t* obj, uCanvas2D_RenderBuffer_t* framebuffer,uCanvas2D_Display_Panel_t* panel){
-    uint16_t color = obj->properties.color.red << 11 | obj->properties.color.green << 5 | obj->properties.color.blue;
+    uint16_t color = convertToRGB565(obj->properties.color);
     switch (obj->properties.type)
     {
     case RECTANGLE:{
+        // printf("draw rect %d,%d,%d,%d \r\n",obj->properties.position.x,
+            // obj->properties.position.y,
+            // obj->width,
+            // obj->height);
         uCanvas2D_DrawRect(
             framebuffer, // Use your global or current render buffer
             obj->properties.position.x,
@@ -30,7 +38,13 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
     }
 
     case TEXTBOX : {
-        uCanvas_Draw_Text(framebuffer,obj->properties.position.x,obj->properties.position.y,obj->text,obj->font_properties.font_type,color,0x0000,obj->font_properties.Font_Draw_Direction,0);
+
+        uCanvas_Draw_SFONT_TextBox(framebuffer,obj);
+        // printf("draw text %d,%d,%d,%d \r\n",obj->properties.position.x,
+            // obj->properties.position.y,
+            // obj->width,
+            // obj->height);
+        // uCanvas_Draw_Text(framebuffer,obj->properties.position.x,obj->properties.position.y,obj->text,obj->font_properties.font_type,color,0x0000,obj->font_properties.Font_Draw_Direction,0);
         // uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color,obj->font_properties);
         break;
     }

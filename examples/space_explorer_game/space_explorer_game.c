@@ -7,7 +7,7 @@
 
 #define MAX_STARS           100 
 #define STARS_SCROLLING_RATE 10  
-#define MAX_ENEMIES         100
+#define MAX_ENEMIES         60
 #define COLLISION_THRESHOLD 30  // adjust based on object size
 
 #define ENC_A   39 
@@ -527,7 +527,7 @@ void controller_task(void){
 void show_start_screen(){
     uCanvas_universal_obj_t* title_tb_1 = New_uCanvas_2DTextbox("Space",CANVAS_WIDTH/4 ,0);
     uCanvas_universal_obj_t* title_tb_2 = New_uCanvas_2DTextbox("Explorer",CANVAS_WIDTH/5 +100,0);
-    title_tb_3 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/4,0);
+    title_tb_3 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/4-100,0);
     uCanvas_Set_Color(title_tb_1,255,255,0);
     uCanvas_Set_Color(title_tb_2,255,255,0);
     uCanvas_Set_Color(title_tb_3,255,255,255);
@@ -595,7 +595,7 @@ uCanvas2D_Instance_t uCanvas_Instance_1;
 uCanvas2D_Instance_t uCanvas_Instance_2;
 uCanvas2D_Instance_t* game_window = NULL;
 void fps_monitor(void){
-    uCanvas_universal_obj_t* fps_counter = New_uCanvas_2DTextbox("",CANVAS_WIDTH-150,60);
+    uCanvas_universal_obj_t* fps_counter = New_uCanvas_2DTextbox("",CANVAS_WIDTH-150,CANVAS_HEIGHT-32);
     fps_counter->font_properties.font_type = SFONT_24;
     uCanvas_Set_Color(fps_counter,255,255,255);
 
@@ -714,6 +714,7 @@ void Run_Space_Explorer_Game() {
     create_spaceship(&player_spaceship);  
     uCanvas_Add_Task(animate_stars1,NULL,0);
     uCanvas_Add_Task(animate_stars2,NULL,0);
+    uCanvas_Add_Task((void (*))fps_monitor,NULL,0);
     printf("---done\r\n");
     
     show_start_screen();
@@ -722,7 +723,7 @@ void Run_Space_Explorer_Game() {
     uCanvas_Add_Task(animate_enemy_spaceships_1,NULL,1);
     uCanvas_Add_Task(animate_enemy_spaceships_2,NULL,1);
     uCanvas_Add_Task((void (*))bullets_animation,&player_bulletes_instance,0);
-    uCanvas_Add_Task((void (*))fps_monitor,NULL,0);
+   
     uCanvas_Add_Task((void (*))controller_task,NULL,0);
     uCanvas_Add_Task((void (*))detect_spaceship_collision_with_enemyship,NULL,0);
     

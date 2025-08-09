@@ -198,6 +198,20 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
 uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos){
     uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
     textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE*sizeof(uint8_t));
+    
+    textbox->textbox_properties = (uCanvas_TextBox_Properties_t*)malloc(sizeof(uCanvas_TextBox_Properties_t));
+    if(textbox){
+        textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
+        textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_STRECH;
+        textbox->textbox_properties->textbox_content = NULL;
+        textbox->textbox_properties->textbox_content = textbox->text;
+        textbox->textbox_properties->margin_x = 4;
+        textbox->textbox_properties->margin_y = 4;
+        textbox->textbox_properties->fill_background = false;
+        textbox->textbox_properties->textbox_height = 200;
+        textbox->textbox_properties->textbox_width = 100;
+    }
+    else return NULL;
     memset(textbox->text,0,UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
     sprintf(textbox->text,"%s",text);
     textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;

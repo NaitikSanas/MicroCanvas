@@ -503,6 +503,92 @@ void IRAM_ATTR uCanvas_Draw_SFONT_Text(uCanvas2D_RenderBuffer_t *fb, int x, int 
     }
 }
 
+void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_universal_obj_t* obj) {
+    uCanvas_TextBox_Properties_t* tp = obj->textbox_properties;
+    char* str = tp->textbox_content;
+
+    sFONT* Font = get_font_by_name(tp->font_type);
+    if (!Font || !str) return;
+
+    int font_h = Font->Height;
+    int font_w = Font->Width;
+    int textbox_w = tp->textbox_width;
+    int textbox_h = tp->textbox_height;
+    int base_y = obj->properties.position.y + tp->margin_y;
+
+    int chars_per_line = textbox_w / font_w;
+    int words_per_line = tp->wrap_index; // for TEXT_WRAP_PER_NWORDS
+    int max_lines = textbox_h / font_h;
+    int line_count = 0;
+
+    while (*str && line_count < max_lines) {
+        int len = 0;
+
+        if (tp->text_wrap_mode == TEXT_WRAP_PER_NWORDS) {
+            int words = 0;
+            int pixel_width = 0;
+            int i = 0;
+
+            while (str[i] && str[i] != '\n') {
+                int word_len = 0;
+                while (str[i + word_len] && str[i + word_len] != ' ' && str[i + word_len] != '\n') {
+                    word_len++;
+                }
+
+                int word_px = word_len * font_w;
+                int space_px = (words > 0) ? font_w : 0;
+
+                if ((pixel_width + space_px + word_px) > textbox_w || (words >= words_per_line)) {
+                    break;
+                }
+
+                pixel_width += space_px + word_px;
+                i += word_len;
+                if (str[i] == ' ') i++;
+                words++;
+            }
+
+            len = i;
+        } 
+        else {
+            int max_chars = (tp->text_wrap_mode == TEXT_WRAP_PER_NCHARACTER)
+                            ? tp->wrap_index / font_w
+                            : chars_per_line;
+            while (str[len] && str[len] != '\n' && len < max_chars) len++;
+        }
+
+        int line_w_px = len * font_w;
+        int start_x;
+        switch (tp->text_alignment) {
+            case TEXT_CENTER_ALIGNED:
+                start_x = obj->properties.position.x + (textbox_w - line_w_px) / 2;
+                break;
+            case TEXT_RIGHT_ALIGNED:
+                start_x = obj->properties.position.x + textbox_w - line_w_px - tp->margin_x;
+                break;
+            default:
+                start_x = obj->properties.position.x + tp->margin_x;
+                break;
+        }
+
+        int draw_x = start_x;
+        for (int i = 0; i < len; i++) {
+            uCanvas_Draw_SFONT(fb, Font, draw_x, base_y, str[i],
+                               convertToRGB565(obj->properties.color),
+                               convertToRGB565(tp->background_color),
+                               tp->Font_Draw_Direction);
+            draw_x += font_w;
+        }
+
+        str += len;
+        if (*str == '\n') str++;
+        else if (*str == ' ' && tp->text_wrap_mode == TEXT_WRAP_PER_NWORDS) str++;
+
+        base_y += font_h;
+        line_count++;
+    }
+}
+
 int uCanvas_Draw_FONTX_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){
     int len = strlen(text);
     for (int i = 0; i < len; i++) {

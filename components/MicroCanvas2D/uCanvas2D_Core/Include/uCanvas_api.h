@@ -18,7 +18,7 @@
     void uCanvas_unlock_scene();
     // #define uCANVAS2D_EK79007_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_EK79007(),NULL)
     // #define uCANVAS2D_ST7789_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_ST7789(),NULL)
-
+    
     /*Starts Rendering Engine and Initializes Display*/
     uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel_1,uCanvas2D_Display_Panel_t* panel_2, int width, int height, int offset_x, int offset_y);
     uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int width, int height);
