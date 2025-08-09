@@ -70,14 +70,20 @@ void uCanvas_Setup() {
 
     textbox = New_uCanvas_2DTextbox(buf,50,50);
     uCanvas_Set_Color(textbox,255,0,0);
-    textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
-    textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_PER_NWORDS;
-    textbox->textbox_properties->wrap_index = 20;
-    textbox->font_properties.font_type = SFONT_16;
-    textbox->textbox_properties->font_type = SFONT_16;
-    textbox->textbox_properties->margin_x = 10;
-    textbox->textbox_properties->textbox_width = 420;
-    textbox->textbox_properties->textbox_height = 200;
+    uCanvas_Set_Textbox_Alignment(textbox,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(textbox,TEXT_WRAP_PER_NWORDS,20);
+    uCanas_Set_TextBox_Margin(textbox,10,10);
+    uCanas_Set_TextBox_Fill_Background(textbox,NOFILL, 0,0,0);
+    uCanas_Set_TextBox_FontType(textbox,SFONT_16);
+    uCanas_Set_TextBox_Dimensions(textbox,420,200);
+    // textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
+    // textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_PER_NWORDS;
+    // textbox->textbox_properties->wrap_index = 20;
+    // textbox->font_properties.font_type = SFONT_16;
+    // textbox->textbox_properties->font_type = SFONT_16;
+    // textbox->textbox_properties->margin_x = 10;
+    // textbox->textbox_properties->textbox_width = 420;
+    // textbox->textbox_properties->textbox_height = 200;
 
     uCanvas_universal_obj_t* textbg = New_uCanvas_2DRectangle(textbox->properties.position.x,textbox->properties.position.y,textbox->textbox_properties->textbox_height, textbox->textbox_properties->textbox_width);
     uCanvas_Set_Color(textbg,150,0,0);

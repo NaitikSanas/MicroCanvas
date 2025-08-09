@@ -227,6 +227,67 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
   return textbox;
 }
 
+void uCanvas_Set_Textbox_Alignment(uCanvas_universal_obj_t* obj,uCanvas_Text_Alignment_t align_type){
+    if(obj){
+        if(obj->properties.type == TEXTBOX){
+            obj->textbox_properties->text_alignment = align_type;
+        }
+    }
+    return;
+}
+
+
+void uCanvas_Set_Textbox_Wrap_Style(uCanvas_universal_obj_t* obj,uCanvas_Text_Wrap_t wrap_type, uint8_t Wrap_Index){
+    if(obj){
+        if(obj->properties.type == TEXTBOX){
+            obj->textbox_properties->text_wrap_mode = wrap_type;
+            obj->textbox_properties->wrap_index = Wrap_Index;
+        }
+    }
+    return;
+}
+
+void uCanas_Set_TextBox_Margin(uCanvas_universal_obj_t* obj,int margin_x, int margin_y){
+    if(obj){
+        if(obj->properties.type == TEXTBOX){
+            obj->textbox_properties->margin_x = margin_x;
+            obj->textbox_properties->margin_y = margin_y;
+        }
+    }
+    return;
+}
+
+void uCanas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fill_state, uint8_t r, uint8_t g, uint8_t b){
+    if(obj){
+        if(obj->properties.type == TEXTBOX){
+            obj->textbox_properties->fill_background = fill_state;
+            obj->textbox_properties->background_color.red = r;
+            obj->textbox_properties->background_color.green = g;
+            obj->textbox_properties->background_color.blue = b;
+        }
+    }
+    return;
+}
+
+void uCanas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontType){
+    if(obj){
+        if(obj->properties.type == TEXTBOX){
+            obj->textbox_properties->font_type = FontType;
+        }
+    }
+    return;
+}
+
+void uCanas_Set_TextBox_Dimensions(uCanvas_universal_obj_t* obj,int width, int height){
+    if(obj){
+        if(obj->properties.type == TEXTBOX){
+            obj->textbox_properties->textbox_width = width;
+            obj->textbox_properties->textbox_height = height;
+        }
+    }
+    return;
+}
+
 uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint16_t radius){
     uCanvas_universal_obj_t* circle = uCanvas_Universal_Object;
     if(circle==NULL){
