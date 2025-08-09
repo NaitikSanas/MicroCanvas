@@ -15,7 +15,7 @@ In order to kicstart the Microcanvas in your application you need to perform onl
 1. Start ucanvas Instance by setting panel, render buffer, 
 2. Define Scene Object to hold universal object
 3. Set Defiend Scene an Active to add objects using uCanvas API such as New_uCanvas_2DRectangle etc.
-4. 
+
 ```c
 /* MicroCanvas Setup Example */
 static uCanvas2D_Instance_t uCanvas_Instance_1;
