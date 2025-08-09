@@ -247,7 +247,7 @@ void uCanvas_Set_Textbox_Wrap_Style(uCanvas_universal_obj_t* obj,uCanvas_Text_Wr
     return;
 }
 
-void uCanas_Set_TextBox_Margin(uCanvas_universal_obj_t* obj,int margin_x, int margin_y){
+void uCanvas_Set_TextBox_Margin(uCanvas_universal_obj_t* obj,int margin_x, int margin_y){
     if(obj){
         if(obj->properties.type == TEXTBOX){
             obj->textbox_properties->margin_x = margin_x;
@@ -257,7 +257,7 @@ void uCanas_Set_TextBox_Margin(uCanvas_universal_obj_t* obj,int margin_x, int ma
     return;
 }
 
-void uCanas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fill_state, uint8_t r, uint8_t g, uint8_t b){
+void uCanvas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fill_state, uint8_t r, uint8_t g, uint8_t b){
     if(obj){
         if(obj->properties.type == TEXTBOX){
             obj->textbox_properties->fill_background = fill_state;
@@ -269,7 +269,7 @@ void uCanas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fill
     return;
 }
 
-void uCanas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontType){
+void uCanvas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontType){
     if(obj){
         if(obj->properties.type == TEXTBOX){
             obj->textbox_properties->font_type = FontType;
@@ -278,7 +278,7 @@ void uCanas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontTyp
     return;
 }
 
-void uCanas_Set_TextBox_Dimensions(uCanvas_universal_obj_t* obj,int width, int height){
+void uCanvas_Set_TextBox_Dimensions(uCanvas_universal_obj_t* obj,int width, int height){
     if(obj){
         if(obj->properties.type == TEXTBOX){
             obj->textbox_properties->textbox_width = width;
