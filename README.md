@@ -12,20 +12,33 @@
 
 ### Setup MicroCanvas 
 In order to kicstart the Microcanvas in your application you need to perform only 3 steps : 
-1. Start ucanvas engine renderer
+1. Start ucanvas Instance by setting panel, render buffer, 
 2. Define Scene Object to hold universal object
-3. Set Defiend Scene an Active so render can use it to update display based of elements added in defined scene instance.
-
+3. Set Defiend Scene an Active to add objects using uCanvas API such as New_uCanvas_2DRectangle etc.
+4. 
 ```c
 /* MicroCanvas Setup Example */
-start_uCanvas_engine();  /* Initializes Display Driver and Kickstarts uCanvas Renderer Task. */
-
+static uCanvas2D_Instance_t uCanvas_Instance_1;
+Intialize_PPA();
 /**
  * Scene Object Basically Stores all Universal Objects Created by 
  * Application while it is set as an Active scene.
  */
 uCanvas_Scene_t* scene1 = New_uCanvas_Scene(); 
 uCanvas_Scene_t* scene2 = New_uCanvas_Scene(); 
+
+// Create Panel Object
+uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
+panel->init(1);
+panel->set_backlight(3000);
+
+//Set Up uCanvas Instance
+uCanvas_Attach_RenderBuffer(&uCanvas_Instance_1,CANVAS_WIDTH,CANVAS_HEIGHT); //Attach a framebuffer to instance
+uCanvas_Attach_Panel(&uCanvas_Instance_1,panel); //Attach initialized display panel object
+uCanvas_Set_ViewPort_Position(&uCanvas_Instance_1,0,0); //Set Position of Instance on Display.
+uCanvas_Attach_Scene(&uCanvas_Instance_1,scene1); // Set Scene to render through instance
+uCanvas_Attach_Renderer(&uCanvas_Instance_1,1); // Attach Renderer task to instance
+uCanvas_Set_Panel_RefreshDelay(&uCanvas_Instance_1,5);//Set Refresh delay
 
 /** This API sets Passed Scene Object as an active scene which is used
  * by renderer and uCanvas_Api.c to update display content. For simple applications
