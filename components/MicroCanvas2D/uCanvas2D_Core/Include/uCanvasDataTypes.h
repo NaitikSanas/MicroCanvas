@@ -82,9 +82,9 @@
 
     typedef enum {
         TEXT_NO_WRAP = 0,
-        TEXT_WRAP_PER_NCHARACTER,
-        TEXT_WRAP_PER_NWORDS,
-        TEXT_WRAP_STRECH
+        TEXT_WRAP_PER_SET_CHARACTER_LEN,
+        TEXT_WRAP_PER_SET_WORD_LEN,
+        TEXT_WRAP_STRECH_TO_WIDTH
     }uCanvas_Text_Wrap_t;
 
     typedef struct uCanvas_font_properties

@@ -15,3 +15,5 @@ Features to Add :
     c. Script Parser
 
 4. Import Resources Sprite, Images from SD/SPIFFS. Caching Data on RAM
+
+5. Virtual Display Panel Over Websocket. Get Viewport in browser or, Python based app. (Need to confirm How optimal ESP32P4 is at Streaming Big sized buffer over ESP32C3 that connected through SDIO?)

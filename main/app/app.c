@@ -72,14 +72,14 @@ void uCanvas_Setup() {
 
     uCanvas_Set_Color(textbox,255,0,0);
     uCanvas_Set_Textbox_Alignment(textbox,TEXT_LEFT_ALIGNED);
-    uCanvas_Set_Textbox_Wrap_Style(textbox,TEXT_WRAP_PER_NWORDS,20);
+    uCanvas_Set_Textbox_Wrap_Style(textbox,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(textbox,10,10);
     uCanvas_Set_TextBox_Fill_Background(textbox,NOFILL, 0,0,0);
     uCanvas_Set_TextBox_FontType(textbox,SFONT_16);
-    uCanvas_Set_TextBox_Dimensions(textbox,420,200);
+    uCanvas_Set_TextBox_Size(textbox,420,200);
 
     // textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
-    // textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_PER_NWORDS;
+    // textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_PER_SET_WORD_LEN;
     // textbox->textbox_properties->wrap_index = 20;
     // textbox->font_properties.font_type = SFONT_16;
     // textbox->textbox_properties->font_type = SFONT_16;

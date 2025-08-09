@@ -139,7 +139,7 @@
     void uCanvas_Set_TextBox_Margin(uCanvas_universal_obj_t* obj,int margin_x, int margin_y);
     void uCanvas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fill_state, uint8_t r, uint8_t g, uint8_t b);
     void uCanvas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontType);
-    void uCanvas_Set_TextBox_Dimensions(uCanvas_universal_obj_t* obj,int width, int height);
+    void uCanvas_Set_TextBox_Size(uCanvas_universal_obj_t* obj,int width, int height);
     
     /* Sets the type of passed 2D Object */
     void uCanvas_Set_Obj_Type(uCanvas_universal_obj_t*obj,uCanvas_element_type_t type);

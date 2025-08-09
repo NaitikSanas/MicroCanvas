@@ -418,79 +418,6 @@ void IRAM_ATTR uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int
     }
 }
 
-
-// int uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
-//                     uint16_t color1, uint16_t color2, uint16_t font_direction) {
-//     int row, col;
-//     int bytes_per_row = (Font->Width + 7) / 8;  // number of bytes per row
-//     const uint8_t* bitmap = &Font->table[(ascii - ' ') * Font->Height * bytes_per_row];
-
-//     for (row = 0; row < Font->Height; row++) {
-//         for (col = 0; col < Font->Width; col++) {
-//             int byte_index = row * bytes_per_row + (col / 8);
-//             uint8_t byte = bitmap[byte_index];
-//             if (byte & (0x80 >> (col % 8))) {
-//                 set_pixel(fb, x + col, y + row, color1);
-//             } else {
-//                 set_pixel(fb, x + col, y + row, color2);
-//             }
-//         }
-//     }
-
-//     return 0;
-// }
-
-// int uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
-//                        uint16_t color1, uint16_t color2, uint16_t font_direction) {
-//     uint8_t char_width = Font->Width;
-//     uint8_t char_height = Font->Height;
-//     uint8_t bytes_per_row = (char_width + 7) / 8;
-
-//     uint32_t offset = (ascii - ' ') * char_height * bytes_per_row;
-//     const uint8_t *ptr = &Font->table[offset];
-
-//     for (int row = 0; row < char_height; row++) {
-//         for (int col = 0; col < char_width; col++) {
-//             int byte_index = col / 8;
-//             int bit_index = 7 - (col % 8); // MSB first
-
-//             uint8_t byte = ptr[byte_index];
-//             uint8_t bit = (byte >> bit_index) & 0x01;
-
-//             uint16_t color = bit ? color1 : color2;
-//             set_pixel(fb, x + col, y + row, color);
-//         }
-//         ptr += bytes_per_row;
-//     }
-
-//     return 0;
-// }
-
-// int uCanvas_Draw_SFONT(uCanvas2D_RenderBuffer_t *fb, sFONT* Font, int x, int y, char ascii,
-//                     uint16_t color1, uint16_t color2,
-//                     uint16_t font_direction) {
-//     uint8_t char_width = Font->Width;
-//     uint8_t char_height = Font->Height;
-//     uint8_t bytes_per_column = (char_height + 7) / 8;
-
-//     uint32_t offset = (ascii - ' ') * char_width * bytes_per_column;
-//     const uint8_t *ptr = &Font->table[offset];
-
-//     for (int col = 0; col < char_width; col++) {
-//         for (int byte = 0; byte < bytes_per_column; byte++) {
-//             uint8_t data = *ptr++;
-//             for (int bit = 0; bit < 8; bit++) {
-//                 int row = byte * 8 + bit;
-//                 if (row >= char_height) continue;
-
-//                 uint16_t color = (data & (1 << bit)) ? color1 : color2;
-//                 set_pixel(fb, x + col, y + row, color);
-//             }
-//         }
-//     }
-
-//     return 0;
-// }
 void IRAM_ATTR uCanvas_Draw_SFONT_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, const char *pString,
                          FontType_t font_type, uint16_t color1, uint16_t color2, int font_direction) {
     sFONT* Font = get_font_by_name(font_type);
@@ -517,14 +444,14 @@ void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_
     int base_y = obj->properties.position.y + tp->margin_y;
 
     int chars_per_line = textbox_w / font_w;
-    int words_per_line = tp->wrap_index; // for TEXT_WRAP_PER_NWORDS
+    int words_per_line = tp->wrap_index; // for TEXT_WRAP_PER_SET_WORD_LEN
     int max_lines = textbox_h / font_h;
     int line_count = 0;
 
     while (*str && line_count < max_lines) {
         int len = 0;
 
-        if (tp->text_wrap_mode == TEXT_WRAP_PER_NWORDS) {
+        if (tp->text_wrap_mode == TEXT_WRAP_PER_SET_WORD_LEN) {
             int words = 0;
             int pixel_width = 0;
             int i = 0;
@@ -551,7 +478,7 @@ void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_
             len = i;
         } 
         else {
-            int max_chars = (tp->text_wrap_mode == TEXT_WRAP_PER_NCHARACTER)
+            int max_chars = (tp->text_wrap_mode == TEXT_WRAP_PER_SET_CHARACTER_LEN)
                             ? tp->wrap_index / font_w
                             : chars_per_line;
             while (str[len] && str[len] != '\n' && len < max_chars) len++;
@@ -582,7 +509,7 @@ void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_
 
         str += len;
         if (*str == '\n') str++;
-        else if (*str == ' ' && tp->text_wrap_mode == TEXT_WRAP_PER_NWORDS) str++;
+        else if (*str == ' ' && tp->text_wrap_mode == TEXT_WRAP_PER_SET_WORD_LEN) str++;
 
         base_y += font_h;
         line_count++;

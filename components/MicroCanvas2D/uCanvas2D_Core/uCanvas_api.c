@@ -202,7 +202,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     textbox->textbox_properties = (uCanvas_TextBox_Properties_t*)malloc(sizeof(uCanvas_TextBox_Properties_t));
     if(textbox){
         textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
-        textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_STRECH;
+        textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_STRECH_TO_WIDTH;
         textbox->textbox_properties->textbox_content = NULL;
         textbox->textbox_properties->textbox_content = textbox->text;
         textbox->textbox_properties->margin_x = 4;
@@ -278,7 +278,7 @@ void uCanvas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontTy
     return;
 }
 
-void uCanvas_Set_TextBox_Dimensions(uCanvas_universal_obj_t* obj,int width, int height){
+void uCanvas_Set_TextBox_Size(uCanvas_universal_obj_t* obj,int width, int height){
     if(obj){
         if(obj->properties.type == TEXTBOX){
             obj->textbox_properties->textbox_width = width;
