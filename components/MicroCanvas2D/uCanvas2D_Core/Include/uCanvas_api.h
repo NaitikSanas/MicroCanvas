@@ -71,6 +71,7 @@
     */
     uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, uint16_t h, uint16_t w);
     uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16_t ypos);
+    uCanvas_universal_obj_t* New_uCanvas_2DAdvancedTextbox(char* text, uint16_t xpos, uint16_t ypos, int width, int height);
     uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint16_t radius);
     uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
     uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinate2D_t Point2, Coordinate2D_t Point3);
@@ -140,7 +141,9 @@
     void uCanvas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fill_state, uint8_t r, uint8_t g, uint8_t b);
     void uCanvas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontType);
     void uCanvas_Set_TextBox_Size(uCanvas_universal_obj_t* obj,int width, int height);
-    
+    void uCanvas_Enable_TextBox_Cursor(uCanvas_universal_obj_t* obj, uint32_t cursor_blink_rate,uCanvas_TextBox_Cursor_t cursor_type);
+    void uCanvas_Disable_TextBox_Cursor(uCanvas_universal_obj_t* obj);
+    void uCanvas_Set_TextBox_Border_Properties(uCanvas_universal_obj_t* obj,uint8_t border_thickness, uint8_t r, uint8_t g, uint8_t b);
     /* Sets the type of passed 2D Object */
     void uCanvas_Set_Obj_Type(uCanvas_universal_obj_t*obj,uCanvas_element_type_t type);
     

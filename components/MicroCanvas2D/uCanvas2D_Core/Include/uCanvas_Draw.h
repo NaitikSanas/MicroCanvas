@@ -26,4 +26,5 @@ uint16_t IRAM_ATTR convertToRGB565(color_t color);
 void uCanvas_Load_FontX(void);
 int uCanvas_Draw_FONTX(uCanvas2D_RenderBuffer_t *fb, int x, int y, char ascii, FontType_t font_type, uint16_t color1,uint16_t color2, uint16_t font_direction, uint8_t ul_en);
 int uCanvas_Draw_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en);
+void IRAM_ATTR uCanvas_Draw_SFONT_Advanced_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_universal_obj_t* obj);
 void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_universal_obj_t* obj);

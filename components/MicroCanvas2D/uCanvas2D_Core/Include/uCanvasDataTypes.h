@@ -43,6 +43,7 @@
         RECTANGLE = 0,
         CIRCLE,
         TEXTBOX,
+        ADV_TEXTBOX,
         LINE,
         ELLIPSE,
         TRIANGLE,
@@ -92,6 +93,18 @@
         FontType_t font_type;
         font_draw_direction_t Font_Draw_Direction;
     }uCanvas_font_properties_t;
+    typedef enum {
+        CARET_CURSOR=0,
+        BLOCK_CURSOR
+    }uCanvas_TextBox_Cursor_t;
+
+    typedef struct {
+        bool enable_cursor;
+        uCanvas_TextBox_Cursor_t cursor_type; 
+        bool cursor_visible;
+        uint64_t last_tick;
+        uint64_t blink_interval;
+    }uCanvas_Cursor_Properties_t;
 
     typedef struct 
     {
@@ -100,13 +113,20 @@
         int margin_x;
         int margin_y;
         int wrap_index;
+        uCanvas_Cursor_Properties_t cursor_properties;
         fill_t fill_background;
         uCanvas_Text_Alignment_t text_alignment;
         uCanvas_Text_Wrap_t text_wrap_mode; 
         color_t background_color;
+        color_t border_color;
+        uint8_t border_thickness;
         FontType_t font_type;
+        bool textbox_updated;
+        int last_crate_pos_x;
+        int last_crate_pos_y;
         font_draw_direction_t Font_Draw_Direction;
         char* textbox_content;
+        uCanvas2D_RenderBuffer_t* text_draw_buf;
     }uCanvas_TextBox_Properties_t;
 
     
@@ -182,6 +202,7 @@
         void* ctx_data;
         uint16_t* pixel_data;
         char* text;
+        
         uCanvas_TextBox_Properties_t* textbox_properties;
     } uCanvas_universal_obj_t;
 

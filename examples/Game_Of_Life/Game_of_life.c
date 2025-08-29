@@ -12,6 +12,7 @@ static uCanvas_universal_obj_t* game_stats[5];
 static fill_t next_state[GRID_SIZE_Y][GRID_SIZE_X] = {NOFILL};
 static fill_t prev_state[GRID_SIZE_Y][GRID_SIZE_X] = {NOFILL};
 static uCanvas_universal_obj_t* prompt;
+
 void randomize_grid() {
     srand(xTaskGetTickCount());
     for (int i = 0; i < GRID_SIZE_Y; i++) {

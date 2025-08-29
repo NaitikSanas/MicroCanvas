@@ -7,7 +7,7 @@
 #include "stdbool.h"
 #include "uCanvas2D_Display_Setup.h"
 #include "uCanvas2D_Acceleration.h"
-
+#include "esp_timer.h"
 
 // Helper: Set pixel in RGB565
 
@@ -430,10 +430,205 @@ void IRAM_ATTR uCanvas_Draw_SFONT_Text(uCanvas2D_RenderBuffer_t *fb, int x, int 
     }
 }
 
+void copy_fb_region_to_textbuf(uCanvas2D_RenderBuffer_t *fb,
+                               uCanvas2D_RenderBuffer_t *text_buf,
+                               int src_x, int src_y,
+                               int width, int height)
+{
+    // Clip to framebuffer bounds
+    if (src_x < 0) { width += src_x; src_x = 0; }
+    if (src_y < 0) { height += src_y; src_y = 0; }
+    if (src_x + width > fb->width)  width  = fb->width  - src_x;
+    if (src_y + height > fb->height) height = fb->height - src_y;
+    if (width <= 0 || height <= 0) return;
+
+    // Assume both fb->pixels and text_buf->pixels are RGB565
+    uint16_t *fb_pixels   = (uint16_t *)fb->pixels;
+    uint16_t *buf_pixels  = (uint16_t *)text_buf->pixels;
+
+    for (int row = 0; row < height; row++) {
+        memcpy(buf_pixels + row * text_buf->width,
+               fb_pixels + (src_y + row) * fb->width + src_x,
+               width * sizeof(uint16_t));
+    }
+}
+
+void IRAM_ATTR uCanvas_Draw_SFONT_Advanced_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_universal_obj_t* obj) {
+    uCanvas_TextBox_Properties_t* tp = obj->textbox_properties;
+    char* str = tp->textbox_content;
+    sFONT* Font = get_font_by_name(tp->font_type);
+    if (!Font || !str) return;
+    int inner_pos_x = 0;
+    int inner_pos_y = 0;
+
+    int font_h = Font->Height;
+    int font_w = Font->Width;
+    int textbox_w = tp->textbox_width;
+    int textbox_h = tp->textbox_height;
+    int base_y = inner_pos_y + tp->margin_y;
+    int inner_px = textbox_w - 2 * tp->margin_x;
+    if (inner_px < font_w) inner_px = font_w;
+    int chars_per_line = inner_px / font_w;
+    if (chars_per_line < 1) chars_per_line = 1;
+    int words_per_line = tp->wrap_index;
+    int max_lines = textbox_h / font_h;
+    int line_count = 0;
+    
+    int caret_x = inner_pos_x + tp->margin_x;
+    int caret_y = base_y;
+    int left_bound = inner_pos_x + tp->margin_x;
+    int right_bound = left_bound + inner_px;
+
+    uint16_t font_color = convertToRGB565(obj->properties.color);
+    uint16_t background_color = convertToRGB565(tp->background_color);
+    uint16_t border_color = convertToRGB565(tp->border_color);
+    
+    if(obj->textbox_properties->textbox_updated){
+        obj->textbox_properties->textbox_updated = false;   
+        if(tp->fill_background){
+        ppa_helper_fill(
+                        tp->text_draw_buf->pixels,
+                        tp->text_draw_buf->width * tp->text_draw_buf->height * sizeof(uint16_t),
+                        tp->text_draw_buf->width,
+                        tp->text_draw_buf->height,
+                        0, 0, tp->text_draw_buf->width, tp->text_draw_buf->height, background_color,0
+                        );
+        }
+        else {
+            copy_fb_region_to_textbuf(fb,
+                          tp->text_draw_buf,
+                          obj->properties.position.x,
+                          obj->properties.position.y,
+                          tp->textbox_width,
+                          tp->textbox_height);
+        }
+        // memset(tp->text_draw_buf->pixels, convertToRGB565(tp->background_color), tp->text_draw_buf->width * tp->text_draw_buf->height * sizeof(uint16_t)); 
+
+        if (tp->border_thickness > 0) {
+            uCanvas2D_DrawRect(tp->text_draw_buf, inner_pos_x, inner_pos_y, tp->textbox_width, tp->textbox_height,font_color, 0,tp->border_thickness);
+        }
+        
+        while (*str && line_count < max_lines) {
+            int len = 0;
+
+            if (tp->text_wrap_mode == TEXT_WRAP_PER_SET_WORD_LEN) {
+                int words = 0;
+                int pixel_width = 0;
+                int i = 0;
+                while (str[i] && str[i] != '\n') {
+                    int word_len = 0;
+                    while (str[i + word_len] && str[i + word_len] != ' ' && str[i + word_len] != '\n') {
+                        word_len++;
+                    }
+                    int word_px = word_len * font_w;
+                    int space_px = (words > 0) ? font_w : 0;
+                    if ((pixel_width + space_px + word_px) > inner_px || (words >= words_per_line)) break;
+                    pixel_width += space_px + word_px;
+                    i += word_len;
+                    if (str[i] == ' ') i++;
+                    words++;
+                }
+                len = i;
+                if (len == 0 && str[0] && str[0] != '\n') {
+                    int remaining = 0;
+                    while (str[remaining] && str[remaining] != ' ' && str[remaining] != '\n') remaining++;
+                    int max_fit = chars_per_line;
+                    if (max_fit < 1) max_fit = 1;
+                    len = (remaining < max_fit) ? remaining : max_fit;
+                }
+            } else {
+                int max_chars = (tp->text_wrap_mode == TEXT_WRAP_PER_SET_CHARACTER_LEN) ? tp->wrap_index / font_w : chars_per_line;
+                if (max_chars < 1) max_chars = 1;
+                while (str[len] && str[len] != '\n' && len < max_chars) len++;
+            }
+
+            int line_w_px = len * font_w;
+            int start_x;
+            switch (tp->text_alignment) {
+                case TEXT_CENTER_ALIGNED:
+                    start_x = inner_pos_x + (textbox_w - line_w_px) / 2;
+                    break;
+                case TEXT_RIGHT_ALIGNED:
+                    start_x = inner_pos_x + textbox_w - line_w_px - tp->margin_x;
+                    break;
+                default:
+                    start_x = left_bound;
+                    break;
+            }
+
+            int draw_x = start_x;
+            int drawn = 0;
+            for (int i = 0; i < len; i++) {
+                if (draw_x + font_w > right_bound) break;
+                uCanvas_Draw_SFONT(tp->text_draw_buf, Font, draw_x, base_y, str[i],
+                                font_color,
+                                background_color,
+                                tp->Font_Draw_Direction);
+                draw_x += font_w;
+                drawn++;
+            }
+
+            caret_x = draw_x;
+            caret_y = base_y;
+            if (caret_x > right_bound) caret_x = right_bound;
+
+            str += (drawn > 0) ? drawn : len;
+            if (*str == '\n') str++;
+            else if (*str == ' ' && tp->text_wrap_mode == TEXT_WRAP_PER_SET_WORD_LEN) str++;
+
+            base_y += font_h;
+            line_count++;
+        }
+        tp->last_crate_pos_x = caret_x+obj->properties.position.x;
+        tp->last_crate_pos_y = caret_y+obj->properties.position.y;
+        
+    }
+
+    uCanvas2D_DrawSprite(fb,obj->properties.position.x,obj->properties.position.y,tp->text_draw_buf->pixels,tp->text_draw_buf->width,tp->text_draw_buf->height,COLOR_RGB565);
+
+
+    if (tp->cursor_properties.enable_cursor == true) {
+        uint64_t now = esp_timer_get_time();
+        if (now - tp->cursor_properties.last_tick > tp->cursor_properties.blink_interval) {
+            tp->cursor_properties.last_tick = now;
+            tp->cursor_properties.cursor_visible = !tp->cursor_properties.cursor_visible;
+        }
+        if (tp->cursor_properties.cursor_visible) {
+            switch (tp->cursor_properties.cursor_type) {
+                case CARET_CURSOR:
+                    uCanvas2D_DrawLine(fb, tp->last_crate_pos_x, tp->last_crate_pos_y, tp->last_crate_pos_x, tp->last_crate_pos_y + font_h - 1, font_color, 1);
+                    break;
+                case BLOCK_CURSOR:
+                    uCanvas2D_DrawRect(fb, tp->last_crate_pos_x, tp->last_crate_pos_y, font_w, font_h, font_color, true, 1);
+                    break;
+                default:
+                    uCanvas2D_DrawLine(fb, tp->last_crate_pos_x, tp->last_crate_pos_y, tp->last_crate_pos_x, tp->last_crate_pos_y + font_h - 1,font_color, 1);
+                    break;
+            }
+        }
+        else {
+
+            switch (tp->cursor_properties.cursor_type) {
+                case CARET_CURSOR:
+                    uCanvas2D_DrawLine(fb, tp->last_crate_pos_x, tp->last_crate_pos_y, tp->last_crate_pos_x, tp->last_crate_pos_y + font_h - 1,background_color, 1);
+                    break;
+                case BLOCK_CURSOR:
+                    uCanvas2D_DrawRect(fb, tp->last_crate_pos_x, tp->last_crate_pos_y, font_w, font_h, background_color, true, 1);
+                    break;
+                default:
+                    uCanvas2D_DrawLine(fb, tp->last_crate_pos_x, tp->last_crate_pos_y, tp->last_crate_pos_x, tp->last_crate_pos_y + font_h - 1, background_color, 1);
+                    break;
+            }
+
+        }
+    }
+}
+    
+   
+
 void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_universal_obj_t* obj) {
     uCanvas_TextBox_Properties_t* tp = obj->textbox_properties;
     char* str = tp->textbox_content;
-
     sFONT* Font = get_font_by_name(tp->font_type);
     if (!Font || !str) return;
 
@@ -442,11 +637,25 @@ void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_
     int textbox_w = tp->textbox_width;
     int textbox_h = tp->textbox_height;
     int base_y = obj->properties.position.y + tp->margin_y;
-
-    int chars_per_line = textbox_w / font_w;
-    int words_per_line = tp->wrap_index; // for TEXT_WRAP_PER_SET_WORD_LEN
+    int inner_px = textbox_w - 2 * tp->margin_x;
+    if (inner_px < font_w) inner_px = font_w;
+    int chars_per_line = inner_px / font_w;
+    if (chars_per_line < 1) chars_per_line = 1;
+    int words_per_line = tp->wrap_index;
     int max_lines = textbox_h / font_h;
     int line_count = 0;
+    int caret_x = obj->properties.position.x + tp->margin_x;
+    int caret_y = base_y;
+    int left_bound = obj->properties.position.x + tp->margin_x;
+    int right_bound = left_bound + inner_px;
+    uint16_t font_color = convertToRGB565(obj->properties.color);
+    uint16_t background_color = convertToRGB565(tp->background_color);
+    uint16_t border_color = convertToRGB565(tp->border_color);
+
+    if (tp->fill_background) {
+        uCanvas2D_DrawRect(fb, obj->properties.position.x, obj->properties.position.y, tp->textbox_width, tp->textbox_height, background_color, 1, 1);
+        uCanvas2D_DrawRect(fb, obj->properties.position.x, obj->properties.position.y, tp->textbox_width, tp->textbox_height, border_color, 0, 1);
+    }
 
     while (*str && line_count < max_lines) {
         int len = 0;
@@ -455,32 +664,30 @@ void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_
             int words = 0;
             int pixel_width = 0;
             int i = 0;
-
             while (str[i] && str[i] != '\n') {
                 int word_len = 0;
                 while (str[i + word_len] && str[i + word_len] != ' ' && str[i + word_len] != '\n') {
                     word_len++;
                 }
-
                 int word_px = word_len * font_w;
                 int space_px = (words > 0) ? font_w : 0;
-
-                if ((pixel_width + space_px + word_px) > textbox_w || (words >= words_per_line)) {
-                    break;
-                }
-
+                if ((pixel_width + space_px + word_px) > inner_px || (words >= words_per_line)) break;
                 pixel_width += space_px + word_px;
                 i += word_len;
                 if (str[i] == ' ') i++;
                 words++;
             }
-
             len = i;
-        } 
-        else {
-            int max_chars = (tp->text_wrap_mode == TEXT_WRAP_PER_SET_CHARACTER_LEN)
-                            ? tp->wrap_index / font_w
-                            : chars_per_line;
+            if (len == 0 && str[0] && str[0] != '\n') {
+                int remaining = 0;
+                while (str[remaining] && str[remaining] != ' ' && str[remaining] != '\n') remaining++;
+                int max_fit = chars_per_line;
+                if (max_fit < 1) max_fit = 1;
+                len = (remaining < max_fit) ? remaining : max_fit;
+            }
+        } else {
+            int max_chars = (tp->text_wrap_mode == TEXT_WRAP_PER_SET_CHARACTER_LEN) ? tp->wrap_index / font_w : chars_per_line;
+            if (max_chars < 1) max_chars = 1;
             while (str[len] && str[len] != '\n' && len < max_chars) len++;
         }
 
@@ -494,27 +701,58 @@ void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_
                 start_x = obj->properties.position.x + textbox_w - line_w_px - tp->margin_x;
                 break;
             default:
-                start_x = obj->properties.position.x + tp->margin_x;
+                start_x = left_bound;
                 break;
         }
 
         int draw_x = start_x;
+        int drawn = 0;
         for (int i = 0; i < len; i++) {
+            if (draw_x + font_w > right_bound) break;
             uCanvas_Draw_SFONT(fb, Font, draw_x, base_y, str[i],
-                               convertToRGB565(obj->properties.color),
-                               convertToRGB565(tp->background_color),
+                              font_color,
+                               background_color,
                                tp->Font_Draw_Direction);
             draw_x += font_w;
+            drawn++;
         }
 
-        str += len;
+        caret_x = draw_x;
+        caret_y = base_y;
+        if (caret_x > right_bound) caret_x = right_bound;
+
+        str += (drawn > 0) ? drawn : len;
         if (*str == '\n') str++;
         else if (*str == ' ' && tp->text_wrap_mode == TEXT_WRAP_PER_SET_WORD_LEN) str++;
 
         base_y += font_h;
         line_count++;
     }
+
+    if (tp->cursor_properties.enable_cursor == true) {
+        uint64_t now = esp_timer_get_time();
+        if (now - tp->cursor_properties.last_tick > tp->cursor_properties.blink_interval) {
+            tp->cursor_properties.last_tick = now;
+            tp->cursor_properties.cursor_visible = !tp->cursor_properties.cursor_visible;
+        }
+        if (tp->cursor_properties.cursor_visible) {
+            switch (tp->cursor_properties.cursor_type) {
+                case CARET_CURSOR:
+                    uCanvas2D_DrawLine(fb, caret_x, caret_y, caret_x, caret_y + font_h - 1, font_color, 1);
+                    break;
+                case BLOCK_CURSOR:
+                    uCanvas2D_DrawRect(fb, caret_x, caret_y, font_w, font_h, font_color, true, 1);
+                    break;
+                default:
+                    uCanvas2D_DrawLine(fb, caret_x, caret_y, caret_x, caret_y + font_h - 1,font_color, 1);
+                    break;
+            }
+        }
+    }
 }
+
+
+
 
 int uCanvas_Draw_FONTX_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){
     int len = strlen(text);

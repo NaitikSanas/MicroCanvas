@@ -37,9 +37,9 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
         break;
     }
 
-    case TEXTBOX : {
+    case ADV_TEXTBOX : {
 
-        uCanvas_Draw_SFONT_TextBox(framebuffer,obj);
+        uCanvas_Draw_SFONT_Advanced_TextBox(framebuffer,obj);
         // printf("draw text %d,%d,%d,%d \r\n",obj->properties.position.x,
             // obj->properties.position.y,
             // obj->width,
@@ -48,7 +48,10 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
         // uCanvas_Draw_Text(obj->text,obj->properties.position.x,obj->properties.position.y,obj->properties.color,obj->font_properties);
         break;
     }
-
+    case TEXTBOX : {
+        uCanvas_Draw_SFONT_TextBox(framebuffer,obj);
+        break;
+    }
     case CIRCLE : {
         uCanvas2D_DrawCircle(
             framebuffer,
@@ -142,12 +145,9 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
     }
 }
 
-
-int64_t fps=0;
 int64_t uCanvas_Get_FPS(uCanvas2D_Instance_t* instance){
     if(instance == NULL)return 0;
-    instance->fps = 1000000 /instance->fps;
-    return instance->fps;
+    return 1000000/instance->fps;
 }
 
 void wait_on_referesh_signal(uCanvas2D_Instance_t* instance){
@@ -234,9 +234,10 @@ void uCanvas_renderer_task(void*arg){
                 }
                 else {
                     if(instance->panel_1 != NULL)instance->panel_1->push_render_buffer(draw_bufffer->offset_x, draw_bufffer->offset_y, draw_bufffer);
-                }
-                instance->fps = (esp_timer_get_time() - start);
+                }              
                 UNLOCK_RESOURCE(instance->render_buffer_lock);
+                uint64_t now = esp_timer_get_time() ;
+                instance->fps = (now - start);
 			}
         }else {
             printf("No active scene to render\r\n");

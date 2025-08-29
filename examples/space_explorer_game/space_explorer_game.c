@@ -526,15 +526,37 @@ void controller_task(void){
 
 void show_start_screen(){
     uCanvas_universal_obj_t* title_tb_1 = New_uCanvas_2DTextbox("Space",CANVAS_WIDTH/4 ,0);
+    uCanvas_Set_Color(title_tb_1,255,255,0);
+    uCanvas_Set_Textbox_Alignment(title_tb_1,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(title_tb_1,TEXT_WRAP_PER_SET_WORD_LEN,20);
+    uCanvas_Set_TextBox_Margin(title_tb_1,0,0);
+    uCanvas_Set_TextBox_Fill_Background(title_tb_1,NOFILL, 0,0,0);
+    uCanvas_Set_TextBox_FontType(title_tb_1,SFONT_SIXTYFOUR_32);
+    uCanvas_Set_TextBox_Size(title_tb_1,500,200);
+    
+
     uCanvas_universal_obj_t* title_tb_2 = New_uCanvas_2DTextbox("Explorer",CANVAS_WIDTH/5 +100,0);
     title_tb_3 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/4-100,0);
-    uCanvas_Set_Color(title_tb_1,255,255,0);
     uCanvas_Set_Color(title_tb_2,255,255,0);
-    uCanvas_Set_Color(title_tb_3,255,255,255);
+    uCanvas_Set_Textbox_Alignment(title_tb_2,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(title_tb_2,TEXT_WRAP_PER_SET_WORD_LEN,20);
+    uCanvas_Set_TextBox_Margin(title_tb_2,0,0);
+    uCanvas_Set_TextBox_Fill_Background(title_tb_2,NOFILL, 0,0,0);
+    uCanvas_Set_TextBox_FontType(title_tb_2,SFONT_SIXTYFOUR_32);
+    uCanvas_Set_TextBox_Size(title_tb_2,420,200);
 
-    title_tb_1->font_properties.font_type = SFONT_SIXTYFOUR_32;
-    title_tb_2->font_properties.font_type = SFONT_SIXTYFOUR_32;
-    title_tb_3->font_properties.font_type = SFONT_SIXTYFOUR_32;
+
+
+    uCanvas_Set_Color(title_tb_3,255,255,255);
+    uCanvas_Set_Textbox_Alignment(title_tb_3,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(title_tb_3,TEXT_WRAP_PER_SET_WORD_LEN,20);
+    uCanvas_Set_TextBox_Margin(title_tb_3,0,0);
+    uCanvas_Set_TextBox_Fill_Background(title_tb_3,NOFILL, 0,0,0);
+    uCanvas_Set_TextBox_FontType(title_tb_3,SFONT_SIXTYFOUR_32);
+    uCanvas_Set_TextBox_Size(title_tb_3,420,200);
+    uCanvas_Set_Color(title_tb_3,255,255,255);
+    
+
     title_tb_3->properties.visiblity = INVISIBLE;
     title_tb_1->properties.position.y = -32;
     title_tb_3->properties.position.y = +70;
@@ -570,18 +592,41 @@ void create_hud(){
 
     textbox1 = New_uCanvas_2DTextbox(" ",CANVAS_WIDTH-220,  5);
     uCanvas_Set_Color(textbox1,255,255,0);
-    textbox1->font_properties.font_type = SFONT_BITCOUNT_32;
+    uCanvas_Set_Textbox_Alignment(textbox1,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(textbox1,TEXT_WRAP_PER_SET_WORD_LEN,20);
+    uCanvas_Set_TextBox_Margin(textbox1,0,0);
+    uCanvas_Set_TextBox_Fill_Background(textbox1,NOFILL, 0,0,0);
+    uCanvas_Set_TextBox_FontType(textbox1,SFONT_BITCOUNT_32);
+    uCanvas_Set_TextBox_Size(textbox1,420,200);
 
     textbox2 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/2-100, 5);
     uCanvas_Set_Color(textbox2,255,255,0);
-    textbox2->font_properties.font_type = SFONT_24;
+    uCanvas_Set_Textbox_Alignment(textbox2,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(textbox2,TEXT_WRAP_PER_SET_WORD_LEN,20);
+    uCanvas_Set_TextBox_Margin(textbox2,0,0);
+    uCanvas_Set_TextBox_Fill_Background(textbox2,NOFILL, 0,0,0);
+    uCanvas_Set_TextBox_FontType(textbox2,SFONT_24);
+    uCanvas_Set_TextBox_Size(textbox2,420,200);
+
 
     popup = New_uCanvas_2DTextbox("+1",0,0);
+    uCanvas_Set_Textbox_Alignment(popup,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(popup,TEXT_WRAP_PER_SET_WORD_LEN,20);
+    uCanvas_Set_TextBox_Margin(popup,0,0);
+    uCanvas_Set_TextBox_Fill_Background(popup,NOFILL, 0,0,0);
+    uCanvas_Set_TextBox_FontType(popup,SFONT_24);
+    uCanvas_Set_TextBox_Size(popup,420,200);
+
     popup_score = New_uCanvas_2DTextbox("+1",0,0);
+    uCanvas_Set_Textbox_Alignment(popup_score,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(popup_score,TEXT_WRAP_PER_SET_WORD_LEN,20);
+    uCanvas_Set_TextBox_Margin(popup_score,0,0);
+    uCanvas_Set_TextBox_Fill_Background(popup_score,NOFILL, 0,0,0);
+    uCanvas_Set_TextBox_FontType(popup_score,SFONT_24);
+    uCanvas_Set_TextBox_Size(popup_score,420,200);
+
     uCanvas_Set_Color(popup,255,255,255);
     uCanvas_Set_Color(popup_score,0,255,0);
-    popup->font_properties.font_type = SFONT_16;
-    popup_score->font_properties.font_type = SFONT_16;
 }
 #include "uCanvas_Draw.h"
 #include "uCanvas2D_EK79007Port.h"
@@ -596,14 +641,15 @@ uCanvas2D_Instance_t uCanvas_Instance_2;
 uCanvas2D_Instance_t* game_window = NULL;
 void fps_monitor(void){
     uCanvas_universal_obj_t* fps_counter = New_uCanvas_2DTextbox("",CANVAS_WIDTH-150,CANVAS_HEIGHT-32);
-    fps_counter->font_properties.font_type = SFONT_24;
+
+    uCanvas_Set_Color(fps_counter,255,0,0);
+    uCanvas_Set_Textbox_Alignment(fps_counter,TEXT_LEFT_ALIGNED);
+    uCanvas_Set_Textbox_Wrap_Style(fps_counter,TEXT_WRAP_PER_SET_WORD_LEN,20);
+    uCanvas_Set_TextBox_Margin(fps_counter,0,0);
+    uCanvas_Set_TextBox_Fill_Background(fps_counter,NOFILL, 0,0,0);
+    uCanvas_Set_TextBox_FontType(fps_counter,SFONT_24);
+    uCanvas_Set_TextBox_Size(fps_counter,420,200);
     uCanvas_Set_Color(fps_counter,255,255,255);
-
-    // uCanvas_set_active_scene(uCanvas_Instance_2.active_scene);
-    // uCanvas_universal_obj_t* fps_counter2 = New_uCanvas_2DTextbox("",128-60,128-16);
-    // fps_counter2->font_properties.font_type = SFONT_12;
-    // uCanvas_Set_Color(fps_counter2,255,255,0);
-
 
     char buf[32]={0};
     char buf2[32]={0};

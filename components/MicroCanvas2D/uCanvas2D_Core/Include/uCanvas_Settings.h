@@ -6,7 +6,7 @@
 #define UCANVAS_RENDER_TASK_STACK_SIZE          (4096)
 #define UCANVAS_RENDER_TASK_PRIORITY            (1)
 
- #define UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE       (256)
+ #define UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE       (512)
 
 #define UCANVAS_DEFAULT_RED                     (0)
 #define UCANVAS_DEFAULT_GREEN                   (0)

@@ -57,6 +57,7 @@ void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
     if(obj){
         memset(obj->text,0,256);
         sprintf(obj->text,"%s",text);
+        obj->textbox_properties->textbox_updated = true;
     }
     else{
         // printf("err:uCanvas_Set_Text\r\n");
@@ -201,6 +202,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     
     textbox->textbox_properties = (uCanvas_TextBox_Properties_t*)malloc(sizeof(uCanvas_TextBox_Properties_t));
     if(textbox){
+        
         textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
         textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_STRECH_TO_WIDTH;
         textbox->textbox_properties->textbox_content = NULL;
@@ -208,8 +210,12 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
         textbox->textbox_properties->margin_x = 4;
         textbox->textbox_properties->margin_y = 4;
         textbox->textbox_properties->fill_background = false;
-        textbox->textbox_properties->textbox_height = 200;
-        textbox->textbox_properties->textbox_width = 100;
+        textbox->textbox_properties->textbox_height = 400;
+        textbox->textbox_properties->textbox_width = 800;
+        textbox->textbox_properties->text_draw_buf = NULL;
+        textbox->textbox_properties->cursor_properties.enable_cursor = false;
+        textbox->textbox_properties->cursor_properties.blink_interval = 250*1000;
+        textbox->textbox_properties->cursor_properties.cursor_visible = true;
     }
     else return NULL;
     memset(textbox->text,0,UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
@@ -227,9 +233,63 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
   return textbox;
 }
 
+uCanvas_universal_obj_t* New_uCanvas_2DAdvancedTextbox(char* text, uint16_t xpos, uint16_t ypos, int width, int height){
+    uCanvas_universal_obj_t* textbox = uCanvas_Universal_Object;
+    textbox->text = (char*) malloc(UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE*sizeof(uint8_t));
+    
+    textbox->textbox_properties = (uCanvas_TextBox_Properties_t*)malloc(sizeof(uCanvas_TextBox_Properties_t));
+    if(textbox){
+        
+        textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
+        textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_STRECH_TO_WIDTH;
+        textbox->textbox_properties->textbox_content = NULL;
+        textbox->textbox_properties->textbox_content = textbox->text;
+        textbox->textbox_properties->margin_x = 4;
+        textbox->textbox_properties->margin_y = 4;
+        textbox->textbox_properties->fill_background = false;
+        textbox->textbox_properties->textbox_height = height;
+        textbox->textbox_properties->textbox_width = width;
+        textbox->textbox_properties->text_draw_buf = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
+        uCanvas2D_Create_RenderBuffer(textbox->textbox_properties->text_draw_buf,width,height);
+
+        // textbox->textbox_properties->text_draw_buf->width = width;
+        // textbox->textbox_properties->text_draw_buf->height = height;
+        // textbox->textbox_properties->text_draw_buf->offset_x = 0;
+        // textbox->textbox_properties->text_draw_buf->offset_y = 0;
+        // textbox->textbox_properties->text_draw_buf->pitch = 0;
+        // textbox->textbox_properties->text_draw_buf->use_ppa = USE_PPA_FOR_RENDERING;
+        // textbox->textbox_properties->text_draw_buf->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
+        // if(textbox->textbox_properties->text_draw_buf->pixels == NULL){
+        //     printf("-Failed To Allocate Render Buffer of %d x %d\r\n",width,height);
+        // }else {
+        //     printf("-Success To Allocate Render Buffer of %d x %d\r\n",width,height);
+        // }
+
+        textbox->textbox_properties->cursor_properties.enable_cursor = false;
+        textbox->textbox_properties->cursor_properties.blink_interval = 250*1000;
+        textbox->textbox_properties->cursor_properties.cursor_visible = true;
+    }
+    else return NULL;
+
+    memset(textbox->text,0,UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
+    sprintf(textbox->text,"%s",text);
+    textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
+    textbox->font_properties.font_type = FONTX_10M;
+    uCanvas_Set_Visiblity(textbox,VISIBLE);
+    uCanvas_Set_Obj_Type(textbox, ADV_TEXTBOX);
+    uCanvas_Set_Color(textbox,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
+    uCanvas_Set_Monochrome_Color(textbox,1);
+    uCanvas_Set_Position(textbox,xpos,ypos);
+    uCanvas_Set_Fill(textbox,NOFILL);
+    uCanvas_push_object_to_activescene(textbox);
+
+  return textbox;
+}
+
+
 void uCanvas_Set_Textbox_Alignment(uCanvas_universal_obj_t* obj,uCanvas_Text_Alignment_t align_type){
     if(obj){
-        if(obj->properties.type == TEXTBOX){
+        if(obj->properties.type == TEXTBOX || ADV_TEXTBOX){
             obj->textbox_properties->text_alignment = align_type;
         }
     }
@@ -239,7 +299,7 @@ void uCanvas_Set_Textbox_Alignment(uCanvas_universal_obj_t* obj,uCanvas_Text_Ali
 
 void uCanvas_Set_Textbox_Wrap_Style(uCanvas_universal_obj_t* obj,uCanvas_Text_Wrap_t wrap_type, uint8_t Wrap_Index){
     if(obj){
-        if(obj->properties.type == TEXTBOX){
+        if(obj->properties.type == TEXTBOX || ADV_TEXTBOX){
             obj->textbox_properties->text_wrap_mode = wrap_type;
             obj->textbox_properties->wrap_index = Wrap_Index;
         }
@@ -249,7 +309,7 @@ void uCanvas_Set_Textbox_Wrap_Style(uCanvas_universal_obj_t* obj,uCanvas_Text_Wr
 
 void uCanvas_Set_TextBox_Margin(uCanvas_universal_obj_t* obj,int margin_x, int margin_y){
     if(obj){
-        if(obj->properties.type == TEXTBOX){
+        if(obj->properties.type == TEXTBOX || ADV_TEXTBOX){
             obj->textbox_properties->margin_x = margin_x;
             obj->textbox_properties->margin_y = margin_y;
         }
@@ -259,7 +319,7 @@ void uCanvas_Set_TextBox_Margin(uCanvas_universal_obj_t* obj,int margin_x, int m
 
 void uCanvas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fill_state, uint8_t r, uint8_t g, uint8_t b){
     if(obj){
-        if(obj->properties.type == TEXTBOX){
+        if(obj->properties.type == TEXTBOX || ADV_TEXTBOX){
             obj->textbox_properties->fill_background = fill_state;
             obj->textbox_properties->background_color.red = r;
             obj->textbox_properties->background_color.green = g;
@@ -271,7 +331,7 @@ void uCanvas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fil
 
 void uCanvas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontType){
     if(obj){
-        if(obj->properties.type == TEXTBOX){
+        if(obj->properties.type == TEXTBOX || ADV_TEXTBOX){
             obj->textbox_properties->font_type = FontType;
         }
     }
@@ -280,12 +340,50 @@ void uCanvas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontTy
 
 void uCanvas_Set_TextBox_Size(uCanvas_universal_obj_t* obj,int width, int height){
     if(obj){
-        if(obj->properties.type == TEXTBOX){
+        if(obj->properties.type == TEXTBOX || ADV_TEXTBOX){
             obj->textbox_properties->textbox_width = width;
             obj->textbox_properties->textbox_height = height;
         }
     }
     return;
+}
+
+void uCanvas_Enable_TextBox_Cursor(uCanvas_universal_obj_t* obj, uint32_t cursor_blink_rate,uCanvas_TextBox_Cursor_t cursor_type){
+    if(obj){
+        if(obj->textbox_properties){
+            obj->textbox_properties->cursor_properties.blink_interval = cursor_blink_rate*1000;
+            obj->textbox_properties->cursor_properties.cursor_type = cursor_type;
+            obj->textbox_properties->cursor_properties.enable_cursor = true;
+        }
+        else {
+            printf("Object Is Not Valid TextBox\r\n");
+        }
+    }
+}
+
+void uCanvas_Disable_TextBox_Cursor(uCanvas_universal_obj_t* obj){
+    if(obj){
+        if(obj->textbox_properties){
+            obj->textbox_properties->cursor_properties.enable_cursor = false;
+        }
+        else {
+            printf("Object Is Not Valid TextBox\r\n");
+        }
+    }
+}
+
+void uCanvas_Set_TextBox_Border_Properties(uCanvas_universal_obj_t* obj,uint8_t border_thickness, uint8_t r, uint8_t g, uint8_t b){
+    if(obj){
+        if(obj->textbox_properties){
+            obj->textbox_properties->border_color.red   = r;
+            obj->textbox_properties->border_color.green = g;
+            obj->textbox_properties->border_color.blue  = b;
+            obj->textbox_properties->border_thickness = border_thickness;
+        }
+        else {
+            printf("Object Is Not Valid TextBox\r\n");
+        }
+    }
 }
 
 uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint16_t radius){
