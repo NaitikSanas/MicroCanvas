@@ -47,7 +47,7 @@ void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
     if(active_scene != NULL){
         obj->index = active_scene->_2D_Object_Ptr;
         active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
-        active_scene->_2D_Object_Ptr++;
+        if(active_scene->_2D_Object_Ptr < MAX_ELEMENTS_NUM)active_scene->_2D_Object_Ptr++;
     } else {
         printf("Invalid active_scene\r\n");
     }

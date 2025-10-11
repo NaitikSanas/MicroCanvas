@@ -431,6 +431,7 @@ void uCanvas_Set_ViewPort_Position(uCanvas2D_Instance_t* instance, int x, int y)
 
 void uCanvas_Attach_Scene(uCanvas2D_Instance_t* instance, uCanvas_Scene_t* scene){
     if(instance)instance->active_scene = scene;
+    else printf("[Err]:Invalid Instance\r\n");
 }
 
 

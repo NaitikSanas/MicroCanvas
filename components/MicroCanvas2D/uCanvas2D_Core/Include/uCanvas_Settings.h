@@ -1,4 +1,4 @@
-#define MAX_ELEMENTS_NUM                        (500)
+#define MAX_ELEMENTS_NUM                        (4096)
 
 #define USE_PPA_FOR_RENDERING                (1)
 
@@ -13,7 +13,7 @@
 #define UCANVAS_DEFAULT_BLUE                    (0)
 #define UCANVAS_DISPLAY_ORIENTATION             1
 
-#define UCANVAS_USE_DOUBLE_BUFFERING            (1)
+#define UCANVAS_USE_DOUBLE_BUFFERING            (2)
 
 enum {
     UNDEFINED,

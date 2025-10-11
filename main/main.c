@@ -13,14 +13,14 @@
 #include "uCanvas_IO_Usage_Demo.h"
 #include "space_explorer_game.h"
     
-#define RUN_APP_C 1
+// #define RUN_APP_C 1
 
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
 // #define RUN_FONTS_TESTING 1
 // #define RUN_SLIDER_EXAMPLE_TESTING 1
 // #define RUN_GUI_DEMO_TESTING 1
-// #define RUN_GAME_OF_LIFE_DEMO 1
+#define RUN_GAME_OF_LIFE_DEMO 1
 
 // #define RUN_SPRITE_ANIMATION_WITH_KEYFRAME 1
 // #define RUN_L_SYSTEM_DEMO 1
