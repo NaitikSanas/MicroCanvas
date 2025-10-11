@@ -12,7 +12,7 @@
 #include "3D_Cube.h"
 #include "uCanvas_IO_Usage_Demo.h"
 #include "space_explorer_game.h"
-    
+#include "Adv_Textbox_with_HID_Keyboard.h"
 // #define RUN_APP_C 1
 
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
@@ -20,8 +20,8 @@
 // #define RUN_FONTS_TESTING 1
 // #define RUN_SLIDER_EXAMPLE_TESTING 1
 // #define RUN_GUI_DEMO_TESTING 1
-#define RUN_GAME_OF_LIFE_DEMO 1
-
+// #define RUN_GAME_OF_LIFE_DEMO 1
+#define RUN_ADV_TEXTBOX_WITH_HID_KEYBOARD 1
 // #define RUN_SPRITE_ANIMATION_WITH_KEYFRAME 1
 // #define RUN_L_SYSTEM_DEMO 1
 // #define RUN_3D_CUBE_DEMO 1
@@ -78,9 +78,8 @@ void app_main(){
         Run_uCanvas_IO_Usage_Demo();
     #elif RUN_SPACE_EXPLORER_DEMO
         Run_Space_Explorer_Game();
+
+    #elif RUN_ADV_TEXTBOX_WITH_HID_KEYBOARD
+        Adv_TextBox_With_USB_HID_Keyboard();
     #endif
 }
-
-
-
-

@@ -13,6 +13,7 @@ idf_component_register(SRCS "main.c"
                             "../examples/3D_Cube/3D_Cube.c"
                             "../examples/uCanvas_IO_Usage_Demo/uCanvas_IO_Usage_Demo.c"
                             "../examples/space_explorer_game/space_explorer_game.c"       
+                            "../examples/AdvancedTextBox_With_USB_HID_Keyboard/Adv_Textbox_with_HID_Keyboard.c"       
 
 INCLUDE_DIRS "."    
             "app"   
@@ -27,4 +28,5 @@ INCLUDE_DIRS "."
             "../examples/3D_Cube/"
             "../examples/uCanvas_IO_Usage_Demo"
             "../examples/space_explorer_game"
+            "../examples/AdvancedTextBox_With_USB_HID_Keyboard"
              )
