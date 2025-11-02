@@ -54,14 +54,14 @@ uCanvas_Set_Panel_RefreshDelay(&uCanvas_Instance_1,5);//Set Refresh delay
 //Ths append Universal Object Box to scene 1
 uCanvas_set_active_scene(scene1); //Sets Scene1 as Active.
 uCanvas_universal_obj_t* box1 = New_uCanvas_2DRectangle(x_poistion,y_position,height,width);
-box->properties.fill = NOFILL;   //Don't fill the
-box->properties.position.x += 10; //move box by 10 units to right.
+box1->properties.fill = NOFILL;   //Don't fill the
+box1->properties.position.x += 10; //move box by 10 units to right.
 
 //Ths append Universal Object Box2 to scene 2
 uCanvas_set_active_scene(scene2); //Sets Scene2 as Active.
 uCanvas_universal_obj_t* box2 = New_uCanvas_2DRectangle(x_poistion,y_position,height,width);
-box->properties.fill = NOFILL;   //Don't fill the
-box->properties.position.x += 10; //move box by 10 units to right.
+box2->properties.fill = NOFILL;   //Don't fill the
+box2->properties.position.x += 10; //move box by 10 units to right.
     
 ```
 
