@@ -43,25 +43,26 @@ uCanvas_Attach_Scene(&uCanvas_Instance_1,scene1); // Set Scene to render through
 uCanvas_Attach_Renderer(&uCanvas_Instance_1,1); // Attach Renderer task to instance
 uCanvas_Set_Panel_RefreshDelay(&uCanvas_Instance_1,5);//Set Refresh delay
 
-/** This API sets Passed Scene Object as an active scene which is used
- * by renderer and uCanvas_Api.c to update display content. For simple applications
- * you mostly work with single scene instance. when you need to update content of display
- * quickly and need to go back and forth frequently it makes sense to use Multiple Scene Instances.
-*/
-uCanvas_set_active_scene(scene1); //Sets Scene1 as Active. 
-uCanvas_set_active_scene(scene2); //Sets Scene2 as Active. 
-    
 ```
 
 ### Working with Universal Object Instance
-1. `New_uCanvas_2DRectangle` API Initializes universal object as a rectangle.
+1. `New_uCanvas_2DRectangle` API Initializes universal object as a rectangle and pushes to currently set active scene.
 2. Once Object initialized you can set Other properties like fill, visiblity, color, position etc throughout your application just like example shown below. 
 3. As you change various properties of universal object, The change is reflected on display instantly without any need to send command to renderer from your application code.  
 
 ```c
-uCanvas_universal_obj_t* box = New_uCanvas_2DRectangle(x_poistion,y_position,height,width);
+//Ths append Universal Object Box to scene 1
+uCanvas_set_active_scene(scene1); //Sets Scene1 as Active.
+uCanvas_universal_obj_t* box1 = New_uCanvas_2DRectangle(x_poistion,y_position,height,width);
 box->properties.fill = NOFILL;   //Don't fill the
 box->properties.position.x += 10; //move box by 10 units to right.
+
+//Ths append Universal Object Box2 to scene 2
+uCanvas_set_active_scene(scene2); //Sets Scene2 as Active.
+uCanvas_universal_obj_t* box2 = New_uCanvas_2DRectangle(x_poistion,y_position,height,width);
+box->properties.fill = NOFILL;   //Don't fill the
+box->properties.position.x += 10; //move box by 10 units to right.
+    
 ```
 
 
