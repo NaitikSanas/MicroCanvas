@@ -1,6 +1,9 @@
 ## MicroCanvas 2D Graphics Library For MicroController
 ![LOGO](images/ucanvas_logo.png)
 
+## Learn More (I'll update the list as i add more content around MicroCanvas)
+1. Intro to MicroCanvas : https://www.youtube.com/watch?v=HkStWmnj7VE
+
 
 ### Overview
 * Microcanvas is 2D Retained mode graphics engine that let's you build portable 2D Video Games and GUI Applications. 
