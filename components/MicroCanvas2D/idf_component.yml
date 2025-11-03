@@ -2,3 +2,4 @@
 dependencies:
   idf: ">=4.4"
   usb_host_hid: "^1.0.1"
+  esp_lcd_touch : "^1.1.0"
