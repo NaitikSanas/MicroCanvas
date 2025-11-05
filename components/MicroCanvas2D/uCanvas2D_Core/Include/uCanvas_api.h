@@ -29,9 +29,29 @@
     void uCanvas_Attach_Scene(uCanvas2D_Instance_t* instance, uCanvas_Scene_t* scene);
     void uCanvas_Set_Panel_RefreshDelay(uCanvas2D_Instance_t* instance, uint16_t RefreshDelay);
 
+    /**
+     * @brief This API Sets the Render Mode of Target instance. 
+     * There are 3 types of Render Modes :
+     * 1. AUTO_REFRESH : This mode Refreshes Region of Display Assigned to Target Instance at set interval of time. 
+     * 
+     * 2. ASYNC_FRAME_QUEUED : When this mode is set, Renderer waits for refresh signal from the user application. 
+     * In Queud Mode uCanvas_Send_Refresh_Signal_To_Renderer API becomes Non-Blocking. Suitable for Panels that uses DMA to push the rederbuffer.
+     * 
+     * 3. ASYNC_FRAME_COMMIT : Works the same way as ASYNC_FRAME_QUEUED but uCanvas_Send_Refresh_Signal_To_Renderer in this mode
+     * waits for Display Refresh to complete. Suitable for Panels when DMA is not used for pushing the Render Buffer. 
+     */
+    void uCanvas_Set_Render_Mode(uCanvas2D_Instance_t* instance,uCanvas2D_Render_Mode_t mode);
+
+    /**
+     * @brief Sends Signal to renerer to update display region allocated to passed uCanvas Instance.
+     */
+    void uCanvas_Send_Refresh_Signal_To_Renderer(uCanvas2D_Instance_t* instance);
+
+    /* uCanvas Instance Management */
     void uCanvas_Pause_Instance(uCanvas2D_Instance_t* instance);
     void uCanvas_Resume_Instance(uCanvas2D_Instance_t* instance);
     void uCanvas_Destroy_Instance(uCanvas2D_Instance_t* instance);
+    
     int64_t uCanvas_Get_FPS(uCanvas2D_Instance_t* instance);
     /**
 

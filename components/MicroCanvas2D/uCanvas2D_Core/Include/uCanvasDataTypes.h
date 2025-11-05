@@ -305,9 +305,9 @@ typedef struct rotary_encoder_obj
 }rotary_encoder_t;
 
 typedef enum {
-    NO_REFRESH,
     AUTO_REFRESH,
-    REFRESH_ON_SIGNAL
+    ASYNC_FRAME_QUEUED,
+    ASYNC_FRAME_COMMIT
 }uCanvas2D_Render_Mode_t;
 
 typedef struct uCanvas2D_Instance
@@ -325,8 +325,9 @@ typedef struct uCanvas2D_Instance
     TaskHandle_t render_task_handle;
     SemaphoreHandle_t render_buffer_lock;
     int pin_to_core;
-    uCanvas2D_Render_Mode_t refresh_mode;
-    uint8_t signal_scene_refresh;
+    uCanvas2D_Render_Mode_t Render_Mode;
+    SemaphoreHandle_t signal_scene_refresh;
+    SemaphoreHandle_t scene_refresh_complete;
     uint64_t fps;
     uint8_t blend;
     uint8_t Clear_On_Refresh;
@@ -343,7 +344,7 @@ typedef struct{
     uCanvas2D_RenderBuffer_t* render_buffer;
     SemaphoreHandle_t render_buffer_lock; 
     uint8_t signal_scene_refresh;
-    uCanvas2D_Render_Mode_t refresh_mode;
+    uCanvas2D_Render_Mode_t Render_Mode;
     TaskHandle_t layer_render_taskhandle;
     uint8_t layer_dirty;
     uint8_t active;

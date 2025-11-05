@@ -202,7 +202,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     
     textbox->textbox_properties = (uCanvas_TextBox_Properties_t*)malloc(sizeof(uCanvas_TextBox_Properties_t));
     if(textbox){
-        
+        textbox->textbox_properties->font_type = SFONT_16;
         textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
         textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_STRECH_TO_WIDTH;
         textbox->textbox_properties->textbox_content = NULL;
@@ -221,7 +221,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     memset(textbox->text,0,UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
     sprintf(textbox->text,"%s",text);
     textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
-    textbox->font_properties.font_type = FONTX_10M;
+    textbox->font_properties.font_type = SFONT_24;
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, TEXTBOX);
     uCanvas_Set_Color(textbox,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);

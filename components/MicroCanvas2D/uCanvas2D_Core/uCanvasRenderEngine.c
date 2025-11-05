@@ -150,12 +150,27 @@ int64_t uCanvas_Get_FPS(uCanvas2D_Instance_t* instance){
     return 1000000/instance->fps;
 }
 
+void uCanvas_Set_Render_Mode(uCanvas2D_Instance_t* instance,uCanvas2D_Render_Mode_t mode){
+    instance->Render_Mode = mode;
+    instance->signal_scene_refresh = xSemaphoreCreateBinary();
+    instance->scene_refresh_complete = xSemaphoreCreateBinary();
+}
+
+void uCanvas_Send_Refresh_Signal_To_Renderer(uCanvas2D_Instance_t* instance){
+    if(instance->Render_Mode == AUTO_REFRESH)return;
+    if((instance->Render_Mode == ASYNC_FRAME_QUEUED || instance->Render_Mode == ASYNC_FRAME_COMMIT) && instance->signal_scene_refresh != NULL ){
+        xSemaphoreGive(instance->signal_scene_refresh);
+    }
+
+    if(instance->Render_Mode == ASYNC_FRAME_COMMIT){
+        xSemaphoreTake(instance->scene_refresh_complete,portMAX_DELAY);
+    }
+}
+
 void wait_on_referesh_signal(uCanvas2D_Instance_t* instance){
-    if(instance->refresh_mode == REFRESH_ON_SIGNAL){
-        while (!instance->signal_scene_refresh)
-        {
-            vTaskDelay(pdMS_TO_TICKS(instance->refresh_delay));
-        } 
+    xSemaphoreGive(instance->scene_refresh_complete);
+    if(instance->Render_Mode == ASYNC_FRAME_QUEUED && instance->signal_scene_refresh != NULL){
+        xSemaphoreTake(instance->signal_scene_refresh,portMAX_DELAY); 
     }
 }
 
@@ -187,6 +202,7 @@ void uCanvas_renderer_task(void*arg){
 		vTaskDelay(pdMS_TO_TICKS(instance->refresh_delay));
 
         //check if manual refresh on signal is enabled.
+        
         wait_on_referesh_signal(instance);
 
         //Switch Render Buffer when Double buffering enabled.
@@ -270,8 +286,8 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
     instance->active_scene = scene;
     instance->panel_1 = panel_1;
     instance->panel_2 = panel_2;
-    instance->refresh_mode = AUTO_REFRESH;
-    
+    instance->Render_Mode = AUTO_REFRESH;
+    instance->signal_scene_refresh = xSemaphoreCreateBinary();
     // Create a new render buffer for the instance
 
     instance->render_buffer = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
@@ -449,7 +465,7 @@ void uCanvas_Attach_Panel(uCanvas2D_Instance_t* instance, uCanvas2D_Display_Pane
 }
 
 void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance, int core_id){
-    instance->refresh_mode = AUTO_REFRESH;
+    instance->Render_Mode = AUTO_REFRESH;
     instance->Clear_On_Refresh = true;
     instance->refresh_delay = 2;
     instance->pin_to_core = core_id;
@@ -470,7 +486,7 @@ uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int wid
     instance->window_instance = NULL;
     // Plug in Scene and panels to the instance
     instance->active_scene = scene;
-    instance->refresh_mode = AUTO_REFRESH;
+    instance->Render_Mode = AUTO_REFRESH;
     instance->Clear_On_Refresh = true;
     // Create a new render buffer for the instance
     instance->render_buffer = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
