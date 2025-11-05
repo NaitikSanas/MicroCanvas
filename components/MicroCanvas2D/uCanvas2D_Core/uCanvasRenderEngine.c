@@ -374,16 +374,17 @@ int uCanvas_Attach_RenderBuffer(uCanvas2D_Instance_t* instance, int width, int h
     instance->render_buffer_aux = NULL;
 
     // Always allocate primary
-    instance->render_buffer->offset_x = 0;
-    instance->render_buffer->offset_y = 0;
+    
     
     instance->render_buffer = malloc(sizeof(uCanvas2D_RenderBuffer_t));
     if (!instance->render_buffer) return 0;
-
+    instance->render_buffer->offset_x = 0;
+    instance->render_buffer->offset_y = 0;
 #if(UCANVAS_USE_DOUBLE_BUFFERING)
+    
+    instance->render_buffer_aux = malloc(sizeof(uCanvas2D_RenderBuffer_t));
     instance->render_buffer_aux->offset_x = 0;
     instance->render_buffer_aux->offset_y = 0;
-    instance->render_buffer_aux = malloc(sizeof(uCanvas2D_RenderBuffer_t));
     if (!instance->render_buffer_aux) {
         free(instance->render_buffer);
         instance->render_buffer = NULL;
