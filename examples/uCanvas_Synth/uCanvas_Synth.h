@@ -1,0 +1,1 @@
+void uCanvas_Synth(void);

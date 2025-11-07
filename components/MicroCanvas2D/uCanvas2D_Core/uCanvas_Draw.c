@@ -426,7 +426,7 @@ void IRAM_ATTR uCanvas_Draw_SFONT_Text(uCanvas2D_RenderBuffer_t *fb, int x, int 
     while (*pString != '\0') {
         uCanvas_Draw_SFONT(fb, Font, x, y, *pString, color1, color2, font_direction);
         pString++;
-        x += Font->Width;
+        x += Font->Width-4;
     }
 }
 

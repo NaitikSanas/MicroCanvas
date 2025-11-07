@@ -9,6 +9,7 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
                     "uCanvas2D_GUI_Components/simple_menu/simple_menu.c"
                     "uCanvas2D_GUI_Components/uCanvas_Slide_Switch/uCanvas_Slide_Switch.c"
                     "uCanvas2D_GUI_Components/ucanvas_slider/ucanvas_slider.c"
+                    "uCanvas2D_GUI_Components/uCanvas_Graph2D/uCanvas_Graph2D.c"
 
                     "Display_Driver_Port/uCanvas2D_Display_Setup.c" 
                     "Display_Driver_Port/uCanvas2D_EK79007Port.c" 
@@ -34,9 +35,11 @@ idf_component_register( SRCS "${COMPONENT_SRCS}"
                                         "uCanvas2D_GUI_Components/simple_menu" 
                                         "uCanvas2D_GUI_Components/uCanvas_Slide_Switch" 
                                         "uCanvas2D_GUI_Components/ucanvas_slider"
+                                        "uCanvas2D_GUI_Components/uCanvas_Graph2D"
                                         "Display_Driver_Port"
                                         "Input_Devices/USB_HID"
                                         "Fonts"
+
 
                                         
                         PRIV_REQUIRES driver EK79007 SSD1306_Driver st7789  spiffs mpu6050_driver esp_timer esp_lcd esp_driver_ppa usb esp_lcd_touch)
