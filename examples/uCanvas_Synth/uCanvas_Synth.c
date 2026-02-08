@@ -447,9 +447,7 @@ void uCanvas_Synth(void) {
     KeyBoardDevice.EventListenerCallback = MyKeyboardListener;
     uCanvas_Get_HID_Device(&KeyBoardDevice);
     KeyBoardDevice.uCanvas_Input_HID_Device_Init();
-    
-    Intialize_PPA();
-    
+
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
     uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
     panel->init(1);

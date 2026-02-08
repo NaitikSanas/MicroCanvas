@@ -2,12 +2,12 @@
 #include "uCanvas_api.h"
 #include "uCanvas_User_IO.h"
 
-#define CANVAS_HEIGHT       300*2
-#define CANVAS_WIDTH        512*2
+#define CANVAS_HEIGHT       240*1
+#define CANVAS_WIDTH        320*1
 
-#define MAX_STARS           100 
+#define MAX_STARS           30
 #define STARS_SCROLLING_RATE 10  
-#define MAX_ENEMIES         60
+#define MAX_ENEMIES         10
 #define COLLISION_THRESHOLD 30  // adjust based on object size
 
 #define ENC_A   39 
@@ -17,6 +17,9 @@
 #define PB1 36
 #define PB2 35
 #define PIEZO_GPIO GPIO_NUM_14
+uCanvas_Scene_t* scene = NULL;
+uCanvas2D_Instance_t uCanvas_Instance_1;
+uCanvas2D_Instance_t uCanvas_Instance_2;
 
 typedef struct spaceship_obj
 {
@@ -175,6 +178,7 @@ void detect_spaceship_collision_with_enemyship(void){
             }
             randomize_all_enemiens();
         }  
+        uCanvas_Send_Refresh_Signal_To_Renderer(&uCanvas_Instance_1);
         uCanvas_Delay(1);  
     } 
 }
@@ -531,7 +535,7 @@ void show_start_screen(){
     uCanvas_Set_Textbox_Wrap_Style(title_tb_1,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(title_tb_1,0,0);
     uCanvas_Set_TextBox_Fill_Background(title_tb_1,NOFILL, 0,0,0);
-    uCanvas_Set_TextBox_FontType(title_tb_1,SFONT_SIXTYFOUR_32);
+    uCanvas_Set_TextBox_FontType(title_tb_1,SFONT_16);
     uCanvas_Set_TextBox_Size(title_tb_1,500,200);
     
 
@@ -542,7 +546,7 @@ void show_start_screen(){
     uCanvas_Set_Textbox_Wrap_Style(title_tb_2,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(title_tb_2,0,0);
     uCanvas_Set_TextBox_Fill_Background(title_tb_2,NOFILL, 0,0,0);
-    uCanvas_Set_TextBox_FontType(title_tb_2,SFONT_SIXTYFOUR_32);
+    uCanvas_Set_TextBox_FontType(title_tb_2,SFONT_16);
     uCanvas_Set_TextBox_Size(title_tb_2,420,200);
 
 
@@ -552,7 +556,7 @@ void show_start_screen(){
     uCanvas_Set_Textbox_Wrap_Style(title_tb_3,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(title_tb_3,0,0);
     uCanvas_Set_TextBox_Fill_Background(title_tb_3,NOFILL, 0,0,0);
-    uCanvas_Set_TextBox_FontType(title_tb_3,SFONT_SIXTYFOUR_32);
+    uCanvas_Set_TextBox_FontType(title_tb_3,SFONT_16);
     uCanvas_Set_TextBox_Size(title_tb_3,420,200);
     uCanvas_Set_Color(title_tb_3,255,255,255);
     
@@ -573,17 +577,20 @@ void show_start_screen(){
     printf("anim end\r\n");
     printf("pos %d\r\n",title_tb_3->properties.position.y );
     
-    while (1)
-    {
+    // while (1)
+    // {
         
-        if(event.key_char == ' '){
-            title_tb_1->properties.visiblity = INVISIBLE;
-            title_tb_2->properties.visiblity = INVISIBLE;
-            title_tb_3->properties.visiblity = INVISIBLE;
-            break;
-        }
-        uCanvas_Delay(1);
-    }
+    //     if(event.key_char == ' '){
+    //         title_tb_1->properties.visiblity = INVISIBLE;
+    //         title_tb_2->properties.visiblity = INVISIBLE;
+    //         title_tb_3->properties.visiblity = INVISIBLE;
+    //         break;
+    //     }
+    //     uCanvas_Delay(1);
+    // }
+     title_tb_1->properties.visiblity = INVISIBLE;
+ title_tb_2->properties.visiblity = INVISIBLE;
+ title_tb_3->properties.visiblity = INVISIBLE;
 }
 void create_hud(){
     uCanvas_universal_obj_t* bg = New_uCanvas_2DRectangle(0,0,40,CANVAS_WIDTH);
@@ -596,16 +603,16 @@ void create_hud(){
     uCanvas_Set_Textbox_Wrap_Style(textbox1,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(textbox1,0,0);
     uCanvas_Set_TextBox_Fill_Background(textbox1,NOFILL, 0,0,0);
-    uCanvas_Set_TextBox_FontType(textbox1,SFONT_BITCOUNT_32);
+    uCanvas_Set_TextBox_FontType(textbox1,SFONT_16);
     uCanvas_Set_TextBox_Size(textbox1,420,200);
 
-    textbox2 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/2-100, 5);
+    textbox2 = New_uCanvas_2DTextbox("",CANVAS_WIDTH/2-140, 5);
     uCanvas_Set_Color(textbox2,255,255,0);
     uCanvas_Set_Textbox_Alignment(textbox2,TEXT_LEFT_ALIGNED);
     uCanvas_Set_Textbox_Wrap_Style(textbox2,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(textbox2,0,0);
     uCanvas_Set_TextBox_Fill_Background(textbox2,NOFILL, 0,0,0);
-    uCanvas_Set_TextBox_FontType(textbox2,SFONT_24);
+    uCanvas_Set_TextBox_FontType(textbox2,SFONT_16);
     uCanvas_Set_TextBox_Size(textbox2,420,200);
 
 
@@ -614,7 +621,7 @@ void create_hud(){
     uCanvas_Set_Textbox_Wrap_Style(popup,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(popup,0,0);
     uCanvas_Set_TextBox_Fill_Background(popup,NOFILL, 0,0,0);
-    uCanvas_Set_TextBox_FontType(popup,SFONT_24);
+    uCanvas_Set_TextBox_FontType(popup,SFONT_16);
     uCanvas_Set_TextBox_Size(popup,420,200);
 
     popup_score = New_uCanvas_2DTextbox("+1",0,0);
@@ -622,7 +629,7 @@ void create_hud(){
     uCanvas_Set_Textbox_Wrap_Style(popup_score,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(popup_score,0,0);
     uCanvas_Set_TextBox_Fill_Background(popup_score,NOFILL, 0,0,0);
-    uCanvas_Set_TextBox_FontType(popup_score,SFONT_24);
+    uCanvas_Set_TextBox_FontType(popup_score,SFONT_16);
     uCanvas_Set_TextBox_Size(popup_score,420,200);
 
     uCanvas_Set_Color(popup,255,255,255);
@@ -635,9 +642,7 @@ void create_hud(){
 #include "uCanvasRenderEngine.h"
 #include "uCanvas2D_Acceleration.h"
 
- uCanvas_Scene_t* scene = NULL;
-uCanvas2D_Instance_t uCanvas_Instance_1;
-uCanvas2D_Instance_t uCanvas_Instance_2;
+
 uCanvas2D_Instance_t* game_window = NULL;
 void fps_monitor(void){
     uCanvas_universal_obj_t* fps_counter = New_uCanvas_2DTextbox("",CANVAS_WIDTH-150,CANVAS_HEIGHT-32);
@@ -647,7 +652,7 @@ void fps_monitor(void){
     uCanvas_Set_Textbox_Wrap_Style(fps_counter,TEXT_WRAP_PER_SET_WORD_LEN,20);
     uCanvas_Set_TextBox_Margin(fps_counter,0,0);
     uCanvas_Set_TextBox_Fill_Background(fps_counter,NOFILL, 0,0,0);
-    uCanvas_Set_TextBox_FontType(fps_counter,SFONT_24);
+    uCanvas_Set_TextBox_FontType(fps_counter,SFONT_16);
     uCanvas_Set_TextBox_Size(fps_counter,420,200);
     uCanvas_Set_Color(fps_counter,255,255,255);
 
@@ -694,13 +699,14 @@ static inline void MyKeyboardListener(uCanvasInputDeviceType_t device_type, key_
 
 void Run_Space_Explorer_Game() {
     // uCanvas_Load_FontX();
-    Intialize_PPA(); //Enable 2D Pixel Processing Accelerator
+
     KeyBoardDevice.EventListenerCallback = MyKeyboardListener;
     uCanvas_Get_HID_Device(&KeyBoardDevice);
     KeyBoardDevice.uCanvas_Input_HID_Device_Init();
     
     
-    uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
+    // uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
+    uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_ST7789();
     panel->init(1);
     // panel->set_backlight(3000);
     
@@ -731,13 +737,14 @@ void Run_Space_Explorer_Game() {
         uCanvas_Set_ViewPort_Position(&uCanvas_Instance_1,0,0);
         uCanvas_Attach_Scene(&uCanvas_Instance_1,scene);
         uCanvas_Attach_Renderer(&uCanvas_Instance_1,1);
+        uCanvas_Set_Render_Mode(&uCanvas_Instance_1,ASYNC_FRAME_COMMIT);
     }
     // uCanvas2D_GetPanel_Driver_ST7789(&panel_st7789);
     // panel_st7789.init(1);
     // panel_st7789.set_backlight(3000);
 
     
-    // uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_EK79007(),NULL,CANVAS_WIDTH,CANVAS_HEIGHT,100,100);
+    // uCanvas_Instance_1 = New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_ST7789(),NULL,CANVAS_WIDTH,CANVAS_HEIGHT,100,100);
     // uCanvas2D_Instance_t* uCanvas_Instance_2 = New_uCanvas_Instance(hud_scene, uCanvas2D_Get_Panel_Driver_ST7789(),NULL,CANVAS_WIDTH,CANVAS_HEIGHT,0,0);
     // uCanvas_set_active_scene(uCanvas_Instance_2->active_scene);
     // uCanvas_universal_obj_t* rect = New_uCanvas_2DRectangle(0,0,200,200);

@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "uCanvas_api.h"
 #include "esp_random.h"
+#include "uCanvas2D_Acceleration.h"
 uCanvas_Scene_t* active_scene;
 SemaphoreHandle_t active_scene_mutex;
 extern TaskHandle_t uCanvas_taskhandle;
@@ -698,12 +699,27 @@ void uCanvas2D_Create_RenderBuffer(uCanvas2D_RenderBuffer_t* render_buffer, int 
     render_buffer->offset_y = 0;
     render_buffer->pitch = 0;
     render_buffer->use_ppa = USE_PPA_FOR_RENDERING;
+    #if CONFIG_IDF_TARGET_ESP32P4 && USE_PPA_FOR_RENDERING
+    Intialize_PPA();
+    #endif
     // if(width < 600 && height < 600){
     //     printf("Allocating Render Buffer Interally\r\n");
     //     render_buffer->pixels = heap_caps_calloc( width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
     // }
     // else render_buffer->pixels = heap_caps_aligned_alloc(32, width * height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
-    render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
+    #if(CONFIG_IDF_TARGET_ESP32P4)
+    #if UCANVAS_USE_SPIRAM 
+        render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
+    #else
+        render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
+    #endif
+    #else
+        #if UCANVAS_USE_SPIRAM 
+        render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT );
+        #else
+        render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_8BIT );
+        #endif
+    #endif
     if(render_buffer->pixels == NULL){
         printf("-Failed To Allocate Render Buffer of %d x %d\r\n",width,height);
     }else {

@@ -8,7 +8,7 @@
 #include "uCanvas2D_Display_Setup.h"
 #include "uCanvas2D_Acceleration.h"
 #include "esp_timer.h"
-
+#include "uCanvasDataTypes.h"
 // Helper: Set pixel in RGB565
 
 void IRAM_ATTR set_pixel(uCanvas2D_RenderBuffer_t* buf, int x, int y, uint16_t color) {
@@ -39,13 +39,16 @@ void IRAM_ATTR uCanvas2D_DrawLine(uCanvas2D_RenderBuffer_t* buf, int x0, int y0,
 // Draw rectangle with fill and thickness
 void IRAM_ATTR uCanvas2D_DrawRect(uCanvas2D_RenderBuffer_t* buf, int x, int y, int w, int h, uint16_t color, int fill, int thickness) {
     if (fill) {
+        
         if(buf->use_ppa){
+            #if(CONFIG_IDF_TARGET_ESP32P4)
             ppa_helper_fill(
             buf->pixels,
             buf->width * buf->height * sizeof(uint16_t),
             buf->width,
             buf->height,x,y,w,h, color, 0
             );
+            #endif
         }else{
         for (int i = 0; i < h; ++i)
             for (int j = 0; j < w; ++j)
@@ -173,7 +176,9 @@ void IRAM_ATTR uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y,
 
     if(buf->use_ppa){
         // If using PPA, we need to handle the sprite differently
+        #if(CONFIG_IDF_TARGET_ESP32P4)
         switch(color_format) {
+            
             case COLOR_RGBA565:
                 ppa_blend_bitmap((void*)sprite, w, h, 0, 0,PPA_RGB565, buf->pixels, buf->width, buf->height, x, y, buf->width * buf->height * sizeof(uint16_t),PPA_RGB565);
                 return;
@@ -187,7 +192,9 @@ void IRAM_ATTR uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y,
             default :
                 printf ("Unsupported sprite color format: %d\n", color_format);
                 return; // Unsupported color format, do nothing
+            
         }
+        #endif
         return;
     }
     else {
@@ -230,70 +237,8 @@ void IRAM_ATTR uCanvas2D_DrawSprite(uCanvas2D_RenderBuffer_t* buf, int x, int y,
 }
 #include "esp_spiffs.h"
 #define TAG "uCanvas_Draw"
-#include "esp_vfs.h"
-#include "esp_log.h"
-FontxFile fx16G[2];
-FontxFile fx24G[2];
-FontxFile fx32G[2];
-FontxFile fx32L[2];
-FontxFile fx16M[2];
-FontxFile fx24M[2];
-FontxFile fx10M[2];
-static void SPIFFS_Directory(char * path) {
-	DIR* dir = opendir(path);
-	assert(dir != NULL);
-	while (true) {
-		struct dirent*pe = readdir(dir);
-		if (!pe) break;
-		ESP_LOGI(__FUNCTION__,"d_name=%s d_ino=%d d_type=%x", pe->d_name,pe->d_ino, pe->d_type);
-	}
-	closedir(dir);
-}
 
 
-void uCanvas_Load_FontX(void){
-    esp_vfs_spiffs_conf_t conf = {
-		.base_path = "/spiffs",
-		.partition_label = NULL,
-		.max_files = 12,
-		.format_if_mount_failed =true
-	};
-
-	// Use settings defined above toinitialize and mount SPIFFS filesystem.
-	// Note: esp_vfs_spiffs_register is anall-in-one convenience function.
-	esp_err_t ret = esp_vfs_spiffs_register(&conf);
-
-	if (ret != ESP_OK) {
-		if (ret == ESP_FAIL) {
-			ESP_LOGE(TAG, "Failed to mount or format filesystem");
-		} else if (ret == ESP_ERR_NOT_FOUND) {
-			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
-		} else {
-			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)",esp_err_to_name(ret));
-		}
-		return;
-	}
-
-	size_t total = 0, used = 0;
-	ret = esp_spiffs_info(NULL, &total,&used);
-	if (ret != ESP_OK) {
-		ESP_LOGE(TAG,"Failed to get SPIFFS partition information (%s)",esp_err_to_name(ret));
-	} else {
-		ESP_LOGI(TAG,"Partition size: total: %d, used: %d", total, used);
-	}
-
-	SPIFFS_Directory("/spiffs/");
-	InitFontx(fx16G,"/spiffs/ILGH16XB.FNT",""); // 8x16Dot Gothic
-	InitFontx(fx24G,"/spiffs/ILGH24XB.FNT",""); // 12x24Dot Gothic
-	InitFontx(fx32G,"/spiffs/ILGH32XB.FNT",""); // 16x32Dot Gothic
-	InitFontx(fx32L,"/spiffs/LATIN32B.FNT",""); // 16x32Dot Latin
-
-	
-	InitFontx(fx16M,"/spiffs/ILMH16XB.FNT",""); // 8x16Dot Mincyo
-	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
-	InitFontx(fx10M,"/spiffs/FONT10X20.FNT",""); // 16x32Dot Mincyo
-	
-}
 #include "fonts.h"
 void* get_font_by_name(FontType_t font_type){
     void* activefont = NULL;
@@ -322,72 +267,6 @@ void* get_font_by_name(FontType_t font_type){
     return activefont;
 }
 
-int uCanvas_Draw_FONTX(uCanvas2D_RenderBuffer_t *fb, int x, int y, char ascii,
-                      FontType_t font_type, uint16_t color1, uint16_t color2,
-                      uint16_t font_direction, uint8_t ul_en) {
-    unsigned char fonts[128]; // glyph bitmap
-    uint8_t pw, ph;
-
-    if (!GetFontx(get_font_by_name(font_type), ascii, fonts, &pw, &ph))
-        return 0;
-
-    int16_t xd1 = 0, yd1 = 0, xd2 = 0, yd2 = 0;
-    int16_t xx = 0, yy = 0;
-    int16_t next = 0;
-
-    // Direction setup
-    switch (font_direction) {
-        case 0:
-            xd1 = +1; yd1 = +1;
-            xx = x; yy = y - (ph - 1);
-            next = x + pw;
-            break;
-        case 1:
-            xd2 = -1; yd2 = +1;
-            xx = x + ph; yy = y;
-            next = y + pw;
-            break;
-        case 2:
-            xd1 = -1; yd1 = -1;
-            xx = x; yy = y + ph + 1;
-            next = x - pw;
-            break;
-        case 3:
-            xd2 = +1; yd2 = -1;
-            xx = x - (ph - 1); yy = y;
-            next = y - pw;
-            break;
-        default:
-            return 0;
-    }
-
-    int ofs = 0;
-    for (int h = 0; h < ph; h++) {
-        int bits_remaining = pw;
-        int16_t xline = xx;
-        int16_t yline = yy;
-
-        for (int w = 0; w < ((pw + 7) >> 3); w++) {
-            uint8_t b = fonts[ofs++];
-            for (int bit = 0; bit < 8 && bits_remaining > 0; bit++, bits_remaining--) {
-                uint8_t is_on = b & (0x80 >> bit);
-                if (is_on) {
-                    set_pixel(fb, xline, yline, color1);
-                } else if (ul_en && (h == ph - 2 || h == ph - 1)) {
-                    set_pixel(fb, xline, yline, color2);
-                }
-
-                xline += xd1;
-                yline += yd2;
-            }
-        }
-
-        xx += xd2;
-        yy += yd1;
-    }
-
-    return (next < 0) ? 0 : next;
-}
 
 
 #define DRAW_PIXEL(fb, x, y, color)  ((fb)->pixels[(y) * (fb)->width + (x)] = (color))
@@ -486,6 +365,7 @@ void IRAM_ATTR uCanvas_Draw_SFONT_Advanced_TextBox(uCanvas2D_RenderBuffer_t *fb,
     if(obj->textbox_properties->textbox_updated){
         obj->textbox_properties->textbox_updated = false;   
         if(tp->fill_background){
+        #if(CONFIG_IDF_TARGET_ESP32P4)
         ppa_helper_fill(
                         tp->text_draw_buf->pixels,
                         tp->text_draw_buf->width * tp->text_draw_buf->height * sizeof(uint16_t),
@@ -493,6 +373,7 @@ void IRAM_ATTR uCanvas_Draw_SFONT_Advanced_TextBox(uCanvas2D_RenderBuffer_t *fb,
                         tp->text_draw_buf->height,
                         0, 0, tp->text_draw_buf->width, tp->text_draw_buf->height, background_color,0
                         );
+        #endif
         }
         else {
             copy_fb_region_to_textbuf(fb,
@@ -754,15 +635,6 @@ void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_
 
 
 
-int uCanvas_Draw_FONTX_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){
-    int len = strlen(text);
-    for (int i = 0; i < len; i++) {
-        int pos = uCanvas_Draw_FONTX(fb, x, y, text[i], font_type, color1, color2, font_direction, ul_en);
-        if (font_direction == 0 || font_direction == 2) x = pos;
-        else y = pos;
-    }
-    return (font_direction == 0 || font_direction == 2) ? x : y;
-}
 
 
 int IRAM_ATTR uCanvas_Draw_Text(uCanvas2D_RenderBuffer_t *fb, int x, int y, char* text, FontType_t font_type, uint16_t color1, uint16_t color2, uint8_t font_direction,uint8_t ul_en){

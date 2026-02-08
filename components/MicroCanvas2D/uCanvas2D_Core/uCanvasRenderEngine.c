@@ -147,7 +147,9 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
 
 int64_t uCanvas_Get_FPS(uCanvas2D_Instance_t* instance){
     if(instance == NULL)return 0;
+    if(instance->fps>0)
     return 1000000/instance->fps;
+    return 0;
 }
 
 void uCanvas_Set_Render_Mode(uCanvas2D_Instance_t* instance,uCanvas2D_Render_Mode_t mode){
@@ -221,6 +223,7 @@ void uCanvas_renderer_task(void*arg){
                 //Clear Display
                 if(instance->Clear_On_Refresh){
                     if(instance->render_buffer->use_ppa){
+                        #if(CONFIG_IDF_TARGET_ESP32P4)
                         ppa_helper_fill(
                         current_bufffer->pixels,
                         current_bufffer->width * current_bufffer->height * sizeof(uint16_t),
@@ -228,8 +231,10 @@ void uCanvas_renderer_task(void*arg){
                         current_bufffer->height,
                         0, 0, current_bufffer->width, current_bufffer->height, 0x0000,0
                         );
+                        #endif
                     }
                     else{
+                        // printf("clr\r\n");
                         memset(current_bufffer->pixels, 0x0000, current_bufffer->width * current_bufffer->height * sizeof(uint16_t)); 
                     }
                 }
@@ -244,11 +249,16 @@ void uCanvas_renderer_task(void*arg){
 
                 //Update display panel (This is non blockig (while not scaling output))
                 draw_bufffer = current_bufffer;
+                
                 if(instance->scale_output){
+                    #if(CONFIG_IDF_TARGET_ESP32P4)
                     scale_buffer_with_factor(draw_bufffer->pixels,instance->post_processing_frame_buf->pixels,obuf_size,draw_bufffer->width,draw_bufffer->height,scaled_x,scaled_y);
                     if(instance->panel_1 != NULL)instance->panel_1->push_render_buffer(0, 0, instance->post_processing_frame_buf); 
+                    #endif
                 }
-                else {
+                else 
+                #
+                {
                     if(instance->panel_1 != NULL)instance->panel_1->push_render_buffer(draw_bufffer->offset_x, draw_bufffer->offset_y, draw_bufffer);
                 }              
                 UNLOCK_RESOURCE(instance->render_buffer_lock);
@@ -296,7 +306,11 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
     instance->render_buffer->pitch = 0;
     instance->render_buffer->offset_x = offset_x;
     instance->render_buffer->offset_y = offset_y;
+    #if UCANVAS_USE_SPIRAM 
     instance->render_buffer->pixels = heap_caps_aligned_alloc(32,  instance->render_buffer->width * instance->render_buffer->height* sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);// (uint16_t*)malloc(panel_1->width * panel_1->height * sizeof(uint16_t));
+    #else
+    instance->render_buffer->pixels = heap_caps_aligned_alloc(32,  instance->render_buffer->width * instance->render_buffer->height* sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);// (uint16_t*)malloc(panel_1->width * panel_1->height * sizeof(uint16_t));
+    #endif
     if (instance->render_buffer->pixels == NULL) {
         printf("Failed to allocate memory for render buffer pixels\r\n");
         free(instance->render_buffer);
@@ -386,6 +400,7 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
 // }
 
 int uCanvas_Attach_RenderBuffer(uCanvas2D_Instance_t* instance, int width, int height) {
+
     instance->render_buffer = NULL;
     instance->render_buffer_aux = NULL;
 

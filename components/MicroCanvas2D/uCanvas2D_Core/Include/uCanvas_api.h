@@ -16,7 +16,7 @@
 
     void uCanvas_lock_scene();
     void uCanvas_unlock_scene();
-    // #define uCANVAS2D_EK79007_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_EK79007(),NULL)
+    // #define uCANVAS2D_EK79007_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_ST7789(),NULL)
     // #define uCANVAS2D_ST7789_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_ST7789(),NULL)
     
     /*Starts Rendering Engine and Initializes Display*/

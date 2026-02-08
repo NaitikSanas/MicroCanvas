@@ -1,4 +1,3 @@
-
 set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c" 
                     "uCanvas2D_Core/uCanvas_api.c"
                     "uCanvas2D_Core/uCanvas_User_IO.c"
@@ -26,20 +25,30 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
                     "Fonts/SixyFour32.c"
                     
                     "Input_Devices/USB_HID/uCanvas_HID.c"
-                                 
 )
+idf_build_get_property(idf_target IDF_TARGET)
 
-idf_component_register( SRCS "${COMPONENT_SRCS}"
-                        INCLUDE_DIRS "." "uCanvas2D_Core/Include" 
-                                        "Display_Driver_Port/include"
-                                        "uCanvas2D_GUI_Components/simple_menu" 
-                                        "uCanvas2D_GUI_Components/uCanvas_Slide_Switch" 
-                                        "uCanvas2D_GUI_Components/ucanvas_slider"
-                                        "uCanvas2D_GUI_Components/uCanvas_Graph2D"
-                                        "Display_Driver_Port"
-                                        "Input_Devices/USB_HID"
-                                        "Fonts"
+message(STATUS "IDF target = ${idf_target}")
+
+# Set base requirements
+set(COMPONENT_REQUIRES  driver  SSD1306_Driver st7789 spiffs 
+                       mpu6050_driver esp_timer esp_lcd usb esp_lcd_touch)
+
+# Add esp_driver_ppa only for ESP32-P4
+if(idf_target STREQUAL "esp32p4")
+    list(APPEND COMPONENT_REQUIRES esp_driver_ppa EK79007)
+endif()
 
 
-                                        
-                        PRIV_REQUIRES driver EK79007 SSD1306_Driver st7789  spiffs mpu6050_driver esp_timer esp_lcd esp_driver_ppa usb esp_lcd_touch)
+idf_component_register(SRCS "${COMPONENT_SRCS}"
+                       INCLUDE_DIRS "." "uCanvas2D_Core/Include" 
+                                    "Display_Driver_Port/include"
+                                    "uCanvas2D_GUI_Components/simple_menu" 
+                                    "uCanvas2D_GUI_Components/uCanvas_Slide_Switch" 
+                                    "uCanvas2D_GUI_Components/ucanvas_slider"
+                                    "uCanvas2D_GUI_Components/uCanvas_Graph2D"
+                                    "Display_Driver_Port"
+                                    "Input_Devices/USB_HID"
+                                    
+                                    "Fonts"
+                       PRIV_REQUIRES ${COMPONENT_REQUIRES})

@@ -70,26 +70,6 @@ typedef struct {
 }st7789_async_write_t;
 st7789_async_write_t async_write_handle;
 
-void Write_Pixels(void* arg){
-    st7789_async_write_t* async_write_handle = (st7789_async_write_t*)arg;
-    while (1)
-    {
-        while (async_write_handle->update_display==false)
-        {
-            vTaskDelay(pdMS_TO_TICKS(5)); 
-        }    
-        const int maxPixelsPerChunk = 512;
-        int totalPixels = async_write_handle->w * async_write_handle->h;
-        int sent = 0;
-        while (sent < totalPixels) {
-            int chunkSize = (totalPixels - sent > maxPixelsPerChunk) ? maxPixelsPerChunk : (totalPixels - sent);
-            spi_master_write_colors(&st7789_dev_instance, (uint16_t*)&async_write_handle->pixels[sent], chunkSize);
-            sent += chunkSize;
-        }
-        async_write_handle->update_display = false;
-    }
-}
-
 static void ST7789_PushTile(int x, int y, uCanvas2D_RenderBuffer_t* buf){
     if (!buf || !buf->pixels) return;
 

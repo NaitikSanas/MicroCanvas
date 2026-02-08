@@ -165,11 +165,10 @@ void Adv_TextBox_With_USB_HID_Keyboard() {
     KeyBoardDevice.EventListenerCallback = MyKeyboardListener;
     uCanvas_Get_HID_Device(&KeyBoardDevice);
     KeyBoardDevice.uCanvas_Input_HID_Device_Init();
-    
-    Intialize_PPA();
 
     uCanvas_Scene_t* scene_1 = New_uCanvas_Scene();
-    uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
+    uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_ST7789();
+
     panel->init(1);
     panel->set_backlight(3000);
     

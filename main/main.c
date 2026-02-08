@@ -15,7 +15,7 @@
 #include "Adv_Textbox_with_HID_Keyboard.h"
 #include "pcm5102a.h"
 #include "uCanvas_Synth.h"
-#define RUN_APP_C 0
+// #define RUN_APP_C 1
 
 // #define RUN_DESIGN_GAME_MAP_DEMO 1
 // #define RUN_SIMPLE_MENU_DEMO 1
@@ -28,8 +28,8 @@
 // #define RUN_L_SYSTEM_DEMO 1
 // #define RUN_3D_CUBE_DEMO 1
 // #define RUN_IO_USAGE_DEMO 1
-// #define RUN_SPACE_EXPLORER_DEMO 1
-#define RUN_UCANVAS_SYNTH 1
+#define RUN_SPACE_EXPLORER_DEMO 1
+// #define RUN_UCANVAS_SYNTH 1
 void app_main(){
     
 

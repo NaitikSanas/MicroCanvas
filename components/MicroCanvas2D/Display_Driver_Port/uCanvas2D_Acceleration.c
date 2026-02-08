@@ -1,5 +1,5 @@
 #include "uCanvas2D_Acceleration.h"
-
+#if(CONFIG_IDF_TARGET_ESP32P4)
 static ppa_client_handle_t ppa_srm_handle = NULL;
 static ppa_client_config_t ppa_srm_config = {
         .oper_type = PPA_OPERATION_SRM,
@@ -361,3 +361,4 @@ esp_err_t IRAM_ATTR scale_buffer_with_factor(
 
     return ppa_do_scale_rotate_mirror(ppa_srm_handle, &srm_config);
 }
+#endif

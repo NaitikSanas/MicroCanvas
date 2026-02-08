@@ -1,5 +1,5 @@
 #include "uCanvas2D_EK79007Port.h"
-
+#if(CONFIG_IDF_TARGET_ESP32P4)
 void EK79007_Init(uCanvas2D_Display_Orientation_t orientation){
     printf("EK79007_Init prototype\r\n");
     ek79007_init();
@@ -32,3 +32,4 @@ uCanvas2D_Display_Panel_t* uCanvas2D_Get_Panel_Driver_EK79007(void){
     driver->width = LCD_H_RES;
     return driver;
 }
+#endif

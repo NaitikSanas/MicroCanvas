@@ -93,12 +93,10 @@ void demo_graph_sine_scroll(void)
     }
 }
 void uCanvas_Setup() {
-    Intialize_PPA();
-
     scene_1 = New_uCanvas_Scene();
     scene_2 = New_uCanvas_Scene();
 
-    uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
+    uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_ST7789();
     panel->init(1);
     panel->set_backlight(3000);
     
@@ -118,4 +116,3 @@ void uCanvas_App_Main(void) {
 
      uCanvas_Delay(4000);
 }
-
