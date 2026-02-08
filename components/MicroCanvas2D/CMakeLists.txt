@@ -31,7 +31,7 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
 
 idf_component_register( SRCS "${COMPONENT_SRCS}"
                         INCLUDE_DIRS "." "uCanvas2D_Core/Include" 
-                                        "Display_Driver_Port/Include"
+                                        "Display_Driver_Port/include"
                                         "uCanvas2D_GUI_Components/simple_menu" 
                                         "uCanvas2D_GUI_Components/uCanvas_Slide_Switch" 
                                         "uCanvas2D_GUI_Components/ucanvas_slider"
