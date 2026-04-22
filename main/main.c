@@ -42,15 +42,6 @@ void app_main(){
     {
         simple_menu_demo_App_Main();
     }
-    #elif RUN_FONTS_TESTING
-        uCanvas_Run_Fonts_demo();
-    
-    #elif RUN_SLIDER_EXAMPLE_TESTING
-        uCanvas_slider_demo_Setup();
-        uCanvas_slider_demo_Main();
-    #elif RUN_GUI_DEMO_TESTING
-        uCanvas_GUI_Demo_Setup();
-        uCanvas_GUI_Demo_Main();
 
     #elif RUN_SPRITE_ANIMATION_WITH_KEYFRAME
         Run_Sprite_Animation_With_Keyframe();
