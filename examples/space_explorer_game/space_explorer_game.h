@@ -1,6 +1,75 @@
-#include "stdint.h"
 #pragma once
-
+ 
+#ifdef __cplusplus
+extern "C" {
+#endif
+ 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+ 
+#include "uCanvas_api.h"
+#include "uCanvas_User_IO.h"
+ 
+// 
+//  Input Source Selection (enable exactly one)
+// 
+#define USE_USB_KEYBOARD    1
+#define USE_ROTORY_ENCODER  0
+#define USE_IMU_DIR_CONTROL 0
+ 
+// 
+//  Canvas / Display
+// 
+#define CANVAS_WIDTH        320
+#define CANVAS_HEIGHT       240
+ 
+// 
+//  Gameplay Constants
+// 
+#define MAX_STARS               10
+#define STARS_SLOW_SCROLL_RATE  10        // ms per tick (foreground layer)
+#define STARS_FAST_SCROLL_RATE  (STARS_SLOW_SCROLL_RATE * 4)  // background layer
+ 
+#define MAX_ENEMIES             10
+#define MAX_BULLETS             20
+#define COLLISION_THRESHOLD     30        // pixels, centroid-based
+ 
+// 
+//  Lives Indicator Layout
+// 
+#define LIVES_MAX               4
+#define LIVES_DOT_RADIUS        10
+#define LIVES_DOT_GAP           25
+#define LIVES_DOT_ORIGIN_X      20
+#define LIVES_DOT_ORIGIN_Y      20
+ 
+//
+//  GPIO Pin Assignments
+// 
+#define ENC_A       39
+#define ENC_B       40
+#define ENC_SW      37
+#define PB1         36
+#define PB2         35
+#define PIEZO_GPIO  GPIO_NUM_14
+ 
+// 
+//  Data Types
+// 
+ typedef struct {
+    uCanvas_universal_obj_t *obj;
+    uint8_t                  state;
+} spaceship_t;
+ 
+typedef struct {
+    uCanvas_universal_obj_t *obj[MAX_BULLETS];
+    uint8_t                  bullets_per_trigger;
+    uint8_t                  active_count;
+} bullets_t;
+ 
 #define SHIP_ENEMY_HEIGHT 41
 #define SHIP_ENEMY_WIDTH 40
 
