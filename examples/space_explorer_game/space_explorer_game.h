@@ -23,17 +23,17 @@ extern "C" {
 // 
 //  Canvas / Display
 // 
-#define CANVAS_WIDTH        320
-#define CANVAS_HEIGHT       240
+#define CANVAS_WIDTH        1024
+#define CANVAS_HEIGHT       600
  
 // 
 //  Gameplay Constants
 // 
-#define MAX_STARS               10
+#define MAX_STARS               100
 #define STARS_SLOW_SCROLL_RATE  10        // ms per tick (foreground layer)
 #define STARS_FAST_SCROLL_RATE  (STARS_SLOW_SCROLL_RATE * 4)  // background layer
  
-#define MAX_ENEMIES             10
+#define MAX_ENEMIES             30
 #define MAX_BULLETS             20
 #define COLLISION_THRESHOLD     30        // pixels, centroid-based
  

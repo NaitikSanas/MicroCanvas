@@ -69,7 +69,7 @@ static void lives_indicator_create(void)
         int y = LIVES_DOT_ORIGIN_Y;
         g_lives[i] = New_uCanvas_2DCircle(x, y, LIVES_DOT_RADIUS);
         uCanvas_Set_Color(g_lives[i], 255, 0, 0);
-        g_lives[i]->properties.fill = FILL;
+        uCanvas_Set_Fill(g_lives[i], FILL);
     }
 }
 
@@ -99,7 +99,7 @@ static void hud_create(void)
     // Dark top bar background
     uCanvas_universal_obj_t *bg = New_uCanvas_2DRectangle(0, 0, 40, CANVAS_WIDTH);
     uCanvas_Set_Color(bg, 0, 0, 100);
-    bg->properties.fill = FILL;
+    uCanvas_Set_Fill(bg, FILL);
 
     // Score (top-right)
     g_hud_score = New_uCanvas_2DTextbox(" ", CANVAS_WIDTH - 220, 5);
@@ -154,7 +154,7 @@ static void stars_init(void)
         int r = get_random_number(0, 1);
         g_stars[i] = New_uCanvas_2DCircle(x, y, r);
         uCanvas_Set_Color(g_stars[i], 255, 255, get_random_number(0, 255));
-        g_stars[i]->properties.fill = FILL;
+        uCanvas_Set_Fill(g_stars[i], FILL);
     }
 }
 
@@ -163,18 +163,18 @@ static void stars_scroll_range(int first, int last, int blink_chance)
 {
     for (int i = first; i < last; i++) {
         if (g_stars[i]->properties.position.y < CANVAS_HEIGHT) {
-            g_stars[i]->properties.position.y += 1;
+            uCanvas_Set_Position_Y(g_stars[i], g_stars[i]->properties.position.y + 1);
             if (get_random_number(0, 10) == blink_chance) {
-                g_stars[i]->properties.visiblity = INVISIBLE;
+                uCanvas_Set_Visiblity(g_stars[i], INVISIBLE);
                 uCanvas_Delay(1);
             }
-            g_stars[i]->properties.visiblity = VISIBLE;
+            uCanvas_Set_Visiblity(g_stars[i], VISIBLE);
         } else {
             uCanvas_Set_Position(g_stars[i],
                                  get_random_number(0, CANVAS_WIDTH),
                                  get_random_number(-CANVAS_HEIGHT, 0));
             uCanvas_Set_Color(g_stars[i], 255, 255, get_random_number(100, 255));
-            g_stars[i]->properties.visiblity = INVISIBLE;
+            uCanvas_Set_Visiblity(g_stars[i], INVISIBLE);
         }
     }
 }
@@ -206,9 +206,10 @@ static void task_stars_background(void *arg)
 static void enemies_randomize_positions(void)
 {
     for (int i = 0; i < MAX_ENEMIES; i++) {
-        g_enemies[i].obj->properties.position.x = get_random_number(0, CANVAS_WIDTH);
-        g_enemies[i].obj->properties.position.y = get_random_number(-CANVAS_HEIGHT, 0);
-        g_enemies[i].obj->properties.visiblity  = INVISIBLE;
+        uCanvas_Set_Position(g_enemies[i].obj,
+                             get_random_number(0, CANVAS_WIDTH),
+                             get_random_number(-CANVAS_HEIGHT, 0));
+        uCanvas_Set_Visiblity(g_enemies[i].obj, INVISIBLE);
     }
 }
 
@@ -232,9 +233,10 @@ static void enemies_spawn(void)
         g_enemies[i].obj->point1 = (Coordinate2D_t){10,  0};
         g_enemies[i].obj->point2 = (Coordinate2D_t){ 0, 10};
         g_enemies[i].obj->point3 = (Coordinate2D_t){20, 10};
-        g_enemies[i].obj->properties.position.x = get_random_number(0, CANVAS_WIDTH);
-        g_enemies[i].obj->properties.position.y = get_random_number(-CANVAS_HEIGHT, 0);
-        g_enemies[i].obj->properties.fill = FILL;
+        uCanvas_Set_Position(g_enemies[i].obj,
+                             get_random_number(0, CANVAS_WIDTH),
+                             get_random_number(-CANVAS_HEIGHT, 0));
+        uCanvas_Set_Fill(g_enemies[i].obj, FILL);
 
         uCanvas_Set_Color(g_enemies[i].obj,
                           get_random_number(150, 255),
@@ -249,13 +251,13 @@ static void enemies_scroll_range(int first, int last, int delay_ms)
     while (1) {
         for (int i = first; i < last; i++) {
             if (g_enemies[i].obj->properties.position.y < CANVAS_HEIGHT) {
-                g_enemies[i].obj->properties.position.y += 1;
-                g_enemies[i].obj->properties.visiblity  = VISIBLE;
+                uCanvas_Set_Position_Y(g_enemies[i].obj, g_enemies[i].obj->properties.position.y + 1);
+                uCanvas_Set_Visiblity(g_enemies[i].obj, VISIBLE);
             } else {
                 uCanvas_Set_Position(g_enemies[i].obj,
                                      get_random_number(0, CANVAS_WIDTH),
                                      get_random_number(-CANVAS_HEIGHT, 0));
-                g_enemies[i].obj->properties.visiblity = INVISIBLE;
+                uCanvas_Set_Visiblity(g_enemies[i].obj, INVISIBLE);
             }
         }
         uCanvas_Delay(delay_ms);
@@ -287,7 +289,7 @@ static void player_ship_create(void)
     g_player.obj->point1 = (Coordinate2D_t){10,  0};
     g_player.obj->point2 = (Coordinate2D_t){ 0, 10};
     g_player.obj->point3 = (Coordinate2D_t){20, 10};
-    g_player.obj->properties.fill = FILL;
+    uCanvas_Set_Fill(g_player.obj, FILL);
     g_player.state = 0;
 
     uCanvas_Set_Color(g_player.obj, 0, 150, 255);
@@ -301,8 +303,8 @@ static void bullets_init_system(uint8_t bullets_per_trigger)
 
     for (int i = 0; i < bullets_per_trigger; i++) {
         g_bullets.obj[i] = New_uCanvas_2DRectangle(0, 0, 5, 3);
-        g_bullets.obj[i]->properties.visiblity = INVISIBLE;
-        g_bullets.obj[i]->properties.fill      = FILL;
+        uCanvas_Set_Visiblity(g_bullets.obj[i], INVISIBLE);
+        uCanvas_Set_Fill(g_bullets.obj[i], FILL);
         uCanvas_Set_Color(g_bullets.obj[i], 255, 0, 0);
     }
 }
@@ -312,9 +314,10 @@ static void bullets_fire(void)
     if (g_bullets.active_count != 0) return;
 
     for (int i = 0; i < g_bullets.bullets_per_trigger; i++) {
-        g_bullets.obj[i]->properties.position.x = g_player.obj->properties.position.x + 20;
-        g_bullets.obj[i]->properties.position.y = g_player.obj->properties.position.y + (8 * i);
-        g_bullets.obj[i]->properties.visiblity  = VISIBLE;
+        uCanvas_Set_Position(g_bullets.obj[i],
+                             g_player.obj->properties.position.x + 20,
+                             g_player.obj->properties.position.y + (8 * i));
+        uCanvas_Set_Visiblity(g_bullets.obj[i], VISIBLE);
         g_bullets.active_count++;
         uCanvas_Delay(1);
     }
@@ -339,33 +342,36 @@ static void enemy_explode_and_respawn(int enemy_idx, int bullet_idx)
     spaceship_t *e = &g_enemies[enemy_idx];
 
     // Advance sprite to center of hitbox for explosion effect
-    e->obj->properties.position.x += SHIP_ENEMY_WIDTH  / 2;
-    e->obj->properties.position.y += SHIP_ENEMY_HEIGHT / 2;
+    uCanvas_Set_Position(e->obj,
+                         e->obj->properties.position.x + (SHIP_ENEMY_WIDTH  / 2),
+                         e->obj->properties.position.y + (SHIP_ENEMY_HEIGHT / 2));
 
     // Position popups near explosion
-    g_popup_plus->properties.position.x  = e->obj->properties.position.x + 15;
-    g_popup_plus->properties.position.y  = e->obj->properties.position.y +  5;
-    g_popup_value->properties.position.x = e->obj->properties.position.x + 25;
-    g_popup_value->properties.position.y = e->obj->properties.position.y + 20;
+    uCanvas_Set_Position(g_popup_plus,
+                         e->obj->properties.position.x + 15,
+                         e->obj->properties.position.y + 5);
+    uCanvas_Set_Position(g_popup_value,
+                         e->obj->properties.position.x + 25,
+                         e->obj->properties.position.y + 20);
 
     snprintf(g_buf, sizeof(g_buf), "%d", g_current_score);
     uCanvas_Set_Text(g_popup_value, g_buf);
 
     // Expanding circle explosion
-    e->obj->r1                  = 2;
-    e->obj->properties.type     = CIRCLE;
-    g_popup_plus->properties.visiblity  = VISIBLE;
-    g_popup_value->properties.visiblity = VISIBLE;
+    uCanvas_Set_Radius1(e->obj, 2);
+    uCanvas_Set_Obj_Type(e->obj, CIRCLE);
+    uCanvas_Set_Visiblity(g_popup_plus, VISIBLE);
+    uCanvas_Set_Visiblity(g_popup_value, VISIBLE);
     uCanvas_Set_Color(e->obj, 255, 125, 0);
 
     for (int r = 0; r < SHIP_ENEMY_WIDTH / 2; r++) {
-        e->obj->r1 += 1;
+        uCanvas_Set_Radius1(e->obj, e->obj->r1 + 1);
         uCanvas_Delay(5);
     }
 
     // Reset enemy
-    e->obj->properties.type     = SPRITE2D;
-    e->obj->properties.visiblity = INVISIBLE;
+    uCanvas_Set_Obj_Type(e->obj, SPRITE2D);
+    uCanvas_Set_Visiblity(e->obj, INVISIBLE);
     uCanvas_Set_Color(e->obj,
                       get_random_number(150, 255),
                       get_random_number(150, 255),
@@ -375,9 +381,9 @@ static void enemy_explode_and_respawn(int enemy_idx, int bullet_idx)
                          get_random_number(-CANVAS_HEIGHT, 0));
 
     // Hide popups & bullet
-    g_popup_plus->properties.visiblity  = INVISIBLE;
-    g_popup_value->properties.visiblity = INVISIBLE;
-    g_bullets.obj[bullet_idx]->properties.visiblity = INVISIBLE;
+    uCanvas_Set_Visiblity(g_popup_plus, INVISIBLE);
+    uCanvas_Set_Visiblity(g_popup_value, INVISIBLE);
+    uCanvas_Set_Visiblity(g_bullets.obj[bullet_idx], INVISIBLE);
     g_bullets.active_count--;
 }
 
@@ -389,9 +395,9 @@ static void task_bullets_animate(void *arg)
 
             // Move bullet upward
             if (g_bullets.obj[i]->properties.position.y > 0) {
-                g_bullets.obj[i]->properties.position.y -= 1;
+                uCanvas_Set_Position_Y(g_bullets.obj[i], g_bullets.obj[i]->properties.position.y - 1);
             } else {
-                g_bullets.obj[i]->properties.visiblity = INVISIBLE;
+                uCanvas_Set_Visiblity(g_bullets.obj[i], INVISIBLE);
                 g_bullets.active_count--;
                 continue;
             }
@@ -426,10 +432,10 @@ static void task_bullets_animate(void *arg)
 static void player_hit_flash(void)
 {
     for (int i = 0; i < 5; i++) {
-        g_player.obj->properties.visiblity = INVISIBLE;
+        uCanvas_Set_Visiblity(g_player.obj, INVISIBLE);
         uCanvas_Set_Color(g_player.obj, 255, 0, 0);
         uCanvas_Delay(70);
-        g_player.obj->properties.visiblity = VISIBLE;
+        uCanvas_Set_Visiblity(g_player.obj, VISIBLE);
         uCanvas_Set_Color(g_player.obj, 0, 0, 255);
         uCanvas_Delay(70);
     }
@@ -448,8 +454,8 @@ static void game_reset(void)
 
 static void show_game_over_screen(void)
 {
-    g_overlay_text->properties.position.x = 150;
-    g_overlay_text->properties.visiblity  = VISIBLE;
+    uCanvas_Set_Position_X(g_overlay_text, 150);
+    uCanvas_Set_Visiblity(g_overlay_text, VISIBLE);
     uCanvas_Set_Text(g_overlay_text, "");
     uCanvas_Animate_Text_Reveal(g_overlay_text, "Game Over", 50);
     uCanvas_Delay(2500);
@@ -460,7 +466,7 @@ static void show_game_over_screen(void)
         uCanvas_Set_Text(g_overlay_text, "Press SPACE for Restart");
         g_distance_ly = 0.0f;
         if (g_key_event.key_char == ' ') {
-            g_overlay_text->properties.visiblity = INVISIBLE;
+            uCanvas_Set_Visiblity(g_overlay_text, INVISIBLE);
             break;
         }
         uCanvas_Delay(1);
@@ -523,11 +529,11 @@ static void task_controller(void *arg)
             switch (g_key_event.key_char) {
                 case 'd':
                     if (g_player.obj->properties.position.x < CANVAS_WIDTH)
-                        g_player.obj->properties.position.x++;
+                        uCanvas_Set_Position_X(g_player.obj, g_player.obj->properties.position.x + 1);
                     break;
                 case 'a':
                     if (g_player.obj->properties.position.x > 0)
-                        g_player.obj->properties.position.x--;
+                        uCanvas_Set_Position_X(g_player.obj, g_player.obj->properties.position.x - 1);
                     break;
                 case ' ':
                     bullets_fire();
@@ -548,11 +554,11 @@ static void task_controller(void *arg)
 
         if (uCanvas_Get_PushbuttonState(PB1) || enc == ENCODER_CW) {
             if (g_player.obj->properties.position.x < CANVAS_WIDTH)
-                g_player.obj->properties.position.x++;
+                uCanvas_Set_Position_X(g_player.obj, g_player.obj->properties.position.x + 1);
         }
         if (uCanvas_Get_PushbuttonState(PB2) || enc == ENCODER_CCW) {
             if (g_player.obj->properties.position.x > 0)
-                g_player.obj->properties.position.x--;
+                uCanvas_Set_Position_X(g_player.obj, g_player.obj->properties.position.x - 1);
         }
 #endif
         uCanvas_Delay(1);
@@ -588,20 +594,20 @@ static void show_start_screen(void)
 
     // Overlay text reused later for "Game Over"
     g_overlay_text = textbox_create("", CANVAS_WIDTH / 4 - 100, 0, 255, 255, 255, 420, 200);
-    g_overlay_text->properties.position.y = 70;
-    g_overlay_text->properties.visiblity  = INVISIBLE;
+    uCanvas_Set_Position_Y(g_overlay_text, 70);
+    uCanvas_Set_Visiblity(g_overlay_text, INVISIBLE);
 
     // Animate title sliding down from above
-    title_space->properties.position.y = -32;
-    title_exp->properties.position.y   = -32;
+    uCanvas_Set_Position_Y(title_space, -32);
+    uCanvas_Set_Position_Y(title_exp, -32);
 
     for (int i = 0; i < CANVAS_HEIGHT / 2; i++) {
-        title_space->properties.position.y += 1;
-        title_exp->properties.position.y   += 1;
+        uCanvas_Set_Position_Y(title_space, title_space->properties.position.y + 1);
+        uCanvas_Set_Position_Y(title_exp, title_exp->properties.position.y + 1);
         uCanvas_Delay(10);
     }
 
-    g_overlay_text->properties.visiblity = VISIBLE;
+    uCanvas_Set_Visiblity(g_overlay_text, VISIBLE);
     uCanvas_Animate_Text_Reveal(g_overlay_text, "Press SPACE to Play", 50);
 
     // Wait for SPACE
@@ -615,9 +621,9 @@ static void show_start_screen(void)
         uCanvas_Delay(1);
     }
 
-    title_space->properties.visiblity   = INVISIBLE;
-    title_exp->properties.visiblity     = INVISIBLE;
-    g_overlay_text->properties.visiblity = INVISIBLE;
+    uCanvas_Set_Visiblity(title_space, INVISIBLE);
+    uCanvas_Set_Visiblity(title_exp, INVISIBLE);
+    uCanvas_Set_Visiblity(g_overlay_text, INVISIBLE);
 }
 
 static void task_fps_monitor(void *arg)
@@ -646,7 +652,7 @@ void Run_Space_Explorer_Game(void)
 #endif
 
     //  Display setup 
-    uCanvas2D_Display_Panel_t *panel = uCanvas2D_Get_Panel_Driver_ST7789();
+    uCanvas2D_Display_Panel_t *panel = uCanvas2D_Get_Panel_Driver_EK79007();
     panel->init(1);
 
     uCanvas_Scene_t *scene = New_uCanvas_Scene();
@@ -718,11 +724,11 @@ void IMU_Monitor(void)
         switch (tilt) {
             case TILT_LEFT:
                 if (g_player.obj->properties.position.x < CANVAS_WIDTH)
-                    g_player.obj->properties.position.x++;
+                    uCanvas_Set_Position_X(g_player.obj, g_player.obj->properties.position.x + 1);
                 break;
             case TILT_RIGHT:
                 if (g_player.obj->properties.position.x > 0)
-                    g_player.obj->properties.position.x--;
+                    uCanvas_Set_Position_X(g_player.obj, g_player.obj->properties.position.x - 1);
                 break;
             case TILT_UP:
             default:

@@ -11,6 +11,93 @@ extern SemaphoreHandle_t active_scene_mutex;
 
 TaskHandle_t uCanvas_taskhandle;
 extern uCanvas_Scene_t* active_scene;
+
+typedef struct {
+    int16_t x0;
+    int16_t y0;
+    int16_t x1;
+    int16_t y1;
+} uCanvas_recti_t;
+
+static inline int uCanvas_rect_is_empty(const uCanvas_recti_t* r){
+    return (r->x1 <= r->x0) || (r->y1 <= r->y0);
+}
+
+static inline void uCanvas_rect_union(uCanvas_recti_t* dst, const uCanvas_recti_t* a){
+    if(uCanvas_rect_is_empty(a)) return;
+    if(uCanvas_rect_is_empty(dst)){
+        *dst = *a;
+        return;
+    }
+    if(a->x0 < dst->x0) dst->x0 = a->x0;
+    if(a->y0 < dst->y0) dst->y0 = a->y0;
+    if(a->x1 > dst->x1) dst->x1 = a->x1;
+    if(a->y1 > dst->y1) dst->y1 = a->y1;
+}
+
+static inline int uCanvas_rect_intersects(const uCanvas_recti_t* a, const uCanvas_recti_t* b){
+    if(uCanvas_rect_is_empty(a) || uCanvas_rect_is_empty(b)) return 0;
+    return !(a->x1 <= b->x0 || a->x0 >= b->x1 || a->y1 <= b->y0 || a->y0 >= b->y1);
+}
+
+static inline void uCanvas_rect_clip_to_buffer(uCanvas_recti_t* r, const uCanvas2D_RenderBuffer_t* fb){
+    if(r->x0 < 0) r->x0 = 0;
+    if(r->y0 < 0) r->y0 = 0;
+    if(r->x1 > fb->width)  r->x1 = fb->width;
+    if(r->y1 > fb->height) r->y1 = fb->height;
+    if(r->x1 < r->x0) r->x1 = r->x0;
+    if(r->y1 < r->y0) r->y1 = r->y0;
+}
+
+static inline uCanvas_recti_t uCanvas_bounds_from_xywh(int x, int y, int w, int h){
+    uCanvas_recti_t r;
+    r.x0 = (int16_t)x;
+    r.y0 = (int16_t)y;
+    r.x1 = (int16_t)(x + w);
+    r.y1 = (int16_t)(y + h);
+    return r;
+}
+
+static uCanvas_recti_t uCanvas_compute_object_bounds(const uCanvas_universal_obj_t* obj){
+    if(!obj) return (uCanvas_recti_t){0,0,0,0};
+
+    switch(obj->properties.type){
+        case RECTANGLE:
+            return uCanvas_bounds_from_xywh(obj->properties.position.x, obj->properties.position.y, obj->width, obj->height);
+        case SPRITE2D:
+        case WINDOW:
+            return uCanvas_bounds_from_xywh(obj->properties.position.x, obj->properties.position.y, obj->width, obj->height);
+        case CIRCLE:
+            return uCanvas_bounds_from_xywh(obj->properties.position.x - obj->r1,
+                                            obj->properties.position.y - obj->r1,
+                                            obj->r1 * 2,
+                                            obj->r1 * 2);
+        case ELLIPSE:
+            return uCanvas_bounds_from_xywh(obj->properties.position.x - obj->r1,
+                                            obj->properties.position.y - obj->r2,
+                                            obj->r1 * 2,
+                                            obj->r2 * 2);
+        case LINE: {
+            int x0 = obj->point1.x < obj->point2.x ? obj->point1.x : obj->point2.x;
+            int y0 = obj->point1.y < obj->point2.y ? obj->point1.y : obj->point2.y;
+            int x1 = obj->point1.x > obj->point2.x ? obj->point1.x : obj->point2.x;
+            int y1 = obj->point1.y > obj->point2.y ? obj->point1.y : obj->point2.y;
+            // Thickness fudge factor used in draw (2)
+            return (uCanvas_recti_t){ (int16_t)(x0 - 2), (int16_t)(y0 - 2), (int16_t)(x1 + 2), (int16_t)(y1 + 2) };
+        }
+        case TEXTBOX:
+        case ADV_TEXTBOX: {
+            int w = obj->textbox_properties ? obj->textbox_properties->textbox_width : (int)obj->width;
+            int h = obj->textbox_properties ? obj->textbox_properties->textbox_height : (int)obj->height;
+            if(w <= 0) w = 1;
+            if(h <= 0) h = 1;
+            return uCanvas_bounds_from_xywh(obj->properties.position.x, obj->properties.position.y, w, h);
+        }
+        default:
+            // Conservative fallback: treat unknown objects as 1x1 at position
+            return uCanvas_bounds_from_xywh(obj->properties.position.x, obj->properties.position.y, 1, 1);
+    }
+}
 uint16_t IRAM_ATTR convertToRGB565(color_t color) {
     // Combine into RGB565 format
   	return (((color.red * 31) / 255) << 11) | (((color.green * 63) / 255) << 5) | ((color.blue * 31) / 255);
@@ -67,12 +154,12 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
     case LINE : {
         uCanvas2D_DrawLine(
             framebuffer,
-            obj->point1.x,
-            obj->point1.y,
-            obj->point2.x,
-            obj->point2.y,
+            obj->properties.position.x + obj->point1.x,
+            obj->properties.position.y + obj->point1.y,
+            obj->properties.position.x + obj->point2.x,
+            obj->properties.position.y + obj->point2.y,
             color,
-            2
+            1
         );
         break;
     }
@@ -86,14 +173,14 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
         p3.x = obj->point3.x + obj->properties.position.x;
         p3.y = obj->point3.y + obj->properties.position.y;
         
-        // uCanvas2D_DrawTriangle(
-        //     framebuffer,
-        //     p1.x, p1.y,
-        //     p2.x, p2.y,
-        //     p3.x, p3.y,
-        //     color,
-        //     obj->properties.fill,1
-        // );
+        uCanvas2D_DrawTriangle(
+            framebuffer,
+            p1.x, p1.y,
+            p2.x, p2.y,
+            p3.x, p3.y,
+            color,
+            obj->properties.fill,1
+        );
         break;
     }
 
@@ -147,8 +234,13 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
 
 int64_t uCanvas_Get_FPS(uCanvas2D_Instance_t* instance){
     if(instance == NULL)return 0;
-    if(instance->fps>0)
-    return 1000000/instance->fps;
+    if(instance->fps_smoothed > 0.0f){
+        return (int64_t)(instance->fps_smoothed + 0.5f);
+    }
+    // Fallback if no frames presented yet.
+    if(instance->last_frame_time_us > 0){
+        return (int64_t)(1000000.0f / (float)instance->last_frame_time_us);
+    }
     return 0;
 }
 
@@ -171,7 +263,7 @@ void uCanvas_Send_Refresh_Signal_To_Renderer(uCanvas2D_Instance_t* instance){
 
 void wait_on_referesh_signal(uCanvas2D_Instance_t* instance){
     xSemaphoreGive(instance->scene_refresh_complete);
-    if(instance->Render_Mode == ASYNC_FRAME_QUEUED && instance->signal_scene_refresh != NULL){
+    if(instance->Render_Mode == ASYNC_FRAME_COMMIT && instance->signal_scene_refresh != NULL){
         xSemaphoreTake(instance->signal_scene_refresh,portMAX_DELAY); 
     }
 }
@@ -186,7 +278,7 @@ void uCanvas_renderer_task(void*arg){
     }
 
     #if UCANVAS_USE_DOUBLE_BUFFERING
-        int switch_buffer = 0;
+        int switch_buffer = 0; // toggled only after a successful present()
     #endif
     printf("Renderer task started \r\n");
     uint32_t obuf_size = 0;
@@ -207,22 +299,27 @@ void uCanvas_renderer_task(void*arg){
         
         wait_on_referesh_signal(instance);
 
-        //Switch Render Buffer when Double buffering enabled.
-        #if UCANVAS_USE_DOUBLE_BUFFERING
-        if(switch_buffer) current_bufffer = instance->render_buffer_aux;
-        else current_bufffer = instance->render_buffer;
-        switch_buffer = !switch_buffer;
-        #endif
-        if(current_bufffer == NULL){
-            printf("Null Render Buffer\r\n");
-            return;
-        }
-
 		if((_scene != NULL) && (_scene->_2D_Object_Ptr > 0)){
+            // Dirty fast-path: if nothing changed since last draw, skip render + panel push.
+            if(_scene->dirty_seq == instance->last_rendered_scene_seq){
+                continue;
+            }
+
+            // Pick target render buffer only when we will actually draw/present.
+            #if UCANVAS_USE_DOUBLE_BUFFERING
+                current_bufffer = switch_buffer ? instance->render_buffer_aux : instance->render_buffer;
+            #else
+                current_bufffer = instance->render_buffer;
+            #endif
+            if(current_bufffer == NULL){
+                printf("Null Render Buffer\r\n");
+                return;
+            }
+
 			if(LOCK_RESOURCE(instance->render_buffer_lock)){ 
                 //Clear Display
                 if(instance->Clear_On_Refresh){
-                    if(instance->render_buffer->use_ppa){
+                    if(current_bufffer->use_ppa){
                         #if(CONFIG_IDF_TARGET_ESP32P4)
                         ppa_helper_fill(
                         current_bufffer->pixels,
@@ -244,7 +341,10 @@ void uCanvas_renderer_task(void*arg){
 					if(_scene->_2D_Objects[i]==NULL)break;
                     if(_scene->_2D_Objects[i]->properties.visiblity == INVISIBLE)continue;
                     uCanvas_universal_obj_t* obj = _scene->_2D_Objects[i];
+                    // if(obj->dirty_flags != 0){
                     draw_universal_object_to_target_render_buffer(obj,current_bufffer,instance->panel_1);
+                    obj->dirty_flags = 0;
+                    // }
 				}
 
                 //Update display panel (This is non blockig (while not scaling output))
@@ -257,13 +357,26 @@ void uCanvas_renderer_task(void*arg){
                     #endif
                 }
                 else 
-                #
                 {
                     if(instance->panel_1 != NULL)instance->panel_1->push_render_buffer(draw_bufffer->offset_x, draw_bufffer->offset_y, draw_bufffer);
                 }              
+                instance->last_rendered_scene_seq = _scene->dirty_seq;
+
+                #if UCANVAS_USE_DOUBLE_BUFFERING
+                    // Only advance buffer after a complete frame has been presented.
+                    switch_buffer = !switch_buffer;
+                #endif
                 UNLOCK_RESOURCE(instance->render_buffer_lock);
-                uint64_t now = esp_timer_get_time() ;
-                instance->fps = (now - start);
+                uint64_t now = esp_timer_get_time();
+                uint32_t frame_us = (uint32_t)(now - start);
+                instance->last_frame_time_us = frame_us;
+                if(frame_us > 0){
+                    float inst_fps = 1000000.0f / (float)frame_us;
+                    // EMA smoothing
+                    const float alpha = 0.10f;
+                    if(instance->fps_smoothed <= 0.0f) instance->fps_smoothed = inst_fps;
+                    else instance->fps_smoothed = (instance->fps_smoothed * (1.0f - alpha)) + (inst_fps * alpha);
+                }
 			}
         }else {
             printf("No active scene to render\r\n");
@@ -276,6 +389,208 @@ void uCanvas_renderer_task(void*arg){
         // }
         // instance->signal_scene_refresh = false;
 	}
+}
+
+/**
+ * Dirty-rect renderer:
+ * - Computes union of dirty regions (current bounds + previous bounds)
+ * - Clears only that region
+ * - Redraws objects that intersect that region
+ *
+ * NOTE: panel push still uses full-buffer push; this optimizes draw work, not IO bandwidth.
+ */
+static void uCanvas_renderer_task_dirtyrect(void* arg){
+    uCanvas2D_Instance_t* instance = (uCanvas2D_Instance_t*)arg;
+    if(instance == NULL || instance->render_buffer == NULL){
+        printf("Invalid uCanvas2D_Instance_t\r\n");
+        return;
+    }
+
+    uCanvas2D_RenderBuffer_t* current_bufffer = instance->render_buffer;
+    uCanvas2D_RenderBuffer_t* draw_bufffer = instance->render_buffer;
+
+    #if UCANVAS_USE_DOUBLE_BUFFERING
+        int switch_buffer = 0;
+    #endif
+
+    printf("Dirty-rect renderer task started\r\n");
+
+    while(1){
+        int64_t start = esp_timer_get_time();
+        uCanvas_Scene_t* _scene = instance->active_scene;
+        vTaskDelay(pdMS_TO_TICKS(instance->refresh_delay));
+        wait_on_referesh_signal(instance);
+
+        if(_scene == NULL || _scene->_2D_Object_Ptr <= 0){
+            continue;
+        }
+
+        // If nothing changed since last present, skip.
+        if(_scene->dirty_seq == instance->last_rendered_scene_seq){
+            continue;
+        }
+
+        #if UCANVAS_USE_DOUBLE_BUFFERING
+            current_bufffer = switch_buffer ? instance->render_buffer_aux : instance->render_buffer;
+        #else
+            current_bufffer = instance->render_buffer;
+        #endif
+        if(current_bufffer == NULL){
+            printf("Null Render Buffer\r\n");
+            return;
+        }
+
+        if(!LOCK_RESOURCE(instance->render_buffer_lock)){
+            continue;
+        }
+
+        uCanvas_recti_t dirty_union = (uCanvas_recti_t){0,0,0,0};
+        int any_dirty = 0;
+        int force_full_redraw = 0;
+
+        // Pass 1: compute dirty union (old + new)
+        for(int i = 0; i < _scene->_2D_Object_Ptr; i++){
+            uCanvas_universal_obj_t* obj = _scene->_2D_Objects[i];
+            if(obj == NULL) break;
+
+            if(obj->dirty_flags & UCANVAS_DIRTY_SCENE){
+                force_full_redraw = 1;
+            }
+
+            // If object isn't flagged dirty, we may still need to init prev bounds once.
+            if(!obj->prev_bounds_valid){
+                uCanvas_recti_t b = uCanvas_compute_object_bounds(obj);
+                uCanvas_rect_clip_to_buffer(&b, current_bufffer);
+                obj->prev_x0 = b.x0; obj->prev_y0 = b.y0; obj->prev_x1 = b.x1; obj->prev_y1 = b.y1;
+                obj->prev_visible = (uint8_t)obj->properties.visiblity;
+                obj->prev_bounds_valid = 1;
+                continue;
+            }
+
+            const int vis_now = (obj->properties.visiblity == VISIBLE);
+            const int vis_prev = (obj->prev_visible != 0);
+            const int vis_changed = (vis_now != vis_prev);
+
+            if(obj->dirty_flags || vis_changed){
+                any_dirty = 1;
+
+                uCanvas_recti_t oldb = (uCanvas_recti_t){ obj->prev_x0, obj->prev_y0, obj->prev_x1, obj->prev_y1 };
+                uCanvas_recti_t newb = uCanvas_compute_object_bounds(obj);
+                uCanvas_rect_clip_to_buffer(&oldb, current_bufffer);
+                uCanvas_rect_clip_to_buffer(&newb, current_bufffer);
+
+                uCanvas_rect_union(&dirty_union, &oldb);
+                uCanvas_rect_union(&dirty_union, &newb);
+            }
+        }
+
+        if(!any_dirty){
+            // Scene seq changed but no per-object dirty flags (e.g. delete/reorder without flags).
+            force_full_redraw = 1;
+        }
+
+        if(force_full_redraw){
+            dirty_union.x0 = 0;
+            dirty_union.y0 = 0;
+            dirty_union.x1 = current_bufffer->width;
+            dirty_union.y1 = current_bufffer->height;
+        }
+
+        uCanvas_rect_clip_to_buffer(&dirty_union, current_bufffer);
+
+        // If dirty rect is too large, a full redraw+push is typically faster.
+        if(!uCanvas_rect_is_empty(&dirty_union)){
+            int32_t dw = (int32_t)(dirty_union.x1 - dirty_union.x0);
+            int32_t dh = (int32_t)(dirty_union.y1 - dirty_union.y0);
+            int64_t dirty_area = (int64_t)dw * (int64_t)dh;
+            int64_t full_area  = (int64_t)current_bufffer->width * (int64_t)current_bufffer->height;
+            if(full_area > 0){
+                int64_t dirty_pct_x100 = (dirty_area * 100) / full_area;
+                if(dirty_pct_x100 >= (int64_t)UCANVAS_DIRTY_RECT_FALLBACK_FULL_PCT){
+                    force_full_redraw = 1;
+                    dirty_union.x0 = 0;
+                    dirty_union.y0 = 0;
+                    dirty_union.x1 = current_bufffer->width;
+                    dirty_union.y1 = current_bufffer->height;
+                }
+            }
+        }
+
+        if(!uCanvas_rect_is_empty(&dirty_union)){
+            // Clear only the dirty region (always required for dirty-rect rendering)
+            if(current_bufffer->use_ppa){
+                #if(CONFIG_IDF_TARGET_ESP32P4)
+                ppa_helper_fill(
+                    current_bufffer->pixels,
+                    current_bufffer->width * current_bufffer->height * sizeof(uint16_t),
+                    current_bufffer->width,
+                    current_bufffer->height,
+                    dirty_union.x0, dirty_union.y0,
+                    (dirty_union.x1 - dirty_union.x0),
+                    (dirty_union.y1 - dirty_union.y0),
+                    0x0000, 0
+                );
+                #endif
+            }else{
+                for(int y = dirty_union.y0; y < dirty_union.y1; y++){
+                    uint16_t* row = &current_bufffer->pixels[y * current_bufffer->width + dirty_union.x0];
+                    memset(row, 0, (dirty_union.x1 - dirty_union.x0) * sizeof(uint16_t));
+                }
+            }
+
+            // Pass 2: redraw any object intersecting the dirty union
+            for(int i = 0; i < _scene->_2D_Object_Ptr; i++){
+                uCanvas_universal_obj_t* obj = _scene->_2D_Objects[i];
+                if(obj == NULL) break;
+                uCanvas_recti_t b = uCanvas_compute_object_bounds(obj);
+                uCanvas_rect_clip_to_buffer(&b, current_bufffer);
+                if(obj->properties.visiblity != INVISIBLE){
+                    if(uCanvas_rect_intersects(&b, &dirty_union)){
+                        draw_universal_object_to_target_render_buffer(obj, current_bufffer, instance->panel_1);
+                    }
+                }
+
+                // Update prev bounds/visibility each frame we present
+                obj->prev_x0 = b.x0; obj->prev_y0 = b.y0; obj->prev_x1 = b.x1; obj->prev_y1 = b.y1;
+                obj->prev_visible = (uint8_t)obj->properties.visiblity;
+                obj->prev_bounds_valid = 1;
+                obj->dirty_flags = 0;
+            }
+        }
+
+        // Present (still full-buffer)
+        // Present: push partial dirty region when beneficial, otherwise full frame.
+        if(instance->panel_1 != NULL){
+            if(force_full_redraw){
+                instance->panel_1->push_render_buffer(current_bufffer->offset_x, current_bufffer->offset_y, current_bufffer);
+            }else if(!uCanvas_rect_is_empty(&dirty_union)){
+                uCanvas2D_RenderBuffer_t sub = *current_bufffer;
+                sub.offset_x = current_bufffer->offset_x + dirty_union.x0;
+                sub.offset_y = current_bufffer->offset_y + dirty_union.y0;
+                sub.width  = (dirty_union.x1 - dirty_union.x0);
+                sub.height = (dirty_union.y1 - dirty_union.y0);
+                sub.pitch  = current_bufffer->width;
+                sub.pixels = &current_bufffer->pixels[dirty_union.y0 * current_bufffer->width + dirty_union.x0];
+                instance->panel_1->push_render_buffer(sub.offset_x, sub.offset_y, &sub);
+            }
+        }
+
+        instance->last_rendered_scene_seq = _scene->dirty_seq;
+        #if UCANVAS_USE_DOUBLE_BUFFERING
+            switch_buffer = !switch_buffer;
+        #endif
+
+        UNLOCK_RESOURCE(instance->render_buffer_lock);
+        uint64_t now = esp_timer_get_time();
+        uint32_t frame_us = (uint32_t)(now - start);
+        instance->last_frame_time_us = frame_us;
+        if(frame_us > 0){
+            float inst_fps = 1000000.0f / (float)frame_us;
+            const float alpha = 0.10f;
+            if(instance->fps_smoothed <= 0.0f) instance->fps_smoothed = inst_fps;
+            else instance->fps_smoothed = (instance->fps_smoothed * (1.0f - alpha)) + (inst_fps * alpha);
+        }
+    }
 }
 
 
@@ -298,6 +613,9 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
     instance->panel_2 = panel_2;
     instance->Render_Mode = AUTO_REFRESH;
     instance->signal_scene_refresh = xSemaphoreCreateBinary();
+    instance->last_rendered_scene_seq = 0;
+    instance->last_frame_time_us = 0;
+    instance->fps_smoothed = 0.0f;
     // Create a new render buffer for the instance
 
     instance->render_buffer = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
@@ -366,7 +684,11 @@ uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Dis
     }
 
     instance->pin_to_core = 1;
-    xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #if UCANVAS_USE_DIRTY_RECT_RENDERER
+        xTaskCreatePinnedToCore(&uCanvas_renderer_task_dirtyrect, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #else
+        xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #endif
     printf("uCanvas2D_Instance_t created successfully\r\n");
     return instance;
 }
@@ -461,11 +783,17 @@ void uCanvas_Set_ViewPort_Position(uCanvas2D_Instance_t* instance, int x, int y)
             instance->render_buffer_aux->offset_x = x;
             instance->render_buffer_aux->offset_y = y;
         #endif
+        // Force a redraw/push because the output region moved.
+        instance->last_rendered_scene_seq = 0;
     }
 }
 
 void uCanvas_Attach_Scene(uCanvas2D_Instance_t* instance, uCanvas_Scene_t* scene){
-    if(instance)instance->active_scene = scene;
+    if(instance){
+        instance->active_scene = scene;
+        instance->last_rendered_scene_seq = 0;
+        if(scene) scene->dirty_seq++;
+    }
     else printf("[Err]:Invalid Instance\r\n");
 }
 
@@ -484,7 +812,11 @@ void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance, int core_id){
     instance->Clear_On_Refresh = true;
     instance->refresh_delay = 2;
     instance->pin_to_core = core_id;
-    xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #if UCANVAS_USE_DIRTY_RECT_RENDERER
+        xTaskCreatePinnedToCore(&uCanvas_renderer_task_dirtyrect, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #else
+        xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #endif
 }
 
 uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int width, int height) {
@@ -503,6 +835,9 @@ uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int wid
     instance->active_scene = scene;
     instance->Render_Mode = AUTO_REFRESH;
     instance->Clear_On_Refresh = true;
+    instance->last_rendered_scene_seq = 0;
+    instance->last_frame_time_us = 0;
+    instance->fps_smoothed = 0.0f;
     // Create a new render buffer for the instance
     instance->render_buffer = (uCanvas2D_RenderBuffer_t*)malloc(sizeof(uCanvas2D_RenderBuffer_t));
     instance->render_buffer->width = width;
@@ -551,7 +886,11 @@ uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int wid
     UNLOCK_RESOURCE(instance->render_buffer_lock);
     
     instance->pin_to_core = 1; // Default to core 0, can be changed later
-    xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #if UCANVAS_USE_DIRTY_RECT_RENDERER
+        xTaskCreatePinnedToCore(&uCanvas_renderer_task_dirtyrect, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #else
+        xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    #endif
     printf("uCanvas2D_Instance_t created successfully\r\n");
     return instance;
 }

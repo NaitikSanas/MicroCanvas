@@ -1,6 +1,7 @@
 #ifndef __uCanvasDataTypes_H__
     #define __uCanvasDataTypes_H__
     #include <stdio.h>
+    #include <stdint.h>
     #include <string.h>
     #include "uCanvas_Settings.h"
     #include "freertos/FreeRTOS.h"
@@ -181,6 +182,26 @@
         uCanvas_base_t properties; 
         uint16_t index;
         
+        /**
+         * Dirty tracking:
+         * - dirty_flags: what changed on this object since last render
+         * - dirty_seq: monotonically increasing counter for object mutations
+         *
+         * Renderer code can use these to avoid unnecessary work.
+         */
+        uint32_t dirty_flags;
+        uint32_t dirty_seq;
+
+        /**
+         * Used by dirty-rect renderer to clear old location.
+         * Coordinates are in render-buffer space (same as properties.position).
+         */
+        int16_t prev_x0;
+        int16_t prev_y0;
+        int16_t prev_x1;
+        int16_t prev_y1;
+        uint8_t prev_visible;
+        uint8_t prev_bounds_valid;
         
         uint16_t width;
         uint16_t height;
@@ -207,6 +228,20 @@
     } uCanvas_universal_obj_t;
 
     typedef uCanvas_universal_obj_t uCanvas_obj_t;
+
+    /**
+     * Dirty flags for uCanvas objects.
+     * These are meant to be OR'ed together into uCanvas_universal_obj_t::dirty_flags.
+     */
+    typedef enum {
+        UCANVAS_DIRTY_NONE       = 0,
+        UCANVAS_DIRTY_GEOMETRY   = 1u << 0, // position, size, radius, line coords, points
+        UCANVAS_DIRTY_STYLE      = 1u << 1, // fill, color, border, etc.
+        UCANVAS_DIRTY_VISIBILITY = 1u << 2, // visibility changes
+        UCANVAS_DIRTY_TEXT       = 1u << 3, // text content and textbox layout
+        UCANVAS_DIRTY_PIXELS     = 1u << 4, // sprite/window pixel_data or format changed
+        UCANVAS_DIRTY_SCENE      = 1u << 5, // object added/removed/reordered (scene-level)
+    } uCanvas_dirty_flags_t;
     typedef struct uCanvas_rectangle
     {
         uCanvas_base_t properties; 
@@ -233,6 +268,11 @@
         uCanvas_universal_obj_t* _2D_Objects[MAX_ELEMENTS_NUM];
         int16_t _2D_Object_Ptr;
         uint16_t idx;
+        /**
+         * Scene dirty tracking. Incremented whenever any object in the scene changes
+         * or when objects are added/removed.
+         */
+        uint32_t dirty_seq;
     }uCanvas_Scene_t;
 
     typedef void (*FunctionPointer)(void);
@@ -316,6 +356,7 @@ typedef struct uCanvas2D_Instance
     uCanvas2D_Display_Panel_t* panel_1;
     uCanvas2D_Display_Panel_t* panel_2;
     uint8_t instance_dirty;
+    uint32_t last_rendered_scene_seq;
     uCanvas2D_RenderBuffer_t* render_buffer;
     uCanvas2D_RenderBuffer_t* render_buffer_aux;
     uCanvas2D_RenderBuffer_t* post_processing_frame_buf;
@@ -328,7 +369,13 @@ typedef struct uCanvas2D_Instance
     uCanvas2D_Render_Mode_t Render_Mode;
     SemaphoreHandle_t signal_scene_refresh;
     SemaphoreHandle_t scene_refresh_complete;
-    uint64_t fps;
+    /**
+     * Performance metrics (updated when a frame is presented).
+     * - last_frame_time_us: duration of the last rendered+presented frame in microseconds
+     * - fps_smoothed: exponential moving average FPS (less jittery than per-frame reciprocal)
+     */
+    uint32_t last_frame_time_us;
+    float fps_smoothed;
     uint8_t blend;
     uint8_t Clear_On_Refresh;
     uint32_t refresh_delay;

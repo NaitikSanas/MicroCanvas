@@ -18,7 +18,7 @@ static ppa_client_config_t ppa_blend_config = {
 static ppa_client_handle_t ppa_fill_handle = NULL;
 static ppa_client_config_t ppa_fill_config = {
         .oper_type = PPA_OPERATION_FILL,
-        .max_pending_trans_num = 2,
+        .max_pending_trans_num = 3000,
         // .data_burst_length = PPA_DATA_BURST_LENGTH_128
 };
 
@@ -55,6 +55,16 @@ void IRAM_ATTR ppa_helper_fill(
 {
     if (!out_buf || !ppa_fill_handle) return;
 
+    // Clip: origin is fully off-screen
+    if (x >= buf_width || y >= buf_height) return;
+
+    // Clamp width and height so the fill region doesn't exceed buffer bounds
+    if ((uint32_t)x + w > buf_width)  w = buf_width  - x;
+    if ((uint32_t)y + h > buf_height) h = buf_height - y;
+
+    // Nothing to fill after clamping
+    if (w == 0 || h == 0) return;
+
     ppa_fill_oper_config_t fill_config = {
         .out.buffer = out_buf,
         .out.buffer_size = buf_size,
@@ -66,7 +76,7 @@ void IRAM_ATTR ppa_helper_fill(
         .fill_block_w = w,
         .fill_block_h = h,
         .fill_argb_color = {
-            .a = 0xFF, // fully opaque (not used in RGB565 anyway)
+            .a = 0xFF,
             .r = (color_rgb565 >> 11) << 3,
             .g = ((color_rgb565 >> 5) & 0x3F) << 2,
             .b = (color_rgb565 & 0x1F) << 3,
@@ -116,6 +126,7 @@ void IRAM_ATTR ppa_srm_bitmap(
     // Guard: nothing to draw
     if (visible_w <= 0 || visible_h <= 0)
         return;
+
 
     ppa_srm_oper_config_t config = {
         .in.buffer = (void*)in_buf,

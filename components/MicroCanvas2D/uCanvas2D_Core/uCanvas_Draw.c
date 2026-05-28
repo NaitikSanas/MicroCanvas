@@ -42,6 +42,7 @@ void IRAM_ATTR uCanvas2D_DrawRect(uCanvas2D_RenderBuffer_t* buf, int x, int y, i
         
         if(buf->use_ppa){
             #if(CONFIG_IDF_TARGET_ESP32P4)
+            
             ppa_helper_fill(
             buf->pixels,
             buf->width * buf->height * sizeof(uint16_t),

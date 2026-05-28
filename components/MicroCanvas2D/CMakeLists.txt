@@ -5,6 +5,8 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
                     "uCanvas2D_Core/uCanvas_Physix.c" 
                     "uCanvas2D_Core/uCanvas_Fonts.c" 
 
+
+
                     "uCanvas2D_GUI_Components/simple_menu/simple_menu.c"
                     "uCanvas2D_GUI_Components/uCanvas_Slide_Switch/uCanvas_Slide_Switch.c"
                     "uCanvas2D_GUI_Components/ucanvas_slider/ucanvas_slider.c"

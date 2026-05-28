@@ -4,7 +4,7 @@
     #include "freertos/task.h"
     #include "freertos/semphr.h"
     #include "uCanvasDataTypes.h"
-
+    #include "sdkconfig.h"
     #include "uCanvas2D_Display_Setup.h"
     #include "uCanvas2D_EK79007Port.h"
     #include "uCanvas2D_ST7789_Port.h"   
@@ -174,13 +174,14 @@
     void uCanvas_Set_Monochrome_Color(uCanvas_universal_obj_t* obj, uint16_t color );
     
     /* Sets absolute position of Passed 2D Object */
+    int uCanvas_Set_Triangle_Points(uCanvas_universal_obj_t* triangle, Coordinate2D_t Point1, Coordinate2D_t Point2, Coordinate2D_t Point3);
     void uCanvas_Set_Position(uCanvas_universal_obj_t* obj, uint16_t xpos,uint16_t ypos);
     void uCanvas_Set_Position_X(uCanvas_universal_obj_t* obj, uint16_t xpos);
     void uCanvas_Set_Position_Y(uCanvas_universal_obj_t* obj, uint16_t ypos);
     
     /* Sets cordinates of 2D Line Object */
     void uCanvas_Set_Line_Coordinates(uCanvas_universal_obj_t*line,uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-    
+    void uCanvas_Set_Line_End(uCanvas_universal_obj_t*line, uint16_t x2, uint16_t y2);
     /* Sets radius value of elliptical type of 2D Object */
     void uCanvas_Set_Radius1(uCanvas_universal_obj_t* obj, uint16_t radius);
     void uCanvas_Set_Radius2(uCanvas_universal_obj_t* obj, uint16_t radius);

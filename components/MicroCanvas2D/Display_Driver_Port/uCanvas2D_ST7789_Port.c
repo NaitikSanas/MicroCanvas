@@ -76,16 +76,30 @@ static void ST7789_PushTile(int x, int y, uCanvas2D_RenderBuffer_t* buf){
     const uint16_t* pixels = (const uint16_t*) buf->pixels;
     int w = buf->width;
     int h = buf->height;
+    int pitch = buf->pitch;
+    if(pitch <= 0) pitch = w;
 
     ST7789_SetAddressWindow(&st7789_dev_instance, x, y, x + w - 1, y + h - 1);
-    // // Send pixels in safe chunks
+    // Send pixels in safe chunks; handle pitch/stride if needed.
     const int maxPixelsPerChunk = 512;
-    int totalPixels = w * h;
-    int sent = 0;
-    while (sent < totalPixels) {
-        int chunkSize = (totalPixels - sent > maxPixelsPerChunk) ? maxPixelsPerChunk : (totalPixels - sent);
-        spi_master_write_colors(&st7789_dev_instance, (uint16_t*)&pixels[sent], chunkSize);
-        sent += chunkSize;
+    if(pitch == w){
+        int totalPixels = w * h;
+        int sent = 0;
+        while (sent < totalPixels) {
+            int chunkSize = (totalPixels - sent > maxPixelsPerChunk) ? maxPixelsPerChunk : (totalPixels - sent);
+            spi_master_write_colors(&st7789_dev_instance, (uint16_t*)&pixels[sent], chunkSize);
+            sent += chunkSize;
+        }
+    }else{
+        for(int row = 0; row < h; row++){
+            const uint16_t* row_pixels = &pixels[row * pitch];
+            int sent = 0;
+            while(sent < w){
+                int chunkSize = (w - sent > maxPixelsPerChunk) ? maxPixelsPerChunk : (w - sent);
+                spi_master_write_colors(&st7789_dev_instance, (uint16_t*)&row_pixels[sent], chunkSize);
+                sent += chunkSize;
+            }
+        }
     }
 }
 
