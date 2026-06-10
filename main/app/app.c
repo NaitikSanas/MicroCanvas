@@ -2,7 +2,7 @@
 #include "uCanvas2D_Display_Setup.h"
 #include "uCanvas_Menu.h"
 #include "uCanvas_HID.h"
-#include "Panel_Selector.h"
+
 key_event_t g_key_event;
 static uCanvas_Input_HID_Device_t   g_keyboard_device;
 static uCanvas2D_Instance_t g_canvas;

@@ -1,8 +1,6 @@
 set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c" 
                     "uCanvas2D_Core/uCanvas_api.c"
-                    "uCanvas2D_Core/uCanvas_User_IO.c"
                     "uCanvas2D_Core/uCanvas_Draw.c"
-                    "uCanvas2D_Core/uCanvas_Physix.c" 
                     "uCanvas2D_Core/uCanvas_Fonts.c" 
 
                     "uCanvas2D_GUI_Components/uCanvas_Slide_Switch/uCanvas_Slide_Switch.c"
@@ -24,9 +22,10 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
                     "Fonts/Roboto_Italic_32.c"
                     "Fonts/SixyFour32.c"
                     
-                    "Input_Devices/USB_HID/uCanvas_HID.c"
+                    "Input_Devices/USB_HID_HOST/uCanvas_HID.c"
+                    "Input_Devices/uCanvas_Input_Peripherals/uCanvas_Input_Peripherals.c"
 
-                    "Panel_Selector/Panel_Selector.c"
+                    "uCanvas2D_PanelSelector/uCanvas2D_PanelSelector.c"
 )
 idf_build_get_property(idf_target IDF_TARGET)
 
@@ -50,7 +49,8 @@ idf_component_register(SRCS "${COMPONENT_SRCS}"
                                     "uCanvas2D_GUI_Components/ucanvas_slider"
                                     "uCanvas2D_GUI_Components/uCanvas_Graph2D"
                                     "Display_Driver_Port"
-                                    "Input_Devices/USB_HID"
-                                    "Panel_Selector"
+                                    "Input_Devices/USB_HID_HOST"
+                                    "Input_Devices/uCanvas_Input_Peripherals"
+                                    "uCanvas2D_PanelSelector"
                                     "Fonts"
                        PRIV_REQUIRES ${COMPONENT_REQUIRES})

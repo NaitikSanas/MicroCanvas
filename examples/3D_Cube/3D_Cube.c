@@ -1,9 +1,8 @@
 #include "app.h"
 #include "uCanvas_api.h"
 #include "ucanvas_slider.h"
-#include "uCanvas_User_IO.h"
+
 #include "sprite_collection.h"
-#include "websocket_server.h"
 #include "uCanvas_api.h"
 #include <math.h>
 #include "3D_Cube.h"

@@ -12,8 +12,7 @@
 #include "math.h"
 #include "esp_log.h"
 #include "uCanvas_api.h"
-#include "uCanvas_Physix.h" 
-#include "uCanvas_User_IO.h"
+
 #define ENC_A       39
 #define ENC_B       40
 #define ENC_SW      37

@@ -1,5 +1,4 @@
 #include "uCanvas_api.h"
-#include "uCanvas_User_IO.h"
 #include "uCanvas_IO_Usage_Demo.h"
 
 #define ENC_A   39 

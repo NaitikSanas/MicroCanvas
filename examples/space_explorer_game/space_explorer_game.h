@@ -11,7 +11,7 @@ extern "C" {
 #include <string.h>
  
 #include "uCanvas_api.h"
-#include "uCanvas_User_IO.h"
+
  
 // 
 //  Input Source Selection (enable exactly one)

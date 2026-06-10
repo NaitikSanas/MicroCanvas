@@ -1,7 +1,6 @@
 #include "app.h"
 #include "uCanvas_api.h"
 #include "ucanvas_slider.h"
-#include "uCanvas_User_IO.h"
 #include "sprite_collection.h"
 #include "uCanvas2D_ST7789_Port.h"
 #include "uCanvas2D_EK79007Port.h"

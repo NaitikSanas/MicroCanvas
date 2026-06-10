@@ -1,7 +1,6 @@
 #include "main.h"
 #include "app.h"
 
-#include "uCanvas_Physix.h"
 
 #include "Game_of_life.h"
 #include "Sprite_Animation_With_Keyframe.h"

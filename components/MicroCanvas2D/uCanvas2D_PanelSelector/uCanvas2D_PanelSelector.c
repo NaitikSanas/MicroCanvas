@@ -1,4 +1,4 @@
-#include "panel_selector.h"
+#include "uCanvas2D_PanelSelector.h"
 uCanvas2D_Display_Panel_t *panel = NULL;
 
 uCanvas2D_Display_Panel_t* uCanvas_Get_Panel_Handle(uCanvas_Panel_Selection_t Panel_Name){

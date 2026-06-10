@@ -8,7 +8,8 @@
     #include "uCanvas2D_Display_Setup.h"
     #include "uCanvas2D_EK79007Port.h"
     #include "uCanvas2D_ST7789_Port.h"   
-    #include "Panel_Selector.h"
+    #include "uCanvas2D_PanelSelector.h"
+    #include "uCanvas_Input_Peripherals.h"
     #define uCanvas_Universal_Object    (uCanvas_universal_obj_t*)malloc(sizeof(uCanvas_universal_obj_t))
     #define uCanvas_Scene_Object        (uCanvas_Scene_t*)malloc(sizeof(uCanvas_Scene_t)) 
 
