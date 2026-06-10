@@ -652,7 +652,7 @@ void Run_Space_Explorer_Game(void)
 #endif
 
     //  Display setup 
-    uCanvas2D_Display_Panel_t *panel = uCanvas2D_Get_Panel_Driver_EK79007();
+    uCanvas2D_Display_Panel_t *panel = uCanvas_Get_Panel_Handle(PANEL_ST7789);
     panel->init(1);
 
     uCanvas_Scene_t *scene = New_uCanvas_Scene();

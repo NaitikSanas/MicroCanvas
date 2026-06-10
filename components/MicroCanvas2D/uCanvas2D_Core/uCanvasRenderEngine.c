@@ -159,7 +159,7 @@ void IRAM_ATTR draw_universal_object_to_target_render_buffer(uCanvas_universal_o
             obj->properties.position.x + obj->point2.x,
             obj->properties.position.y + obj->point2.y,
             color,
-            1
+            2
         );
         break;
     }
@@ -404,7 +404,7 @@ static void uCanvas_renderer_task_dirtyrect(void* arg){
     if(instance == NULL || instance->render_buffer == NULL){
         printf("Invalid uCanvas2D_Instance_t\r\n");
         return;
-    }
+    } 
 
     uCanvas2D_RenderBuffer_t* current_bufffer = instance->render_buffer;
     uCanvas2D_RenderBuffer_t* draw_bufffer = instance->render_buffer;

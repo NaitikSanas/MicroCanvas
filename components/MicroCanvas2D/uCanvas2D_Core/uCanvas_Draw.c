@@ -268,6 +268,15 @@ void* get_font_by_name(FontType_t font_type){
     return activefont;
 }
 
+uint16_t uCanvas_Get_Font_Height(FontType_t FontType){
+    sFONT* font = get_font_by_name(FontType);
+    return font->Height;
+}
+
+uint16_t uCanvas_Get_Font_Width(FontType_t FontType){
+    sFONT* font = get_font_by_name(FontType);
+    return font->Width;
+}
 
 
 #define DRAW_PIXEL(fb, x, y, color)  ((fb)->pixels[(y) * (fb)->width + (x)] = (color))

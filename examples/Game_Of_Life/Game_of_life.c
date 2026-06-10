@@ -147,7 +147,7 @@ void create_game_stat_text_area(){
 void setup(){
 
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
-    uCanvas2D_Display_Panel_t *panel = uCanvas2D_Get_Panel_Driver_EK79007();
+    uCanvas2D_Display_Panel_t *panel = uCanvas_Get_Panel_Handle(PANEL_ST7789);
     panel->init(1);
     static uCanvas2D_Instance_t  uCanvas_Instance_1;
      if (uCanvas_Attach_RenderBuffer(&uCanvas_Instance_1, CANVAS_WIDTH, CANVAS_HEIGHT)) {

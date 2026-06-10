@@ -8,6 +8,7 @@
     #include "uCanvas2D_Display_Setup.h"
     #include "uCanvas2D_EK79007Port.h"
     #include "uCanvas2D_ST7789_Port.h"   
+    #include "Panel_Selector.h"
     #define uCanvas_Universal_Object    (uCanvas_universal_obj_t*)malloc(sizeof(uCanvas_universal_obj_t))
     #define uCanvas_Scene_Object        (uCanvas_Scene_t*)malloc(sizeof(uCanvas_Scene_t)) 
 
@@ -155,6 +156,8 @@
     void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text);
 
     /* Adjust Textbox properties */
+    uint16_t uCanvas_Get_Font_Width(FontType_t FontType);
+    uint16_t uCanvas_Get_Font_Height(FontType_t FontType);
     void uCanvas_Set_Textbox_Alignment(uCanvas_universal_obj_t* obj,uCanvas_Text_Alignment_t align_type);
     void uCanvas_Set_Textbox_Wrap_Style(uCanvas_universal_obj_t* obj,uCanvas_Text_Wrap_t wrap_type, uint8_t Wrap_Index);
     void uCanvas_Set_TextBox_Margin(uCanvas_universal_obj_t* obj,int margin_x, int margin_y);

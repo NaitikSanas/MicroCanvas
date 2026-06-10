@@ -449,7 +449,7 @@ void uCanvas_Synth(void) {
     KeyBoardDevice.uCanvas_Input_HID_Device_Init();
 
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
-    uCanvas2D_Display_Panel_t* panel = uCanvas2D_Get_Panel_Driver_EK79007();
+    uCanvas2D_Display_Panel_t* panel = uCanvas_Get_Panel_Handle(PANEL_ST7789);
     panel->init(1);
     panel->set_backlight(3000);
     
