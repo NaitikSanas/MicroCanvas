@@ -4,3 +4,4 @@ build/
 /managed_components/espressif__usb_host_hid
 /managed_components/espressif__usb_host_hid
 /managed_components
+__pycache__
