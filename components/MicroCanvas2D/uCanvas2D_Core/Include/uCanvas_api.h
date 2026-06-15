@@ -24,7 +24,7 @@
     /*Starts Rendering Engine and Initializes Display*/
     uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel_1,uCanvas2D_Display_Panel_t* panel_2, int width, int height, int offset_x, int offset_y);
     uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int width, int height);
-    void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance, int core_id);
+    void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance,uCanvas_Rendere_type_t RendererType, int core_id);
     void uCanvas_Attach_Panel(uCanvas2D_Instance_t* instance, uCanvas2D_Display_Panel_t* panel);
     int uCanvas_Attach_RenderBuffer(uCanvas2D_Instance_t* instance, int width, int height);
     void uCanvas_Set_ViewPort_Position(uCanvas2D_Instance_t* instance, int x, int y);

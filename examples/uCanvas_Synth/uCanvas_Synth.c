@@ -449,7 +449,7 @@ void uCanvas_Synth(void) {
     KeyBoardDevice.uCanvas_Input_HID_Device_Init();
 
     uCanvas_Scene_t* scene = New_uCanvas_Scene();
-    uCanvas2D_Display_Panel_t* panel = uCanvas_Get_Panel_Handle(PANEL_ST7789);
+    uCanvas2D_Display_Panel_t* panel = uCanvas_Get_Panel_Handle(PANEL_EK79007);
     panel->init(1);
     panel->set_backlight(3000);
     
@@ -458,7 +458,7 @@ void uCanvas_Synth(void) {
         uCanvas_Attach_Panel(&uCanvas_Instance_1, panel);
         uCanvas_Set_ViewPort_Position(&uCanvas_Instance_1, 0, 0);
         uCanvas_Attach_Scene(&uCanvas_Instance_1, scene);
-        uCanvas_Attach_Renderer(&uCanvas_Instance_1, 1);
+        uCanvas_Attach_Renderer(&uCanvas_Instance_1, 1,UCANVAS_SKETCH);
         uCanvas_Set_Render_Mode(&uCanvas_Instance_1, AUTO_REFRESH);
     }
     

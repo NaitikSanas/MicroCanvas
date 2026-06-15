@@ -807,16 +807,29 @@ void uCanvas_Attach_Panel(uCanvas2D_Instance_t* instance, uCanvas2D_Display_Pane
     else return;
 }
 
-void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance, int core_id){
+void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance,uCanvas_Rendere_type_t RendererType, int core_id ){
     instance->Render_Mode = AUTO_REFRESH;
     instance->Clear_On_Refresh = true;
     instance->refresh_delay = 2;
     instance->pin_to_core = core_id;
-    #if UCANVAS_USE_DIRTY_RECT_RENDERER
-        xTaskCreatePinnedToCore(&uCanvas_renderer_task_dirtyrect, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
-    #else
+    switch (RendererType)
+    {
+    case UCANVAS_CLASSIC:
         xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
-    #endif
+        break;
+    case UCANVAS_SKETCH:
+        xTaskCreatePinnedToCore(&uCanvas_renderer_task_dirtyrect, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+        break;
+    default:
+        printf("Invalid Renderer\r\n");
+        break;
+    }
+
+    // #if UCANVAS_USE_DIRTY_RECT_RENDERER
+    //     
+    // #else
+    //     xTaskCreatePinnedToCore(&uCanvas_renderer_task, "uCanvas_Render_Task", UCANVAS_RENDER_TASK_STACK_SIZE, instance, UCANVAS_RENDER_TASK_PRIORITY, &instance->render_task_handle, instance->pin_to_core);
+    // #endif
 }
 
 uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int width, int height) {

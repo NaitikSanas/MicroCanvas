@@ -155,7 +155,7 @@ void setup(){
         uCanvas_Attach_Panel(&uCanvas_Instance_1, panel);
         uCanvas_Set_ViewPort_Position(&uCanvas_Instance_1, 0, 0);
         uCanvas_Attach_Scene(&uCanvas_Instance_1, scene);
-        uCanvas_Attach_Renderer(&uCanvas_Instance_1, 1);
+        uCanvas_Attach_Renderer(&uCanvas_Instance_1, 1,UCANVAS_SKETCH);
         uCanvas_Set_Render_Mode(&uCanvas_Instance_1, AUTO_REFRESH);
     }
     uCanvas_set_active_scene(scene);

@@ -38,7 +38,11 @@
         OLED_16x26,
     }FontType_t;
 
-
+    typedef enum{
+        UCANVAS_CLASSIC,
+        UCANVAS_SKETCH,
+        UCANVAS_MOTION
+    }uCanvas_Rendere_type_t;
   
     typedef enum{
         RECTANGLE = 0,

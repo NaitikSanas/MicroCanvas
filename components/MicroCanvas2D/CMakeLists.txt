@@ -25,6 +25,10 @@ set(COMPONENT_SRCS  "uCanvas2D_Core/uCanvasRenderEngine.c"
                     "uCanvas2D_Input_Devices/uCanvas_Input_Peripherals/uCanvas_Input_Peripherals.c"
 
                     "uCanvas2D_PanelSelector/uCanvas2D_PanelSelector.c"
+
+                    "uCanvas2D_Server/uCanvasServer_Core.c"
+                    "uCanvas2D_Server/uCanvasServer_UART.c"
+
 )
 idf_build_get_property(idf_target IDF_TARGET)
 
@@ -52,4 +56,5 @@ idf_component_register(SRCS "${COMPONENT_SRCS}"
                                     "uCanvas2D_Input_Devices/uCanvas_Input_Peripherals"
                                     "uCanvas2D_PanelSelector"
                                     "uCanvas2D_Fonts_Collection"
+                                    "uCanvas2D_Server/include"
                        PRIV_REQUIRES ${COMPONENT_REQUIRES})

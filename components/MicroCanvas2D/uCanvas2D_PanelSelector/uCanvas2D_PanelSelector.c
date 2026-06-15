@@ -6,7 +6,7 @@ uCanvas2D_Display_Panel_t* uCanvas_Get_Panel_Handle(uCanvas_Panel_Selection_t Pa
     if(Panel_Name == PANEL_EK79007)  {
         #ifdef CONFIG_IDF_TARGET_ESP32P4
         panel = uCanvas2D_Get_Panel_Driver_EK79007();
-        panel->init(1);
+        // panel->init(1);
         #else
         while(1){
             printf("Unsupported Panel for Current Target\r\n");

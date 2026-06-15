@@ -177,7 +177,7 @@ void Adv_TextBox_With_USB_HID_Keyboard() {
         uCanvas_Attach_Panel(&uCanvas_Instance_1, panel);
         uCanvas_Set_ViewPort_Position(&uCanvas_Instance_1, 0, 0);
         uCanvas_Attach_Scene(&uCanvas_Instance_1, scene_1);
-        uCanvas_Attach_Renderer(&uCanvas_Instance_1, 1);
+        uCanvas_Attach_Renderer(&uCanvas_Instance_1, 1,UCANVAS_SKETCH);
         // uCanvas_Instance_1.Clear_On_Refresh = false;
     }
     
