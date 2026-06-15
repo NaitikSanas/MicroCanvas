@@ -6,7 +6,7 @@ Run from the repo root: `python examples/uCanvas_GL_Client_demo.py`
 Adjust `PORT` to your serial device.
 """
 
-from uCanvas_GL_Client import UCanvasGLClient
+from uCanvasClientTest.uCanvas_GL_Client import UCanvasGLClient
 import math
 import struct
 import time
