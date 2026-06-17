@@ -20,7 +20,7 @@
 // #define RUN_L_SYSTEM_DEMO 1
 // #define RUN_3D_CUBE_DEMO 1
 // #define RUN_IO_USAGE_DEMO 1
-// #define RUN_SPACE_EXPLORER_DEMO 1
+ #define RUN_SPACE_EXPLORER_DEMO 1
 // #define RUN_UCANVAS_SYNTH 1
 
 #include "uCanvasServer_Core.h"
@@ -76,7 +76,7 @@ void app_main(){
 
     
     
-    uCanvasServer_Start();
+    //uCanvasServer_Start();
     #if  RUN_APP_C
         uCanvas_App_Main();
     #elif RUN_GAME_OF_LIFE_DEMO
