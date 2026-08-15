@@ -544,6 +544,7 @@ void IRAM_ATTR uCanvas_Draw_SFONT_TextBox(uCanvas2D_RenderBuffer_t *fb, uCanvas_
     uint16_t border_color = convertToRGB565(tp->border_color);
 
     if (tp->fill_background) {
+        
         uCanvas2D_DrawRect(fb, obj->properties.position.x, obj->properties.position.y, tp->textbox_width, tp->textbox_height, background_color, 1, 1);
         uCanvas2D_DrawRect(fb, obj->properties.position.x, obj->properties.position.y, tp->textbox_width, tp->textbox_height, border_color, 0, 1);
     }

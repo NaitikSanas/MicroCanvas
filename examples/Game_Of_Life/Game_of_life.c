@@ -1,13 +1,13 @@
 #include "Game_of_life.h"
 #include "uCanvas_api.h"
-
-#define GRID_SIZE_X  100
-#define GRID_SIZE_Y  28
+#include "examples_init.h"
+#define GRID_SIZE_X  50
+#define GRID_SIZE_Y  20
 #define CELL_SIZE   8
 #define OFFSET_X 4
 #define OFFSET_Y 4
-#define CANVAS_WIDTH        1024
-#define CANVAS_HEIGHT       600
+#define CANVAS_WIDTH        UCANVAS_INST_WIDTH 
+#define CANVAS_HEIGHT       UCANVAS_INST_HEIGHT
  
 static uCanvas_universal_obj_t* grid[GRID_SIZE_Y][GRID_SIZE_X]={{0},{0}};
 static uCanvas_universal_obj_t* game_stats[5];
@@ -145,20 +145,7 @@ void create_game_stat_text_area(){
 }
 #include "uCanvas_Draw.h"
 void setup(){
-
-    uCanvas_Scene_t* scene = New_uCanvas_Scene();
-    uCanvas2D_Display_Panel_t *panel = uCanvas_Get_Panel_Handle(PANEL_ST7789);
-    panel->init(1);
-    static uCanvas2D_Instance_t  uCanvas_Instance_1;
-     if (uCanvas_Attach_RenderBuffer(&uCanvas_Instance_1, CANVAS_WIDTH, CANVAS_HEIGHT)) {
-        uCanvas_Set_Panel_RefreshDelay(&uCanvas_Instance_1, 2);
-        uCanvas_Attach_Panel(&uCanvas_Instance_1, panel);
-        uCanvas_Set_ViewPort_Position(&uCanvas_Instance_1, 0, 0);
-        uCanvas_Attach_Scene(&uCanvas_Instance_1, scene);
-        uCanvas_Attach_Renderer(&uCanvas_Instance_1, 1,UCANVAS_SKETCH);
-        uCanvas_Set_Render_Mode(&uCanvas_Instance_1, AUTO_REFRESH);
-    }
-    uCanvas_set_active_scene(scene);
+    Example_uCanvas_Instance_Setup();
     srand(xTaskGetTickCount());
     create_grid(); 
     create_game_stat_text_area(); 

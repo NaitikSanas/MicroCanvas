@@ -1,22 +1,18 @@
 idf_component_register(SRCS "main.c" 
                             "app/app.c"
                             "../examples/Game_Of_Life/Game_of_life.c"
-                            "../examples/Sprite_Animation_With_Keyframe/Sprite_Animation_With_Keyframe.c"
                             "../examples/L_System_Demo/L_System_Demo.c"
                             "../examples/3D_Cube/3D_Cube.c"
-                            "../examples/uCanvas_IO_Usage_Demo/uCanvas_IO_Usage_Demo.c"
-                            "../examples/space_explorer_game/space_explorer_game.c"       
-                            "../examples/AdvancedTextBox_With_USB_HID_Keyboard/Adv_Textbox_with_HID_Keyboard.c"       
-                            "../examples/uCanvas_Synth/uCanvas_Synth.c"       
+                            "../examples/space_explorer_game/space_explorer_game.c"
+                            "../examples/examples_init.c"             
 
 INCLUDE_DIRS "."    
             "app"   
             "../examples/Game_Of_Life"
-            "../examples/Sprite_Animation_With_Keyframe"
             "../examples/L_System_Demo"
             "../examples/3D_Cube/"
-            "../examples/uCanvas_IO_Usage_Demo"
+
             "../examples/space_explorer_game"
-            "../examples/AdvancedTextBox_With_USB_HID_Keyboard"
-            "../examples/uCanvas_Synth"
+            "../examples"
+
              )

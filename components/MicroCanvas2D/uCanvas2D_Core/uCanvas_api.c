@@ -2,6 +2,8 @@
 #include "uCanvas_api.h"
 #include "esp_random.h"
 #include "uCanvas2D_Acceleration.h"
+#include <stdarg.h>
+
 uCanvas_Scene_t* active_scene;
 SemaphoreHandle_t active_scene_mutex;
 extern TaskHandle_t uCanvas_taskhandle;
@@ -66,7 +68,10 @@ void uCanvas_push_object_to_activescene(uCanvas_universal_obj_t* obj){
     if(active_scene != NULL){
         obj->index = active_scene->_2D_Object_Ptr;
         active_scene->_2D_Objects[active_scene->_2D_Object_Ptr] = obj;
-        if(active_scene->_2D_Object_Ptr < MAX_ELEMENTS_NUM)active_scene->_2D_Object_Ptr++;
+        if(active_scene->_2D_Object_Ptr < MAX_UNIVERSAL_OBJ_INSTANCES-1)active_scene->_2D_Object_Ptr++;
+        else {
+            printf("--No Free Universal Object Slots left in Scene\r\n");
+        }
         uCanvas_mark_object_dirty(obj, UCANVAS_DIRTY_SCENE);
     } else {
         printf("Invalid active_scene\r\n");
@@ -82,6 +87,22 @@ void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text){
     }
     else{
         // printf("err:uCanvas_Set_Text\r\n");
+    }
+}
+
+void uCanvas_Set_Textf(uCanvas_universal_obj_t *obj, const char *fmt, ...)
+{
+    if (obj) {
+        va_list args;
+        va_start(args, fmt);
+        vsnprintf(obj->text, 256, fmt, args);
+        va_end(args);
+
+        obj->textbox_properties->textbox_updated = true;
+        uCanvas_mark_object_dirty(obj, UCANVAS_DIRTY_TEXT);
+    }
+    else {
+        // printf("err:uCanvas_Set_Textf\r\n");
     }
 }
 
@@ -168,7 +189,7 @@ uCanvas_Scene_t* New_uCanvas_Scene(void){
     uCanvas_Scene_t* scene_object = uCanvas_Scene_Object;
     scene_object->_2D_Object_Ptr = 0;
     scene_object->dirty_seq = 1;
-    for (size_t i = 0; i < MAX_ELEMENTS_NUM; i++)
+    for (size_t i = 0; i < MAX_UNIVERSAL_OBJ_INSTANCES; i++)
     {
         scene_object->_2D_Objects[i] = 0;
     }
@@ -214,6 +235,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DRectangle(uint16_t xpos, uint16_t ypos, u
         printf("[uCanvas]:ERROR : Failed to Allocate Memory!\r\n");
         return NULL;
     }
+    uCanvas_Set_Thickness(rect,1);
     memset(rect, 0, sizeof(*rect));
     uCanvas_Set_Visiblity(rect,VISIBLE);
     uCanvas_Set_Obj_Type(rect, RECTANGLE);
@@ -233,6 +255,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DLine(uint16_t x1, uint16_t y1, uint16_t x
         printf("[uCanvas]:ERROR : Failed to Allocate Memory!\r\n");
         return NULL;
     }
+    uCanvas_Set_Thickness(line,1);
     memset(line, 0, sizeof(*line));
     uCanvas_Set_Line_Coordinates(line,x1,y1, x2,y2);
     uCanvas_Set_Visiblity(line,VISIBLE);
@@ -252,6 +275,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     
     textbox->textbox_properties = (uCanvas_TextBox_Properties_t*)malloc(sizeof(uCanvas_TextBox_Properties_t));
     if(textbox){
+        
         textbox->textbox_properties->font_type = SFONT_16;
         textbox->textbox_properties->text_alignment = TEXT_LEFT_ALIGNED;
         textbox->textbox_properties->text_wrap_mode = TEXT_WRAP_STRECH_TO_WIDTH;
@@ -260,14 +284,15 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
         textbox->textbox_properties->margin_x = 4;
         textbox->textbox_properties->margin_y = 4;
         textbox->textbox_properties->fill_background = false;
-        textbox->textbox_properties->textbox_height = 400;
-        textbox->textbox_properties->textbox_width = 800;
+        textbox->textbox_properties->textbox_height = 64;
+        textbox->textbox_properties->textbox_width = 256;
         textbox->textbox_properties->text_draw_buf = NULL;
         textbox->textbox_properties->cursor_properties.enable_cursor = false;
         textbox->textbox_properties->cursor_properties.blink_interval = 250*1000;
         textbox->textbox_properties->cursor_properties.cursor_visible = true;
     }
     else return NULL;
+    
     memset(textbox->text,0,UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
     sprintf(textbox->text,"%s",text);
     textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
@@ -278,6 +303,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTextbox(char* text, uint16_t xpos, uint16
     uCanvas_Set_Monochrome_Color(textbox,1);
     uCanvas_Set_Position(textbox,xpos,ypos);
     uCanvas_Set_Fill(textbox,NOFILL);
+    
     uCanvas_push_object_to_activescene(textbox);
 
   return textbox;
@@ -326,7 +352,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DAdvancedTextbox(char* text, uint16_t xpos
     memset(textbox->text,0,UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE);
     sprintf(textbox->text,"%s",text);
     textbox->font_properties.Font_Draw_Direction = uCanvas_Font_Dir_0;
-    textbox->font_properties.font_type = FONTX_10M;
+    textbox->font_properties.font_type = SFONT_16;
     uCanvas_Set_Visiblity(textbox,VISIBLE);
     uCanvas_Set_Obj_Type(textbox, ADV_TEXTBOX);
     uCanvas_Set_Color(textbox,UCANVAS_DEFAULT_RED,UCANVAS_DEFAULT_GREEN, UCANVAS_DEFAULT_BLUE);
@@ -383,6 +409,13 @@ void uCanvas_Set_TextBox_Fill_Background(uCanvas_universal_obj_t* obj,fill_t fil
         }
     }
     return;
+}
+
+void uCanvas_Set_Thickness(uCanvas_universal_obj_t* obj, uint16_t thickness){
+    if(obj){
+        obj->properties.thickness = thickness;
+        uCanvas_mark_object_dirty(obj, UCANVAS_DIRTY_STYLE);
+    }
 }
 
 void uCanvas_Set_TextBox_FontType(uCanvas_universal_obj_t* obj,FontType_t FontType){
@@ -461,6 +494,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DCircle(uint16_t xpos, uint16_t ypos,uint1
     uCanvas_Set_Monochrome_Color(circle,1);
     uCanvas_Set_Position(circle,xpos,ypos);
     uCanvas_Set_Fill(circle,NOFILL);
+    uCanvas_Set_Thickness(circle,1);
     uCanvas_push_object_to_activescene(circle);
   return circle;
 }
@@ -480,6 +514,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DEllipse(uint16_t xpos, uint16_t ypos,uint
     uCanvas_Set_Monochrome_Color(ellipse,1);
     uCanvas_Set_Position(ellipse,xpos,ypos);
     uCanvas_Set_Fill(ellipse,NOFILL);
+    uCanvas_Set_Thickness(ellipse,1);
     uCanvas_push_object_to_activescene(ellipse);
   return ellipse;
 }
@@ -500,6 +535,7 @@ uCanvas_universal_obj_t* New_uCanvas_2DTriangle(Coordinate2D_t Point1, Coordinat
     triangle->point3 = Point3;
     triangle->properties.position.x = 0;
     triangle->properties.position.y = 0;
+    uCanvas_Set_Thickness(triangle,1);
     uCanvas_push_object_to_activescene(triangle);
     return triangle;
 }
@@ -628,7 +664,7 @@ void uCanvas_Resume_Task(uCanvas_Animation_task_handle_t task_handle){
 }
 
 void uCanvas_Delay(uint16_t delay){
-    vTaskDelay(delay);
+    vTaskDelay(pdMS_TO_TICKS(delay));
 }
 
 int get_random_number(int min, int max) {
@@ -788,13 +824,13 @@ void uCanvas2D_Create_RenderBuffer(uCanvas2D_RenderBuffer_t* render_buffer, int 
     // }
     // else render_buffer->pixels = heap_caps_aligned_alloc(32, width * height * sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
     #if(CONFIG_IDF_TARGET_ESP32P4)
-    #if UCANVAS_USE_SPIRAM 
+    #if (UCANVAS_USE_SPIRAM == ENABLED)
         render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
     #else
         render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);
     #endif
     #else
-        #if UCANVAS_USE_SPIRAM 
+        #if (UCANVAS_USE_SPIRAM == ENABLED)
         render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT );
         #else
         render_buffer->pixels = heap_caps_aligned_calloc(32, width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_8BIT );
@@ -806,4 +842,56 @@ void uCanvas2D_Create_RenderBuffer(uCanvas2D_RenderBuffer_t* render_buffer, int 
         printf("-Success To Allocate Render Buffer of %d x %d\r\n",width,height);
     }
     return;
+}
+
+
+bool uCanvas_Inc_Pos_X(Universal_Obj_t* obj,int16_t offset_x){
+    if(obj){
+        obj->properties.position.x += offset_x;
+        uCanvas_Set_Position_X(obj,obj->properties.position.x);
+        return true;
+    }
+    return false;
+}
+
+bool uCanvas_Inc_Pos_Y(Universal_Obj_t* obj,int16_t offset_y){
+    if(obj){
+        obj->properties.position.y += offset_y;
+        uCanvas_Set_Position_Y(obj,obj->properties.position.y);
+        return true;
+    }
+    return false;
+}
+
+bool uCanvas_Dec_Pos_X(Universal_Obj_t* obj,int16_t offset_x){
+    if(obj){
+        obj->properties.position.x -= offset_x;
+        uCanvas_Set_Position_X(obj,obj->properties.position.x);
+        return true;
+    }
+    return false;
+}
+
+bool uCanvas_Dec_Pos_Y(Universal_Obj_t* obj,int16_t offset_y){
+    if(obj){
+        obj->properties.position.y -= offset_y;
+        uCanvas_Set_Position_Y(obj,obj->properties.position.y);
+        return true;
+    }
+    return false;
+}
+
+
+int16_t uCanvas_Get_Pos_X(Universal_Obj_t* obj){
+    if(obj){
+        return obj->properties.position.x;
+    }
+    else return -1;
+}
+
+int16_t uCanvas_Get_Pos_Y(Universal_Obj_t* obj){
+    if(obj){
+        return obj->properties.position.y;
+    }
+    else return -1;
 }

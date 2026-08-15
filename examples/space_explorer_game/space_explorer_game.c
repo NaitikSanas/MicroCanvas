@@ -650,27 +650,7 @@ void Run_Space_Explorer_Game(void)
     uCanvas_Get_HID_Device(&g_keyboard_device);
     g_keyboard_device.uCanvas_Input_HID_Device_Init();
 #endif
-
-    //  Display setup 
-    uCanvas2D_Display_Panel_t *panel = uCanvas_Get_Panel_Handle(PANEL_ST7789);
-    panel->init(1);
-
-    uCanvas_Scene_t *scene = New_uCanvas_Scene();
-
-    g_canvas.scale_output = false;
-    g_canvas.scale_x      = 2.0f;
-    g_canvas.scale_y      = 2.0f;
-
-    if (uCanvas_Attach_RenderBuffer(&g_canvas, CANVAS_WIDTH, CANVAS_HEIGHT)) {
-        uCanvas_Set_Panel_RefreshDelay(&g_canvas, 2);
-        uCanvas_Attach_Panel(&g_canvas, panel);
-        uCanvas_Set_ViewPort_Position(&g_canvas, 0, 0);
-        uCanvas_Attach_Scene(&g_canvas, scene);
-        uCanvas_Attach_Renderer(&g_canvas, 1,UCANVAS_SKETCH);
-        uCanvas_Set_Render_Mode(&g_canvas, AUTO_REFRESH);
-    }
-    
-    uCanvas_set_active_scene(g_canvas.active_scene);
+    Example_uCanvas_Instance_Setup();
 
     //  Peripheral setup 
 #if USE_IMU_DIR_CONTROL
@@ -708,32 +688,5 @@ void Run_Space_Explorer_Game(void)
     lives_indicator_create();
     lives_indicator_update(LIVES_MAX);
 
-#if USE_IMU_DIR_CONTROL
-    IMU_Monitor();
-#endif
 }
 
-//  
-// 10. IMU Control (optional, blocks caller)
-//  
-
-void IMU_Monitor(void)
-{
-    while (1) {
-        tilt_dir_t tilt = uCanvas_Get_IMU_2D_Tilt();
-        switch (tilt) {
-            case TILT_LEFT:
-                if (g_player.obj->properties.position.x < CANVAS_WIDTH)
-                    uCanvas_Set_Position_X(g_player.obj, g_player.obj->properties.position.x + 1);
-                break;
-            case TILT_RIGHT:
-                if (g_player.obj->properties.position.x > 0)
-                    uCanvas_Set_Position_X(g_player.obj, g_player.obj->properties.position.x - 1);
-                break;
-            case TILT_UP:
-            default:
-                break;
-        }
-        uCanvas_Delay(4);
-    }
-}

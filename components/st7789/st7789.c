@@ -111,7 +111,7 @@ void spi_master_init(TFT_t * dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t 
 	#if(CONFIG_IDF_TARGET_ESP32P4)
 	devcfg.clock_source = SPI_CLK_SRC_SPLL;
 	#endif
-	devcfg.clock_speed_hz = (80 * 1000 * 1000 / 1);
+	devcfg.clock_speed_hz = (40 * 1000 * 1000 / 1);
 	devcfg.queue_size =7;
 	//devcfg.mode = 2;
 	devcfg.mode = 3;

@@ -11,20 +11,23 @@ extern "C" {
 #include <string.h>
  
 #include "uCanvas_api.h"
-
+#include "examples_init.h"
  
 // 
 //  Input Source Selection (enable exactly one)
 // 
-#define USE_USB_KEYBOARD    1
-#define USE_ROTORY_ENCODER  0
-#define USE_IMU_DIR_CONTROL 0
- 
+#if CONFIG_IDF_TARGET_ESP32P4
+  #define USE_USB_KEYBOARD    1
+   #define USE_ROTORY_ENCODER  1
+#else
+  #define USE_USB_KEYBOARD  0
+  #define USE_ROTORY_ENCODER  1
+#endif
 // 
 //  Canvas / Display
 // 
-#define CANVAS_WIDTH        1024
-#define CANVAS_HEIGHT       600
+#define CANVAS_WIDTH        UCANVAS_INST_WIDTH
+#define CANVAS_HEIGHT       UCANVAS_INST_HEIGHT
  
 // 
 //  Gameplay Constants

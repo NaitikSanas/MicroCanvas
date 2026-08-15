@@ -6,26 +6,29 @@
 #include "uCanvas_api.h"
 #include <math.h>
 #include "3D_Cube.h"
+#include "examples_init.h"
+
+#define CANVAS_WIDTH        UCANVAS_INST_WIDTH
+#define CANVAS_HEIGHT       UCANVAS_INST_HEIGHT
+
 #define CUBE_SIZE 20
-#define SCREEN_CENTER_X 240/2
-#define SCREEN_CENTER_Y 320/2
+#define SCREEN_CENTER_X UCANVAS_INST_WIDTH/2
+#define SCREEN_CENTER_Y UCANVAS_INST_HEIGHT/2
 int DEPTH = 30;  // Adjust for perspective effect
 
 uCanvas_universal_obj_t* line2D[12];
 
-// #define USE_PRIMITIVE_TRIANGLE2D 1
-#define USE_PRIMITIVE_LINE2D 1
+#define USE_PRIMITIVE_TRIANGLE2D 1
+// #define USE_PRIMITIVE_LINE2D 1
 void Render_3D_Cube( float angle);
+static uCanvas2D_Instance_t  g_canvas;
 
 void Run_3D_Cube_Demo() {
     //start ucanvas engine and setup scene
     printf("3D-Cube Demo\r\n");
-    uCanvas_Scene_t* scene;
-    scene = New_uCanvas_Scene();
-    uCanvas_set_active_scene(scene);
     
-    uCanvas2D_Instance_t* uCanvas_Instance_1 = NULL; //uCANVAS2D_EK79007_SETUP(scene);
-    uCanvas_Change_Active_Instance(uCanvas_Instance_1);
+    Example_uCanvas_Instance_Setup();
+
     //ESP_LOGI("tag","freed heap %d",esp_get_free_heap_size());
     // uCanvas_Set_Display_Properties(320,240,1);
 
@@ -44,6 +47,7 @@ void Run_3D_Cube_Demo() {
         #ifdef USE_PRIMITIVE_TRIANGLE2D
             line2D[i] = New_uCanvas_2DTriangle( c,c,c);
             line2D[i]->properties.fill = NOFILL;
+            uCanvas_Set_Thickness(line2D[i],2);
         #elif USE_PRIMITIVE_LINE2D
             line2D[i] = New_uCanvas_2DLine(0,0,0,0);
         #endif        

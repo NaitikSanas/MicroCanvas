@@ -3,22 +3,19 @@
 #include "uCanvas2D_ST7789_Port.h"
 #include "uCanvas2D_Display_Setup.h"
 #include "uCanvasRenderEngine.h"
-
-#define MAX_ITERATIONS 8
-#define MAX_STRING_LENGTH 200
+#include "examples_init.h"
+#include "uCanvas_Settings.h"
+#define MAX_ITERATIONS 4
+#define MAX_STRING_LENGTH 15000
 #define ANGLE 30 // Angle in degrees
-#define LENGTH 5 // Initial line length
-#define SCREEN_WIDTH 1024
-#define SCREEN_HEIGHT 600
+#define LENGTH 6 // Initial line length
+#define SCREEN_WIDTH  UCANVAS_INST_WIDTH 
+#define SCREEN_HEIGHT UCANVAS_INST_HEIGHT
 uCanvas_Scene_t* scene;
 int endpoint_count = 0;
 TurtleState branch_endpoints[1000];
 void L_System_Demo_Main() {
-    // start_uCanvas_engine();
-    scene = New_uCanvas_Scene();
-     uCanvas2D_Instance_t* uCanvas_Instance_1 = 0;//New_uCanvas_Instance(scene, uCanvas2D_Get_Panel_Driver_ST7789(),NULL);
-    // uCanvas_set_active_scene(scene);
-    uCanvas_Change_Active_Instance(uCanvas_Instance_1);
+    Example_uCanvas_Instance_Setup();
     
     
     static char lsystem[MAX_STRING_LENGTH] = {0};
@@ -105,16 +102,17 @@ void render_lsystem(const char *lsystem, float startX, float startY) {
     float length = LENGTH;
     endpoint_count = 0; // Reset branch endpoint counter
     
-    textbox1 = New_uCanvas_2DTextbox("-", 240/2, 320-16);
+    textbox1 = New_uCanvas_2DTextbox("-", UCANVAS_INST_WIDTH/2, UCANVAS_INST_HEIGHT-40);
     uCanvas_Set_Color(textbox1, 255, 255, 0);
-    textbox1->font_properties.font_type = FONTX_10M;
+    textbox1->font_properties.font_type = SFONT_16;
 
-    textbox2 = New_uCanvas_2DTextbox("-", 240/2, 320-32);
+    textbox2 = New_uCanvas_2DTextbox("-", UCANVAS_INST_WIDTH/2, UCANVAS_INST_HEIGHT-20);
     uCanvas_Set_Color(textbox2, 255, 255, 0);
-    textbox2->font_properties.font_type = FONTX_10M;
+    textbox2->font_properties.font_type = SFONT_16;
     
     uint16_t total_objects = 0;
     for (int i = 0; lsystem[i] != '\0'; i++) {
+        printf("free mem: %ld\r\n", esp_get_free_heap_size());
         char c = lsystem[i];
         if (c == 'F') {
             float newX = x + length * cos(angle * M_PI / 180.0);
@@ -125,8 +123,9 @@ void render_lsystem(const char *lsystem, float startX, float startY) {
                 if(line){
                     uCanvas_Set_Line_Coordinates(line, x, y, newX, newY);
                     uCanvas_Set_Color(line, 0, 180, 0);
-                    uCanvas_ColorWipe(line,(color_t){150,150,0},(color_t){0,180,0},60000,1);
-                    uCanvas_Delay(1);
+                    // uCanvas_Set_Thickness(line,get_random_number(1,3));
+                    // uCanvas_ColorWipe(line,(color_t){150,150,0},(color_t){0,180,0},60000,1);
+                    vTaskDelay(pdMS_TO_TICKS(1));
                     x = newX;
                     y = newY;
                     sprintf(text_buf, "total obj: %d", total_objects);
@@ -138,12 +137,13 @@ void render_lsystem(const char *lsystem, float startX, float startY) {
                 else {
                     sprintf(text_buf, "free mem: %ld [OOM]", esp_get_free_heap_size());
                     uCanvas_Set_Text(textbox1, text_buf);
+                    
                 }
             }
 
             // Check if this 'F' is at the tip (last segment before a ']')
             if (lsystem[i + 1] == ']' || lsystem[i + 1] == '\0') {
-                if (endpoint_count < 300) {
+                if (endpoint_count < 1000) {
                     branch_endpoints[endpoint_count++] = (TurtleState){x, y, angle};
                 }
             }
@@ -162,30 +162,41 @@ void render_lsystem(const char *lsystem, float startX, float startY) {
         }
     }
 
-    char* buf = malloc(42);
-    if(buf){
-    for (int i = 0; i < 68; i++)
-        printf("b %d\r\n",buf[i]);
-    }
-    // Draw flowers only at the **true** branch tips
-    // for (int i = 0; i < endpoint_count; i++) {
-    //     uCanvas_universal_obj_t* flower = New_uCanvas_2DCircle(branch_endpoints[i].x, branch_endpoints[i].y, 2);
-    //     uCanvas_Set_Color(flower, 240,0, 0);
-    //     uCanvas_Set_Fill(flower,FILL);
-      
-    //     // uCanvas_ColorWipe(flower,(color_t){0,0,0},(color_t){240,0,0},20000,1);
-    //     sprintf(text_buf, "total obj: %d", total_objects);
-    //     uCanvas_Set_Text(textbox2, text_buf);
-    //     sprintf(text_buf, "free mem: %d", esp_get_free_heap_size());
-    //     uCanvas_Set_Text(textbox1, text_buf);
-    //     total_objects++;
-    //     uCanvas_Delay(5);
-       
-    // } 
+   
+    
 
-    uCanvas_Delete_Scene(scene);
+    #if(MAX_UNIVERSAL_OBJ_INSTANCES > 1024)
+    for (int i = 0; i < endpoint_count; i++) {
+        uCanvas_universal_obj_t* flower = New_uCanvas_2DCircle(branch_endpoints[i].x, branch_endpoints[i].y, 2);
+        uCanvas_Set_Color(flower, 240,0, 0);
+        uCanvas_Set_Fill(flower,FILL);
+      
+        // uCanvas_ColorWipe(flower,(color_t){0,0,0},(color_t){240,0,0},20000,1);
+        sprintf(text_buf, "total obj: %d", total_objects);
+        uCanvas_Set_Text(textbox2, text_buf);
+        sprintf(text_buf, "free mem: %ld", esp_get_free_heap_size());
+        uCanvas_Set_Text(textbox1, text_buf);
+        total_objects++;
+        uCanvas_Delay(5);
+       
+    } 
+    #endif
+    
+    int last_uobj_index = Get_Example_uCanvas_Instance()->active_scene->_2D_Object_Ptr;
+    printf("--last obj index %d\r\n",last_uobj_index);
+
+    for (int i = last_uobj_index; i > 0 ; i--)
+    {  
+        uCanvas_Set_Visiblity(Get_Example_uCanvas_Instance()->active_scene->_2D_Objects[i],INVISIBLE);
+        vTaskDelay(pdMS_TO_TICKS(5));
+    }
+   
+    // Draw flowers only at the **true** branch tips
+    
+   
+    // uCanvas_Delete_Scene(scene);
     // printf()
-    printf("free mem: %ld", esp_get_free_heap_size());
+    
     // uCanvas_Set_Text(textbox1, text_buf);
 }
 

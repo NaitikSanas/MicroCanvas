@@ -99,31 +99,3 @@ void uCanvas_rotary_encoder_read(rotary_encoder_t* obj) {
 encoder_state_t uCanvas_rotary_encoder_get_state(rotary_encoder_t* obj){
     return obj->state;
 }
-
-void uCanvas_Initialize_IMU_Device(uint32_t sda, uint32_t scl){
-    mpu_6050_init(sda,scl);
-}
-
-void uCanvas_IMU_Set_Tilt_Detection_Parameters(float tilt_trigger, float tilt_return_zone){
-    mpu_set_tilt_detection_parameters(tilt_trigger,tilt_return_zone);
-}
-
-tilt_dir_t uCanvas_Get_IMU_2D_Tilt(void){
-    tilt_angle_t angle = get_tilt_angles_from_accel();
-    return detect_2d_tilt(angle.pitch,angle.roll);
-}
-
-tilt_dir_t uCanvas_detect_2D_Tile_With_Reference_Axis(reference_axis_t reference_axis){
-    tilt_angle_t angle = get_tilt_angles_from_accel();
-    if(reference_axis == USE_PITCH){
-        return detect_2d_tilt_LR(angle.pitch);
-    }
-    if(reference_axis == USE_ROLL){
-        return detect_2d_tilt_LR(angle.roll);
-    }
-    return NO_TILT;
-}
-
-tilt_angle_t uCanvas_IMU_Get_Tilt_Angles(void){
-    return get_tilt_angles_from_accel();
-}

@@ -1,39 +1,29 @@
-#define MAX_ELEMENTS_NUM                        (4048)
+#pragma once
+#include "sdkconfig.h"
 
-#define USE_PPA_FOR_RENDERING                   (1)
-#define UCANVAS_USE_SPIRAM                      (1)
+#define ENABLED  (1)
+#define DISABLED (0)
 
-#define UCANVAS_TASK_STACK_SIZE                 (4046)
-#define UCANVAS_RENDER_TASK_STACK_SIZE          (4096)
-#define UCANVAS_RENDER_TASK_PRIORITY            (1)
+//Bridge values from sdkconfig 
 
- #define UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE       (512)
+#define MAX_UNIVERSAL_OBJ_INSTANCES        8096
 
-#define UCANVAS_DEFAULT_RED                     (0)
-#define UCANVAS_DEFAULT_GREEN                   (0)
-#define UCANVAS_DEFAULT_BLUE                    (0)
-#define UCANVAS_DISPLAY_ORIENTATION             1
+#ifdef CONFIG_UCANVAS_USE_PPA_FOR_RENDERING
+#define USE_PPA_FOR_RENDERING              (CONFIG_UCANVAS_USE_PPA_FOR_RENDERING ? ENABLED : DISABLED)
+#else 
+#define USE_PPA_FOR_RENDERING DISABLED
+#endif
+#define UCANVAS_USE_SPIRAM                 (CONFIG_UCANVAS_USE_SPIRAM ? ENABLED : DISABLED)
 
-#define UCANVAS_USE_DOUBLE_BUFFERING            (1)
+#define UCANVAS_TASK_STACK_SIZE            CONFIG_UCANVAS_TASK_STACK_SIZE
+#define UCANVAS_RENDER_TASK_STACK_SIZE     CONFIG_UCANVAS_RENDER_TASK_STACK_SIZE
+#define UCANVAS_RENDER_TASK_PRIORITY       CONFIG_UCANVAS_RENDER_TASK_PRIORITY
 
-/**
- * Optional renderer that redraws only dirty rectangles (regions).
- * 0 = use existing full-scene renderer (uCanvas_renderer_task)
- * 1 = use dirty-rect renderer (uCanvas_renderer_task_dirtyrect)
- */
-#define UCANVAS_USE_DIRTY_RECT_RENDERER         (0)
+#define UCANVAS_TEXTBOX_MAX_CONTNENT_SIZE  CONFIG_UCANVAS_TEXTBOX_MAX_CONTENT_SIZE
 
-/**
- * Dirty-rect renderer tuning:
- * If the computed dirty rectangle area exceeds this percent of the framebuffer,
- * fall back to full redraw + full push for that frame (usually faster than
- * packing/pushing a near-fullscreen tile).
- */
-#define UCANVAS_DIRTY_RECT_FALLBACK_FULL_PCT    (10)
+#define UCANVAS_DEFAULT_RED                CONFIG_UCANVAS_DEFAULT_RED
+#define UCANVAS_DEFAULT_GREEN              CONFIG_UCANVAS_DEFAULT_GREEN
+#define UCANVAS_DEFAULT_BLUE               CONFIG_UCANVAS_DEFAULT_BLUE
 
-enum {
-    UNDEFINED,
-    ESP32,
-    STM32
-};
-#define UCANVAS_TARGET ESP32
+#define UCANVAS_USE_DOUBLE_BUFFERING       (CONFIG_UCANVAS_USE_DOUBLE_BUFFERING ? ENABLED : DISABLED)
+#define UCANVAS_DIRTY_RECT_FALLBACK_FULL_PCT 50

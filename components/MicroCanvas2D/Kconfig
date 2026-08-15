@@ -1,0 +1,101 @@
+menu "MicroCanvas2D Configuration"
+
+    config UCANVAS_MAX_UNIVERSAL_OBJ_INSTANCES
+        int "Maximum universal object instances"
+        default 1024
+        range 1 8192
+        help
+            Maximum number of universal object slots available in the
+            scene instance.
+
+    config UCANVAS_USE_PPA_FOR_RENDERING
+        bool "Use PPA (Pixel Processing Accelerator) for rendering"
+        default n
+        depends on IDF_TARGET_ESP32P4
+        help
+            Enable hardware PPA acceleration for rendering operations,
+            if supported by the target SoC.
+
+    config UCANVAS_USE_SPIRAM
+        bool "Use SPIRAM (PSRAM) for uCanvas buffers"
+        default n
+        help
+            Allocate uCanvas buffers (e.g. render/aux buffers) in
+            external PSRAM instead of internal RAM.
+
+    config UCANVAS_TASK_STACK_SIZE
+        int "uCanvas task stack size (bytes)"
+        default 4096
+        range 1024 65536
+        help
+            Stack size, in bytes, allocated for the main uCanvas task.
+
+    config UCANVAS_RENDER_TASK_STACK_SIZE
+        int "uCanvas render task stack size (bytes)"
+        default 4096
+        range 1024 65536
+        help
+            Stack size, in bytes, allocated for the uCanvas render task.
+
+    config UCANVAS_RENDER_TASK_PRIORITY
+        int "uCanvas render task priority"
+        default 1
+        range 0 24
+        help
+            FreeRTOS task priority assigned to the uCanvas render task.
+
+    config UCANVAS_TEXTBOX_MAX_CONTENT_SIZE
+        int "Textbox maximum content size (bytes)"
+        default 512
+        range 16 8192
+        help
+            Maximum size, in bytes, of text content storable in a
+            uCanvas textbox object.
+
+    menu "Default Object Color"
+
+        config UCANVAS_DEFAULT_RED
+            int "Default red channel value"
+            default 0
+            range 0 255
+            help
+                Default red component applied to a universal object
+                upon creation.
+
+        config UCANVAS_DEFAULT_GREEN
+            int "Default green channel value"
+            default 0
+            range 0 255
+            help
+                Default green component applied to a universal object
+                upon creation.
+
+        config UCANVAS_DEFAULT_BLUE
+            int "Default blue channel value"
+            default 0
+            range 0 255
+            help
+                Default blue component applied to a universal object
+                upon creation.
+
+    endmenu
+
+    config UCANVAS_USE_DOUBLE_BUFFERING
+        bool "Enable double buffering"
+        default n
+        help
+            Double buffering allows smoother animations with no
+            tearing/artifacts. Recommended to enable if you have
+            enough PSRAM available.
+
+    config UCANVAS_DIRTY_RECT_FALLBACK_FULL_PCT
+        int "Dirty-rect fallback threshold (%)"
+        default 10
+        range 1 100
+        help
+            If the computed dirty rectangle area exceeds this
+            percentage of the framebuffer, fall back to a full
+            redraw + full push for that frame. This is usually
+            faster than packing/pushing a near-fullscreen tile.
+
+endmenu

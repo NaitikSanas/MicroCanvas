@@ -10,6 +10,8 @@
     #include "uCanvas2D_ST7789_Port.h"   
     #include "uCanvas2D_PanelSelector.h"
     #include "uCanvas_Input_Peripherals.h"
+    #include "uCanvas_Render_Manager.h"
+    #include "uCanvas2D_Instance.h"
     #define uCanvas_Universal_Object    (uCanvas_universal_obj_t*)malloc(sizeof(uCanvas_universal_obj_t))
     #define uCanvas_Scene_Object        (uCanvas_Scene_t*)malloc(sizeof(uCanvas_Scene_t)) 
 
@@ -21,40 +23,7 @@
     // #define uCANVAS2D_EK79007_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_ST7789(),NULL)
     // #define uCANVAS2D_ST7789_SETUP(x) New_uCanvas_Instance(x, uCanvas2D_Get_Panel_Driver_ST7789(),NULL)
     
-    /*Starts Rendering Engine and Initializes Display*/
-    uCanvas2D_Instance_t* New_uCanvas_Instance(uCanvas_Scene_t* scene, uCanvas2D_Display_Panel_t* panel_1,uCanvas2D_Display_Panel_t* panel_2, int width, int height, int offset_x, int offset_y);
-    uCanvas2D_Instance_t* New_uCanvas_Window_Instance(uCanvas_Scene_t* scene,int width, int height);
-    void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance,uCanvas_Rendere_type_t RendererType, int core_id);
-    void uCanvas_Attach_Panel(uCanvas2D_Instance_t* instance, uCanvas2D_Display_Panel_t* panel);
-    int uCanvas_Attach_RenderBuffer(uCanvas2D_Instance_t* instance, int width, int height);
-    void uCanvas_Set_ViewPort_Position(uCanvas2D_Instance_t* instance, int x, int y);
-    void uCanvas_Attach_Scene(uCanvas2D_Instance_t* instance, uCanvas_Scene_t* scene);
-    void uCanvas_Set_Panel_RefreshDelay(uCanvas2D_Instance_t* instance, uint16_t RefreshDelay);
 
-    /**
-     * @brief This API Sets the Render Mode of Target instance. 
-     * There are 3 types of Render Modes :
-     * 1. AUTO_REFRESH : This mode Refreshes Region of Display Assigned to Target Instance at set interval of time. 
-     * 
-     * 2. ASYNC_FRAME_QUEUED : When this mode is set, Renderer waits for refresh signal from the user application. 
-     * In Queud Mode uCanvas_Send_Refresh_Signal_To_Renderer API becomes Non-Blocking. Suitable for Panels that uses DMA to push the rederbuffer.
-     * 
-     * 3. ASYNC_FRAME_COMMIT : Works the same way as ASYNC_FRAME_QUEUED but uCanvas_Send_Refresh_Signal_To_Renderer in this mode
-     * waits for Display Refresh to complete. Suitable for Panels when DMA is not used for pushing the Render Buffer. 
-     */
-    void uCanvas_Set_Render_Mode(uCanvas2D_Instance_t* instance,uCanvas2D_Render_Mode_t mode);
-
-    /**
-     * @brief Sends Signal to renerer to update display region allocated to passed uCanvas Instance.
-     */
-    void uCanvas_Send_Refresh_Signal_To_Renderer(uCanvas2D_Instance_t* instance);
-
-    /* uCanvas Instance Management */
-    void uCanvas_Pause_Instance(uCanvas2D_Instance_t* instance);
-    void uCanvas_Resume_Instance(uCanvas2D_Instance_t* instance);
-    void uCanvas_Destroy_Instance(uCanvas2D_Instance_t* instance);
-    
-    int64_t uCanvas_Get_FPS(uCanvas2D_Instance_t* instance);
     /**
 
     void pause_uCanvas_engine(void);
@@ -155,6 +124,7 @@
     
     /* Sets content of Passed Textbox Object */
     void uCanvas_Set_Text(uCanvas_universal_obj_t*obj,char*text);
+    void uCanvas_Set_Textf(uCanvas_universal_obj_t *obj, const char *fmt, ...);
 
     /* Adjust Textbox properties */
     uint16_t uCanvas_Get_Font_Width(FontType_t FontType);
@@ -199,6 +169,9 @@
     /* Allows to Control Visiblity of Passed 2D  Object */
     void uCanvas_Set_Visiblity(uCanvas_universal_obj_t* obj, visibility_ctrl_t vctrl);   
 
+    /* Sets thickness of premitives when NOFILL is used */
+    void uCanvas_Set_Thickness(uCanvas_universal_obj_t* obj, uint16_t thickness);
+
     int get_random_number(int min, int max);
     
     void uCanvas_Delete_obj_from_scene(uCanvas_universal_obj_t* obj);
@@ -207,4 +180,15 @@
 
     void uCanvas2D_Create_RenderBuffer(uCanvas2D_RenderBuffer_t* render_buffer, int width, int height);
     void draw_universal_object_to_target_render_buffer(uCanvas_universal_obj_t* obj, uCanvas2D_RenderBuffer_t* framebuffer, uCanvas2D_Display_Panel_t* panel);
+    
+    //APIs tp perform Quick Operations around XY Positions of universal oject
+    bool uCanvas_Inc_Pos_X(Universal_Obj_t* obj,int16_t offset_x);
+    bool uCanvas_Inc_Pos_Y(Universal_Obj_t* obj,int16_t offset_y);
+
+    bool uCanvas_Dec_Pos_X(Universal_Obj_t* obj,int16_t offset_x);
+    bool uCanvas_Dec_Pos_Y(Universal_Obj_t* obj,int16_t offset_y);
+
+    int16_t uCanvas_Get_Pos_Y(Universal_Obj_t* obj);
+    int16_t uCanvas_Get_Pos_X(Universal_Obj_t* obj);
+
 #endif

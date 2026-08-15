@@ -24,7 +24,7 @@ void uCanvas_Create_Slider(slider_t* slider_obj){
     //Create A Label
     slider_obj->obj[5] = New_uCanvas_2DTextbox("",slider_obj->position_x + slider_obj->relative_label_pos_x,slider_obj->position_y + slider_obj->relative_label_pos_y);
     uCanvas_Set_Color(slider_obj->obj[5],250,0,0);
-    slider_obj->obj[5]->font_properties.font_type = FONTX_16G;
+    slider_obj->obj[5]->font_properties.font_type = SFONT_16;
     
     //Create Event monitor task
     uCanvas_Add_Task((uCanvas_Animation_task_t)slider_task,slider_obj,1);

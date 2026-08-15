@@ -9,21 +9,12 @@
     #include "freertos/semphr.h"
     #include "uCanvas2D_Display_Setup.h"
    
-
     typedef TaskFunction_t uCanvas_Animation_task_t;
     typedef TaskHandle_t uCanvas_Animation_task_handle_t;
 
     typedef enum {uCanvas_Font_Dir_0, uCanvas_Font_Dir_90, uCanvas_Font_Dir_180, uCanvas_Font_Dir_270} font_draw_direction_t;
     
     typedef enum{
-        FONTX_16G,
-        FONTX_24G,
-        FONTX_32G,
-        FONTX_32L,
-        FONTX_16M,
-        FONTX_24M,
-        FONTX_10M,
-
         SFONT_8,
         SFONT_12,
         SFONT_16,
@@ -144,7 +135,7 @@
         Coordinate2D_t position;
         fill_t fill;
         color_t color;
-        
+        uint8_t thickness;
         uint8_t collision_detection;
         uint8_t flip_x;
         uint8_t flip_y;
@@ -231,7 +222,7 @@
         uCanvas_TextBox_Properties_t* textbox_properties;
     } uCanvas_universal_obj_t;
 
-    typedef uCanvas_universal_obj_t uCanvas_obj_t;
+    typedef uCanvas_universal_obj_t Universal_Obj_t;
 
     /**
      * Dirty flags for uCanvas objects.
@@ -269,7 +260,7 @@
     */
     typedef struct MicroCanvas2D_Scene
     {
-        uCanvas_universal_obj_t* _2D_Objects[MAX_ELEMENTS_NUM];
+        uCanvas_universal_obj_t* _2D_Objects[MAX_UNIVERSAL_OBJ_INSTANCES];
         int16_t _2D_Object_Ptr;
         uint16_t idx;
         /**
@@ -356,6 +347,7 @@ typedef enum {
 
 typedef struct uCanvas2D_Instance
 {
+    color_t canvas_clear_color;
     uCanvas_Scene_t* active_scene;
     uCanvas2D_Display_Panel_t* panel_1;
     uCanvas2D_Display_Panel_t* panel_2;
@@ -366,7 +358,7 @@ typedef struct uCanvas2D_Instance
     uCanvas2D_RenderBuffer_t* post_processing_frame_buf;
     float scale_x;
     float scale_y;
-    bool scale_output;
+    bool upscale_instance_output;
     TaskHandle_t render_task_handle;
     SemaphoreHandle_t render_buffer_lock;
     int pin_to_core;

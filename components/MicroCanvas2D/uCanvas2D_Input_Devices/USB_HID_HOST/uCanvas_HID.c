@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
 
-#if UCANVAS_TARGET == ESP32
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -618,6 +617,3 @@ void uCanvas_Get_HID_Device(uCanvas_Input_HID_Device_t* InputDeviceInstance){
     InputDeviceInstance->arg = NULL;
     InputDeviceHandle = InputDeviceInstance; // Internal Global struct To be used by event listeners
 }
-
-
-#endif
