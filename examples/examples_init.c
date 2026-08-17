@@ -10,7 +10,7 @@ void Example_uCanvas_Instance_Setup(void){
         2. PANEL_EK79007
     */ 
     uCanvas2D_Display_Panel_t *panel = uCanvas_Get_Panel_Handle(PANEL_TYPE);
-    
+
     // panel->set_backlight(0xff);
 
     /* 
@@ -24,7 +24,11 @@ void Example_uCanvas_Instance_Setup(void){
         of the display as well which you can use to create a dedicated viewport area on display and share free region of display with 
         other uCanvas Instance.
     */
+    #if USE_CUSTOM_CANVAS_SIZE
     if (uCanvas_Attach_RenderBuffer(&g_canvas, UCANVAS_INST_WIDTH, UCANVAS_INST_HEIGHT)) {
+    #else 
+    if (uCanvas_Attach_RenderBuffer(&g_canvas, panel->width, panel->height)) {
+    #endif
         uCanvas_Set_Panel_RefreshDelay(&g_canvas, REFRESH_DELAY); //Set Refresh interval to updade content on display
         uCanvas_Attach_Panel(&g_canvas, panel); // Attach Previously created display panel to uCanvas Instance
         uCanvas_Set_ViewPort_Position(&g_canvas, VIEWPORT_POSITION_XY); //If this uCanvas Instance is Viewport you can offset its position on screen

@@ -1,6 +1,7 @@
 #include "uCanvas_api.h"
 
-
+//If set 0 Canvas size will be derived by the size of Panel Type
+#define USE_CUSTOM_CANVAS_SIZE  0
 #define UCANVAS_INST_WIDTH      320
 #define UCANVAS_INST_HEIGHT     240
 
