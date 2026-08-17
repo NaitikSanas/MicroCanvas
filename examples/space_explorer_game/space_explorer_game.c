@@ -618,7 +618,7 @@ static void show_start_screen(void)
         uCanvas_rotary_encoder_read(&g_encoder);
         if (!g_encoder.sw_state) break;
 #endif
-        uCanvas_Delay(1);
+        uCanvas_Delay(10);
     }
 
     uCanvas_Set_Visiblity(title_space, INVISIBLE);

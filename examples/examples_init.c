@@ -10,7 +10,8 @@ void Example_uCanvas_Instance_Setup(void){
         2. PANEL_EK79007
     */ 
     uCanvas2D_Display_Panel_t *panel = uCanvas_Get_Panel_Handle(PANEL_TYPE);
-    panel->init(1);
+    
+    // panel->set_backlight(0xff);
 
     /* 
         Create a new 2D Scene. A scene object holds all 2D Permitives Created by app.

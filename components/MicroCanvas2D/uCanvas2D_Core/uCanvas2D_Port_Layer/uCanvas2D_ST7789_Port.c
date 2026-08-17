@@ -72,6 +72,7 @@ st7789_async_write_t async_write_handle;
 
 static void ST7789_PushTile(int x, int y, uCanvas2D_RenderBuffer_t* buf){
     if (!buf || !buf->pixels) return;
+    // uCanvas_DitherBuffer_RGB565(buf);
 
     const uint16_t* pixels = (const uint16_t*) buf->pixels;
     int w = buf->width;

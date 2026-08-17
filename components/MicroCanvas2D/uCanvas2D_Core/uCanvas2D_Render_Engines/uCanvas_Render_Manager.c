@@ -77,7 +77,7 @@ void wait_on_referesh_signal(uCanvas2D_Instance_t* instance) {
 void uCanvas_Attach_Renderer(uCanvas2D_Instance_t* instance, uCanvas_Rendere_type_t RendererType, int core_id) {
     instance->Render_Mode = AUTO_REFRESH;
     instance->Clear_On_Refresh = true;
-    instance->refresh_delay = 2;
+    // instance->refresh_delay = 2;
     instance->pin_to_core = core_id;
     instance->upscale_instance_output = false;
     switch(RendererType) {

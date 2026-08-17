@@ -18,7 +18,9 @@ int uCanvas_Attach_RenderBuffer(uCanvas2D_Instance_t* instance, int width, int h
     instance->render_buffer_aux = NULL;
 
     // Always allocate primary
-    
+    #if CONFIG_IDF_TARGET_ESP32P4 && USE_PPA_FOR_RENDERING
+    Intialize_PPA();
+    #endif
     
     instance->render_buffer = malloc(sizeof(uCanvas2D_RenderBuffer_t));
     if (!instance->render_buffer) return 0;
@@ -63,6 +65,7 @@ int uCanvas_Attach_RenderBuffer(uCanvas2D_Instance_t* instance, int width, int h
             instance->upscale_instance_output = false;
         }
     }
+
     return 1;
 }
 

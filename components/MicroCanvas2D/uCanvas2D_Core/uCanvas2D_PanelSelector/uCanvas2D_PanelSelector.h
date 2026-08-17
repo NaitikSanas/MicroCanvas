@@ -7,7 +7,8 @@
 typedef enum {
     PANEL_DUMMY,
     PANEL_ST7789,
-    PANEL_EK79007
+    PANEL_EK79007,
+    PANEL_SSD1306_128_64
 }uCanvas_Panel_Selection_t;
 
 uCanvas2D_Display_Panel_t* uCanvas_Get_Panel_Handle(uCanvas_Panel_Selection_t Panel_Name);

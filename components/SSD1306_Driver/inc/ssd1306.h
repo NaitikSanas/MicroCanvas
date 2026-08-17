@@ -12,8 +12,8 @@ extern C {
 #include "driver/i2c.h"
 
 /* I2C address */
-#define I2C_MASTER_SDA_IO 6
-#define I2C_MASTER_SCL_IO 7
+#define I2C_MASTER_SDA_IO 1
+#define I2C_MASTER_SCL_IO 2
 // #define I2C_MASTER_SDA_IO 6
 // #define I2C_MASTER_SCL_IO 4
 #define I2C_MASTER_FREQ_HZ 800000
@@ -41,6 +41,7 @@ typedef enum {
 	SSD1306_COLOR_WHITE = 0x01  /*!< Pixel is set. Color depends on LCD */
 } SSD1306_COLOR_t;
 
+void SSD1306_SetBrightness(uint8_t brightness);
 
 
 /**

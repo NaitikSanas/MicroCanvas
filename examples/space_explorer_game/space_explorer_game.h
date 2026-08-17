@@ -18,10 +18,10 @@ extern "C" {
 // 
 #if CONFIG_IDF_TARGET_ESP32P4
   #define USE_USB_KEYBOARD    1
-   #define USE_ROTORY_ENCODER  1
+   #define USE_ROTORY_ENCODER  0
 #else
   #define USE_USB_KEYBOARD  0
-  #define USE_ROTORY_ENCODER  1
+  #define USE_ROTORY_ENCODER 0
 #endif
 // 
 //  Canvas / Display

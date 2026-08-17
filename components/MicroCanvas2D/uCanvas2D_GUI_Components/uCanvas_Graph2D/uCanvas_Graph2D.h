@@ -12,9 +12,11 @@ typedef struct{
     color_t border_color[8];
     color_t main_content_color[8];
 }uCanvasGUI_Color_Style_t;
-
+ #define NUM_AXIS_TICKS 10
 typedef struct uCanvas_Graph2D_Instance
 {
+     uCanvas_universal_obj_t* x_axis_label[NUM_AXIS_TICKS];  
+    uCanvas_universal_obj_t* y_axis_label[NUM_AXIS_TICKS];
     uCanvas_universal_obj_t* canvas[8];
     uCanvas_universal_obj_t* graph_line[MAX_GRAPH_LINES];
     int datapoints_x[MAX_GRAPH_LINES+2];
@@ -33,8 +35,10 @@ typedef struct uCanvas_Graph2D_Instance
     int16_t height;
     int16_t width;
     int max_datapoints;
-    
+    int graph_line_thickness;
     uCanvasGUI_Color_Style_t Color_Style;
+
+
 }uCanvas_Graph2D_Instance_t;
 
 
@@ -48,3 +52,4 @@ int uCanvasGUI_Graph2D_Set_MainContent_Color(uCanvas_Graph2D_Instance_t* Graph2D
 int uCanvasGui_Graph2D_Push_DataPoints_Y(uCanvas_Graph2D_Instance_t* Graph2D_Instance, int datapoint_y);
 int uCanvasGui_Graph2D_Push_DataPoints_X(uCanvas_Graph2D_Instance_t* Graph2D_Instance, int datapoint_x);
 int uCanvasGUI_Graph2D_Set_Title_Text(uCanvas_Graph2D_Instance_t* Graph2D_Instance, char* text);
+int uCanvasGUI_Graph2D_Update_Axis_Labels(uCanvas_Graph2D_Instance_t* Graph2D_Instance);

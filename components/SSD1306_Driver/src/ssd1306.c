@@ -131,7 +131,10 @@ void SSD1306_DrawBitmap(int16_t x, int16_t y, const unsigned char* bitmap, int16
         }
     }
 }
-
+void SSD1306_SetBrightness(uint8_t brightness) {
+    SSD1306_WRITECOMMAND(0x81);          // Set Contrast Control register
+    SSD1306_WRITECOMMAND(brightness);    // Contrast value 0x00 - 0xFF
+}
 
 uint8_t SSD1306_Init(void) {
 

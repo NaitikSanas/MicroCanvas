@@ -815,9 +815,7 @@ void uCanvas2D_Create_RenderBuffer(uCanvas2D_RenderBuffer_t* render_buffer, int 
     render_buffer->offset_y = 0;
     render_buffer->pitch = 0;
     render_buffer->use_ppa = USE_PPA_FOR_RENDERING;
-    #if CONFIG_IDF_TARGET_ESP32P4 && USE_PPA_FOR_RENDERING
-    Intialize_PPA();
-    #endif
+    
     // if(width < 600 && height < 600){
     //     printf("Allocating Render Buffer Interally\r\n");
     //     render_buffer->pixels = heap_caps_calloc( width * height, sizeof(uint16_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT | MALLOC_CAP_CACHE_ALIGNED);

@@ -1,4 +1,28 @@
+/*
+ * uCanvas_Graph2D.c
+ *
+ * NOTE: Header additions required in uCanvas_Graph2D.h (not included here,
+ * since it wasn't provided):
+ *
+ *   #define NUM_AXIS_TICKS 5
+ *
+ *   // Inside uCanvas_Graph2D_Instance_t:
+ *   uCanvas_Element_t* x_axis_label[NUM_AXIS_TICKS];  // match your canvas[] element type
+ *   uCanvas_Element_t* y_axis_label[NUM_AXIS_TICKS];
+ */
+
 #include "uCanvas_Graph2D.h"
+#include <stdio.h>
+#include <string.h>
+
+static void _format_axis_value(char* buf, size_t buf_size, float value)
+{
+    // Use integer formatting if the value is a whole number, else 1 decimal
+    if (value == (int)value)
+        snprintf(buf, buf_size, "%d", (int)value);
+    else
+        snprintf(buf, buf_size, "%.1f", value);
+}
 
 int uCanvasGUI_Create_Graph2D(uCanvas_Graph2D_Instance_t* Graph2D_Instance,int16_t x_pos, int16_t y_pos, int16_t width, int16_t height, int max_datapoints){
     if(Graph2D_Instance){
@@ -11,14 +35,24 @@ int uCanvasGUI_Create_Graph2D(uCanvas_Graph2D_Instance_t* Graph2D_Instance,int16
         Graph2D_Instance->canvas[0]->properties.color = Graph2D_Instance->Color_Style.background_color[0];
         uCanvas_Set_Fill(Graph2D_Instance->canvas[0],FILL);
         // Graph2D_Instance->canvas[0]->properties.visiblity = INVISIBLE;
-        //Create Border 
-        Graph2D_Instance->canvas[1] = New_uCanvas_2DRectangle(x_pos,y_pos,height,width);
-        Graph2D_Instance->canvas[1]->properties.color = Graph2D_Instance->Color_Style.border_color[0];
-        uCanvas_Set_Fill(Graph2D_Instance->canvas[1],NOFILL);
+        
 
         //Create Title TextBox
         Graph2D_Instance->canvas[2] = New_uCanvas_2DTextbox("2D Line Graph",x_pos+10,y_pos-20);
         Graph2D_Instance->canvas[2]->properties.color = Graph2D_Instance->Color_Style.main_content_color[0];
+
+        //Create Axis Tick Labels
+        for (int i = 0; i < NUM_AXIS_TICKS; i++)
+        {
+            Graph2D_Instance->x_axis_label[i] = New_uCanvas_2DTextbox("0", x_pos, y_pos + height + 5);
+            uCanvas_Set_Color(Graph2D_Instance->x_axis_label[i], Graph2D_Instance->Color_Style.border_color[0].red,Graph2D_Instance->Color_Style.border_color[0].green,Graph2D_Instance->Color_Style.border_color[0].blue);
+            
+            Graph2D_Instance->y_axis_label[i] = New_uCanvas_2DTextbox("0", x_pos - 25, y_pos);
+            uCanvas_Set_Color(Graph2D_Instance->y_axis_label[i], Graph2D_Instance->Color_Style.border_color[0].red,Graph2D_Instance->Color_Style.border_color[0].green,Graph2D_Instance->Color_Style.border_color[0].blue);
+            
+            uCanvas_Set_TextBox_FontType( Graph2D_Instance->x_axis_label[i],SFONT_12);
+            uCanvas_Set_TextBox_FontType( Graph2D_Instance->y_axis_label[i],SFONT_12);
+        }
 
         //Initialize Lines 
         for (int i = 0; i < MAX_GRAPH_LINES; i++)
@@ -29,7 +63,15 @@ int uCanvasGUI_Create_Graph2D(uCanvas_Graph2D_Instance_t* Graph2D_Instance,int16
             Graph2D_Instance->graph_line[i] = New_uCanvas_2DLine(0,0,0,0);
             Graph2D_Instance->graph_line[i]->properties.color = Graph2D_Instance->Color_Style.main_content_color[0];
             Graph2D_Instance->graph_line[i]->properties.visiblity = INVISIBLE;
+            uCanvas_Set_Thickness(Graph2D_Instance->graph_line[i],Graph2D_Instance->graph_line_thickness);
         }
+        
+        //Create Border 
+        Graph2D_Instance->canvas[1] = New_uCanvas_2DRectangle(x_pos,y_pos,height,width);
+        Graph2D_Instance->canvas[1]->properties.color = Graph2D_Instance->Color_Style.border_color[0];
+        uCanvas_Set_Thickness(Graph2D_Instance->canvas[1],Graph2D_Instance->graph_line_thickness);
+        uCanvas_Set_Fill(Graph2D_Instance->canvas[1],NOFILL);
+
         if(max_datapoints < MAX_GRAPH_LINES){
             Graph2D_Instance->data_ptr_x = 0;
             Graph2D_Instance->data_ptr_y = 0;
@@ -139,7 +181,7 @@ Coordinate2D_t _normalize_datapoint_xy(uCanvas_Graph2D_Instance_t* Graph2D_Insta
     float y_range = data_y_max - data_y_min;
 
     if (x_range == 0 || y_range == 0) {
-        printf("⚠️ Invalid data range: x_range=%.2f y_range=%.2f\n", x_range, y_range);
+        printf("Invalid data range: x_range=%.2f y_range=%.2f\n", x_range, y_range);
         return Point;
     }
 
@@ -161,6 +203,52 @@ Coordinate2D_t _normalize_datapoint_xy(uCanvas_Graph2D_Instance_t* Graph2D_Insta
 
     return Point;
 }
+
+int uCanvasGUI_Graph2D_Update_Axis_Labels(uCanvas_Graph2D_Instance_t* Graph2D_Instance)
+{
+    if (!Graph2D_Instance)
+        return 0;
+
+    int graph_w = Graph2D_Instance->width;
+    int graph_h = Graph2D_Instance->height - 10;
+    int graph_pos_x = Graph2D_Instance->x_pos;
+    int graph_pos_y = Graph2D_Instance->y_pos;
+
+    float x_min = Graph2D_Instance->data_x_min;
+    float x_max = Graph2D_Instance->data_x_max;
+    float y_min = Graph2D_Instance->data_y_min;
+    float y_max = Graph2D_Instance->data_y_max;
+
+    char label_buf[16];
+
+    for (int i = 0; i < NUM_AXIS_TICKS; i++)
+    {
+        float t = (float)i / (NUM_AXIS_TICKS - 1);
+
+        // X axis: left -> right, min -> max
+        float x_value = x_min + t * (x_max - x_min);
+        int x_px = graph_pos_x + (int)(t * graph_w);
+        int x_py = graph_pos_y + graph_h + 5;
+
+        _format_axis_value(label_buf, sizeof(label_buf), x_value);
+        uCanvas_Set_Text(Graph2D_Instance->x_axis_label[i], label_buf);
+        uCanvas_Set_Position(Graph2D_Instance->x_axis_label[i], x_px, x_py);
+        Graph2D_Instance->x_axis_label[i]->properties.visiblity = VISIBLE;
+
+        // Y axis: bottom -> top, min -> max (inverted, since screen Y grows downward)
+        float y_value = y_min + t * (y_max - y_min);
+        int y_px = graph_pos_x - 25;
+        int y_py = graph_pos_y + graph_h - (int)(t * graph_h);
+
+        _format_axis_value(label_buf, sizeof(label_buf), y_value);
+        uCanvas_Set_Text(Graph2D_Instance->y_axis_label[i], label_buf);
+        uCanvas_Set_Position(Graph2D_Instance->y_axis_label[i], y_px, y_py);
+        Graph2D_Instance->y_axis_label[i]->properties.visiblity = VISIBLE;
+    }
+
+    return 1;
+}
+
 int uCanvasGUI_Graph2D_Update(uCanvas_Graph2D_Instance_t* Graph2D_Instance)
 {
     if (!Graph2D_Instance || Graph2D_Instance->data_ptr_x < 2 || Graph2D_Instance->data_ptr_y < 2 )

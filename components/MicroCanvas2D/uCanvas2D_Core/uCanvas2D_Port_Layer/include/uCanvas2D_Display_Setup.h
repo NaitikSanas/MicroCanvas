@@ -1,7 +1,7 @@
 #pragma once
 #include "stdio.h"
 #include "stdint.h"
-
+#include "uCanvas2D_Filters.h"
 #if(CONFIG_IDF_TARGET_ESP32P4)
 #include "driver/ppa.h"
 #endif
@@ -11,6 +11,7 @@ typedef enum {
     OR_PORTRAIT,
     OR_PORTRAIT_FLIPPED,
 }uCanvas2D_Display_Orientation_t;
+
 typedef struct {  
     int width;
     int height;
@@ -29,7 +30,9 @@ typedef struct {
     uint16_t width;
     uint16_t height; 
 } uCanvas2D_Display_Panel_t;
+void uCanvas_DitherBuffer_RGB565(uCanvas2D_RenderBuffer_t* rb);
 uCanvas2D_Display_Panel_t* uCanvas2D_Get_Panel_Driver_ST7789(void);
 
 uCanvas2D_Display_Panel_t* uCanvas2D_Get_Panel_Driver_EK79007(void);
 void uCanvas2D_GetPanel_Driver_ST7789(uCanvas2D_Display_Panel_t* driver);
+uCanvas2D_Display_Panel_t* uCanvas2D_Get_Panel_Driver_SSD1306(void);
